@@ -1,0 +1,42 @@
+
+.page-container.data-v-310ad2cb {
+		padding: 20rpx;
+		background-color: #f5f5f5;
+		min-height: 100vh;
+}
+.top-tab-bar.data-v-310ad2cb {
+		background-color: #fff;
+		padding: 20rpx;
+		border-radius: 10rpx;
+		margin-bottom: 20rpx;
+}
+.gun-state-info.data-v-310ad2cb {
+		display: flex;
+		justify-content: space-around;
+}
+.state-item.data-v-310ad2cb {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+}
+.label.data-v-310ad2cb {
+		font-size: 28rpx;
+		color: #333;
+}
+.value.data-v-310ad2cb {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333;
+}
+.value.free.data-v-310ad2cb {
+		color: #6DB12E;
+}
+.value.charging.data-v-310ad2cb {
+		color: #FC724C;
+}
+.value.about-finish.data-v-310ad2cb {
+		color: #4096EC;
+}
+.gun-list.data-v-310ad2cb {
+		padding-bottom: 20rpx;
+}

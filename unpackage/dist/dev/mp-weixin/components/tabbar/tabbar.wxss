@@ -1,0 +1,65 @@
+
+	/* 在每个 tab 页面的样式文件中添加 */
+.tabbar-container {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		z-index: 9999;
+		background: linear-gradient(0deg, #FFFFFF, #f4f6f8);
+		border: 2rpx solid rgba(255, 255, 255, 0.55);
+		box-shadow: 0rpx -25rpx 67rpx 0rpx rgba(177, 182, 190, 0.2);
+		display: flex;
+		align-items: center;
+		padding: 5rpx 0;
+		color: #707485;
+		/* 适配底部安全区域 */
+		padding-bottom: calc(5rpx + env(safe-area-inset-bottom));
+}
+.tabbar-item {
+		width: 33%;
+		height: 118rpx;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+		position: relative;
+}
+.item-top {
+		width: 48rpx;
+		height: 48rpx;
+}
+.item-top image {
+		width: 100%;
+		height: 100%;
+}
+.new {
+		width: 10rpx;
+		height: 10rpx;
+		position: absolute;
+		top: 25rpx;
+		right: 55rpx;
+		border-radius: 50%;
+		background-color: red;
+}
+.item-bottom {
+		font-size: 22rpx;
+		width: 100%;
+}
+.item-active {
+		color: var(--textColor);
+}
+.center-item .item-top {
+		flex-shrink: 0;
+		width: 138rpx;
+		height: 138rpx;
+		position: absolute;
+		top: -50rpx;
+		left: calc(50% - 70rpx);
+		border-radius: 50%;
+}
+.center-item .item-bottom {
+		position: absolute;
+		bottom: 2rpx;
+}

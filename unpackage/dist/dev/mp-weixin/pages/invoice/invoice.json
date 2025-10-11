@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "发票开具",
+  "usingComponents": {
+    "un-invoice-list": "../../components/invoice/UnInvoiceList",
+    "invoice-record-list": "../../components/invoice/InvoiceRecordList",
+    "uv-tabs": "../../uni_modules/uv-tabs/components/uv-tabs/uv-tabs"
+  }
+}

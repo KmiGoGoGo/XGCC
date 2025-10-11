@@ -1,0 +1,97 @@
+
+.details-container.data-v-9aee1992 {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 16rpx;
+}
+
+/* 筛选区域 */
+.filter-section.data-v-9aee1992 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx;
+  background-color: white;
+  border-radius: 16rpx;
+}
+.tabs.data-v-9aee1992 {
+  display: flex;
+  gap: 16rpx;
+}
+.tab-item.data-v-9aee1992 {
+  padding: 12rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1rpx solid #eee;
+}
+.tab-item.active.data-v-9aee1992 {
+  background-color: #00c777;
+  color: white;
+  border-color: #00c777;
+}
+.time-selector.data-v-9aee1992 {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 统计信息 */
+.summary-section.data-v-9aee1992 {
+  display: flex;
+  gap: 32rpx;
+  padding: 24rpx 16rpx;
+}
+.summary-item.data-v-9aee1992 {
+  font-size: 28rpx;
+  color: #666;
+}
+.summary-item.increase.data-v-9aee1992 {
+  color: #00c777;
+}
+
+/* 列表 */
+.list-section.data-v-9aee1992 {
+  background-color: white;
+  border-radius: 16rpx;
+}
+.list-item.data-v-9aee1992 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+.list-item.data-v-9aee1992:last-child {
+  border-bottom: none;
+}
+.item-left.data-v-9aee1992, .item-right.data-v-9aee1992 {
+  display: flex;
+  flex-direction: column;
+}
+.item-left.data-v-9aee1992 {
+  align-items: flex-start;
+}
+.item-right.data-v-9aee1992 {
+  align-items: flex-end;
+}
+.item-source.data-v-9aee1992 {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+.item-date.data-v-9aee1992 {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+.item-change.data-v-9aee1992 {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+.item-change.increase.data-v-9aee1992 {
+  color: #00c777;
+}
+.item-change.decrease.data-v-9aee1992 {
+  color: #ff4d4f;
+}

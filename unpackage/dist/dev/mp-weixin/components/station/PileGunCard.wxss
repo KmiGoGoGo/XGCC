@@ -1,0 +1,35 @@
+
+.gun-card.data-v-f21bc79f {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid #e0e0e0;
+}
+.card-header.data-v-f21bc79f {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+.station-name.data-v-f21bc79f {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.pile-name.data-v-f21bc79f {
+  font-size: 28rpx;
+  color: #666;
+}
+.tags.data-v-f21bc79f {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+.tag.data-v-f21bc79f {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 6rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+}

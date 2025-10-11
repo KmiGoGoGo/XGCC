@@ -1,0 +1,1 @@
+<view class="tabbar-container"><view wx:for="{{a}}" wx:for-item="item" wx:key="d" class="{{['tabbar-item', item.e]}}" bindtap="{{item.f}}"><view class="item-top"><image src="{{item.a}}"/></view><view class="{{['item-bottom', item.c]}}">{{item.b}}</view></view></view>

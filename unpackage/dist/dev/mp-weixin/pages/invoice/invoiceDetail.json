@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "发票详情",
+  "usingComponents": {
+    "order-list-modal": "../../components/invoice/OrderListModal",
+    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-loading-icon": "../../uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon"
+  }
+}

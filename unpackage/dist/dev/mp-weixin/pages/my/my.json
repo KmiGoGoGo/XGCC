@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "我的",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#007AFF",
+  "usingComponents": {
+    "tabbar": "../../components/tabbar/tabbar",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button"
+  }
+}

@@ -1,0 +1,70 @@
+
+/* 枪信息卡片样式 */
+.gun-info-card.data-v-a32e0942 {
+  border: 1rpx solid #E0F0FF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin: 12rpx 0;
+  /* flex: 1; */
+  display: flex;
+  border-left: 4rpx solid #52c41a;
+  flex-direction: column;
+}
+.gun-info-header.data-v-a32e0942 {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+  gap: 36rpx;
+  padding: 16rpx;
+}
+.station-name.data-v-a32e0942 {
+  font-size: 24rpx;
+  color: #666;
+  /* 不换行，超出部分用省略号隐藏 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300rpx;
+}
+.gun-title.data-v-a32e0942 {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+.delete-btn.data-v-a32e0942 {
+  background-color: #ff4d4f;
+  color: #ffffff;
+  padding: 2rpx 8rpx;
+  border-radius: 50%;
+  font-size: 16rpx;
+  width: 28rpx;
+  height: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8rpx;
+}
+.gun-info-details.data-v-a32e0942 {
+  padding-top: 6rpx;
+  display: flex;
+  justify-content: space-between;
+}
+.info-row.data-v-a32e0942 {
+  display: flex;
+  align-items: center;
+  padding: 4rpx 0;
+}
+.info-row .label.data-v-a32e0942 {
+  font-size: 24rpx;
+  color: #666;
+}
+.info-row .value.data-v-a32e0942 {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: bold;
+}
+.gun-status.data-v-a32e0942 {   
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

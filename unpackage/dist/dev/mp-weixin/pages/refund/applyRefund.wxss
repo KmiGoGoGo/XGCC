@@ -1,0 +1,119 @@
+
+.refund-apply-container.data-v-41cab861 {
+    min-height: 100vh;
+    background-color: #f5f7f8;
+    display: flex;
+    flex-direction: column;
+}
+.main-content.data-v-41cab861 {
+    flex: 1;
+    padding: 16px;
+    padding-bottom: calc(100px + env(safe-area-inset-bottom)); /* 为底部按钮和安全区域留出空间 */
+}
+.record-item.data-v-41cab861 {
+    margin-bottom: 16px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+}
+.record-item.data-v-41cab861:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.record-item.selected.data-v-41cab861 {
+    background-color: rgba(225, 245, 254, 0.5);
+    border: 1px solid #e1f5fe;
+}
+.record-content.data-v-41cab861 {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+}
+.record-info.data-v-41cab861 {
+    display: flex;
+    flex-direction: column;
+    min-width: 95%;
+    gap: 6px;
+    flex: 1;
+}
+.amount-text.data-v-41cab861 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+}
+.time-text.data-v-41cab861 {
+    font-size: 14px;
+    color: #6b7280;
+}
+.order-text.data-v-41cab861 {
+    font-size: 13px;
+    color: #9ca3af;
+}
+.status-text.data-v-41cab861 {
+    font-size: 13px;
+    color: #059669;
+    font-weight: 500;
+}
+.radio-container.data-v-41cab861 {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.footer-container.data-v-41cab861 {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f5f7f8;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* 添加安全区域适配 */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+/* 加载更多状态样式 */
+.loading-more.data-v-41cab861 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 8px;
+}
+.loading-text.data-v-41cab861 {
+    font-size: 14px;
+    color: #666666;
+}
+
+/* 没有更多数据样式 */
+.no-more.data-v-41cab861 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+.no-more-text.data-v-41cab861 {
+    font-size: 14px;
+    color: #999999;
+}
+
+
+/* 响应式设计 */
+@media screen and (max-width: 375px) {
+.main-content.data-v-41cab861 {
+        padding: 12px;
+}
+.record-item.data-v-41cab861 {
+        padding: 12px;
+        margin-bottom: 12px;
+}
+.amount-text.data-v-41cab861 {
+        font-size: 15px;
+}
+.time-text.data-v-41cab861 {
+        font-size: 13px;
+}
+}

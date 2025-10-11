@@ -1,0 +1,10 @@
+{
+  "component": true,
+  "usingComponents": {
+    "selected-gun": "../gun/SelectedGun",
+    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-radio": "../../uni_modules/uv-radio/components/uv-radio/uv-radio",
+    "uv-radio-group": "../../uni_modules/uv-radio/components/uv-radio-group/uv-radio-group"
+  }
+}

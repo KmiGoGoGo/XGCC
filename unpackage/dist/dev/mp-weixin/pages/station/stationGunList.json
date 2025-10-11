@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "充电枪列表",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#007AFF",
+  "usingComponents": {
+    "station-gun-list-item": "../../components/station/stationGunListItem",
+    "uv-subsection": "../../uni_modules/uv-subsection/components/uv-subsection/uv-subsection"
+  }
+}

@@ -1,0 +1,88 @@
+
+.page-container.data-v-8414de57 {
+  background-color: #f5f5f5;
+  padding-bottom: 180rpx; /* 为底部栏预留安全区域 */
+}
+.loading-container.data-v-8414de57 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.bottom-bar.data-v-8414de57 {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 160rpx;
+  background-color: #fff;
+  border-top: 1rpx solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 15rpx;
+  padding-left: 30rpx;
+  padding-right: 30rpx;
+  padding-top: 10rpx;
+  padding-bottom: 10rpx;
+}
+.refresh-button.data-v-8414de57 {
+  background-color: #f0f0f0;
+}
+.start-charge-button.data-v-8414de57 {
+  flex-grow: 1;
+  margin-left: 20rpx;
+  background-color: #007aff;
+  color: #fff;
+}
+.start-charge-button.disabled.data-v-8414de57 {
+  background-color: #a0cfff;
+}
+.fab-button.data-v-8414de57 {
+  position: fixed;
+  right: 30rpx;
+  bottom: 200rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: #007aff;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 0 10rpx rgba(0, 0, 0, 0.2);
+}
+/* 价格详情弹窗样式 */
+.price-details-content.data-v-8414de57 {
+  padding: 30rpx;
+  min-height: 400rpx;
+}
+.popup-header.data-v-8414de57 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30rpx;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+.popup-title.data-v-8414de57 {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+.price-header.data-v-8414de57 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+  font-weight: bold;
+  color: #666;
+  font-size: 28rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.price-list.data-v-8414de57 {
+  max-height: 60vh;
+  overflow-y: auto;
+}

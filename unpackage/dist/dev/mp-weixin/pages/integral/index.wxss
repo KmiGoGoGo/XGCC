@@ -1,0 +1,103 @@
+
+.integral-container.data-v-13c05ee2 {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #e6f7ff, #ffffff 30%);
+  padding: 32rpx;
+}
+
+/* 当前积分卡片 */
+.integral-card.data-v-13c05ee2 {
+  background-color: white;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  position: relative;
+  box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.05);
+}
+.card-title.data-v-13c05ee2 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.current-integral.data-v-13c05ee2 {
+  font-size: 72rpx;
+  font-weight: bold;
+  color: #333;
+  margin-top: 24rpx;
+}
+.integral-rules.data-v-13c05ee2 {
+  font-size: 24rpx;
+  color: #00c777;
+  margin-top: 24rpx;
+}
+.deco-icon.data-v-13c05ee2 {
+  position: absolute;
+  top: 32rpx;
+  right: 32rpx;
+  font-size: 48rpx;
+  color: #f0f0f0;
+}
+
+/* 积分明细 */
+.details-section.data-v-13c05ee2 {
+  margin-top: 48rpx;
+}
+.details-header.data-v-13c05ee2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.details-title.data-v-13c05ee2 {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+.view-more.data-v-13c05ee2 {
+  font-size: 28rpx;
+  color: #00c777;
+}
+.details-list.data-v-13c05ee2 {
+  background-color: white;
+  border-radius: 16rpx;
+  padding: 0 32rpx;
+}
+.detail-item.data-v-13c05ee2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 0;
+  border-bottom: 1rpx dashed #e5e5e5;
+}
+.detail-item.data-v-13c05ee2:last-child {
+  border-bottom: none;
+}
+.item-left.data-v-13c05ee2, .item-right.data-v-13c05ee2 {
+  display: flex;
+  flex-direction: column;
+}
+.item-left.data-v-13c05ee2 {
+  align-items: flex-start;
+}
+.item-right.data-v-13c05ee2 {
+  align-items: flex-end;
+}
+.source-text.data-v-13c05ee2 {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+.total-integral.data-v-13c05ee2 {
+  font-size: 24rpx;
+  color: #ff4d4f; /* 红色 */
+  margin-top: 8rpx;
+}
+.change-amount.data-v-13c05ee2 {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #ff4d4f; /* 红色 */
+}
+.date-time.data-v-13c05ee2 {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 8rpx;
+}

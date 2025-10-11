@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "订单已完成",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#007AFF",
+  "usingComponents": {
+    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-tags": "../../uni_modules/uv-tags/components/uv-tags/uv-tags"
+  }
+}

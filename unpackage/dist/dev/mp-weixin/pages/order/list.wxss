@@ -1,0 +1,162 @@
+
+.order-list-container.data-v-456ecf67 {
+  background-color: #fff;
+  min-height: 100vh;
+  padding-bottom: 16rpx;
+}
+
+/* 搜索栏 */
+.search-bar.data-v-456ecf67 {
+  display: flex;
+  align-items: center;
+  padding: 16rpx;
+  background-color: white;
+}
+.search-input-wrapper.data-v-456ecf67 {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 30rpx;
+  padding: 10rpx 20rpx;
+}
+.filter-wrapper.data-v-456ecf67 {
+  margin-left: 24rpx;
+  cursor: pointer;
+}
+.filter-icon.data-v-456ecf67 {
+  font-size: 32rpx;
+  color: #333;
+}
+
+/* 筛选弹窗样式 */
+.filter-popup.data-v-456ecf67 {
+  padding: 20rpx;
+}
+.filter-header.data-v-456ecf67 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  margin-bottom: 24rpx;
+}
+.filter-title.data-v-456ecf67 {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+.filter-actions.data-v-456ecf67 {
+  display: flex;
+  gap: 32rpx;
+}
+.reset-btn.data-v-456ecf67, .confirm-btn.data-v-456ecf67 {
+  font-size: 32rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  cursor: pointer;
+}
+.reset-btn.data-v-456ecf67 {
+  color: #666;
+  border: 1rpx solid #ddd;
+}
+.confirm-btn.data-v-456ecf67 {
+  color: #fff;
+  background-color: #2594FB;
+}
+
+/* 状态标签栏 */
+.status-tabs.data-v-456ecf67 {
+  display: flex;
+  justify-content: space-around;
+  padding: 16rpx;
+  background-color: white;
+}
+.tab-item.data-v-456ecf67 {
+  padding: 10rpx 20rpx;
+  font-size: 28rpx;
+  color: #666;
+  border-radius: 30rpx;
+}
+.tab-item.active.data-v-456ecf67 {
+  background-color: #007aff;
+  color: white;
+}
+
+/* 超时占位订单提示 */
+.occupy-banner.data-v-456ecf67 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ff976a;
+  color: white;
+  padding: 16rpx 24rpx;
+  margin: 16rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+/* 订单列表 */
+.order-list.data-v-456ecf67 {
+  padding: 0 16rpx;
+}
+.order-card.data-v-456ecf67 {
+  background-color: white;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+.card-header.data-v-456ecf67 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #fff;
+}
+.station-name.data-v-456ecf67 {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+.order-status.data-v-456ecf67 {
+  font-size: 28rpx;
+  color: #666;
+}
+.card-body.data-v-456ecf67 {
+  padding: 16rpx 0;
+}
+.info-line.data-v-456ecf67 {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 8rpx;
+}
+.card-footer.data-v-456ecf67 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16rpx;
+}
+.amount.data-v-456ecf67 {
+  font-size: 36rpx;
+  color: #ff4d4f;
+  font-weight: bold;
+}
+.actions.data-v-456ecf67 {
+  display: flex;
+  gap: 16rpx;
+}
+.action-btn.data-v-456ecf67 {
+  padding: 10rpx 24rpx;
+  border-radius: 30rpx;
+  font-size: 28rpx;
+  border: 1rpx solid;
+}
+.btn-secondary.data-v-456ecf67 {
+  color: #666;
+  border-color: #ccc;
+}
+.btn-primary.data-v-456ecf67 {
+  background-color: #007AFF;
+  color: white;
+  border-color: #007AFF;
+}

@@ -1,0 +1,307 @@
+{
+	"pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTextStyle": "white",
+        "onReachBottomDistance": 500,
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "pages/my/my",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/station/stationDetails",
+      "style": {
+        "navigationBarTitleText": "站点详情",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/station/stationGunList",
+      "style": {
+        "navigationBarTitleText": "充电枪列表",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/station/stationGunDetails",
+      "style": {
+        "navigationBarTitleText": "充电枪详情",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/charge/gunStartingCharge",
+      "style": {
+        "navigationBarTitleText": "启动充电",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/account/assets",
+      "style": {
+        "navigationBarTitleText": "个人资产",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/account/records",
+      "style": {
+        "navigationBarTitleText": "收支记录"
+      }
+    },
+    {
+      "path": "pages/refund/apply",
+      "style": {
+        "navigationBarTitleText": "申请退款"
+      }
+    },
+    {
+      "path": "pages/refund/records",
+      "style": {
+        "navigationBarTitleText": "退款记录"
+      }
+    },
+    {
+      "path": "pages/refund/details",
+      "style": {
+        "navigationBarTitleText": "退款详情"
+      }
+    },
+    {
+      "path": "pages/coupon/myCoupon",
+      "style": {
+        "navigationBarTitleText": "我的卡券"
+      }
+    },
+    {
+      "path": "pages/integral/index",
+      "style": {
+        "navigationBarTitleText": "我的积分"
+      }
+    },
+    {
+      "path": "pages/integral/details",
+      "style": {
+        "navigationBarTitleText": "积分明细"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationBarTitleText": "我的订单"
+      }
+    },
+    {
+      "path": "pages/order/occupy",
+      "style": {
+        "navigationBarTitleText": "占位订单"
+      }
+    },
+    {
+      "path": "pages/order/details",
+      "style": {
+        "navigationBarTitleText": "占位订单详情"
+      }
+    },
+    {
+      "path": "pages/vehicle/list",
+      "style": {
+        "navigationBarTitleText": "我的车辆"
+      }
+    },
+    {
+      "path": "pages/charge/charging",
+      "style": {
+        "navigationBarTitleText": "充电中"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/invoice/invoice",
+      "style": {
+        "navigationBarTitleText": "发票开具"
+      }
+    },
+    {
+      "path": "pages/invoice/invoiceForm",
+      "style": {
+        "navigationBarTitleText": "发票开具"
+      }
+    },
+    {
+      "path": "pages/invoice/invoiceDetail",
+      "style": {
+        "navigationBarTitleText": "发票详情"
+      }
+    },
+    {
+      "path": "pages/recharge/recharge",
+      "style": {
+        "navigationBarTitleText": "充值"
+      }
+    },
+    {
+      "path": "pages/refund/applyRefund",
+      "style": {
+        "navigationBarTitleText": "申请退款"
+      }
+    },
+    {
+      "path": "pages/common/cityPicker",
+      "style": {
+        "navigationBarTitleText": "城市选择"
+      }
+    },
+    {
+      "path": "pages/bill/settlementInfo",
+      "style": {
+        "navigationBarTitleText": "订单已完成",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/bill/settlementPay",
+      "style": {
+        "navigationBarTitleText": "订单结算",
+        "navigationBarTextStyle": "white",
+        "navigationBarBackgroundColor": "#007AFF"
+      }
+    },
+    {
+      "path": "pages/refund/leaguerAccountRefund",
+      "style": {
+        "navigationBarTitleText": "车队子成员退款"
+      }
+    },
+    {
+      "path": "pages/refund/leaguerAccountRefundRecords",
+      "style": {
+        "navigationBarTitleText": "车队子成员退款记录"
+      }
+    },
+    {
+      "path": "pages/refund/leaguerAccountRefundApply",
+      "style": {
+        "navigationBarTitleText": "车队子成员退款申请"
+      }
+    },
+    {
+      "path": "pages/recharge/leaguerAccountRecharge",
+      "style": {
+        "navigationBarTitleText": "车队子成员充值"
+      }
+    },
+    {
+      "path": "pages/charge/stopping",
+      "style": {
+        "navigationBarTitleText": "停止充电"
+      }
+    },
+    {
+      "path": "pages/bill/occupyBillPay",
+      "style": {
+        "navigationBarTitleText": "占位订单"
+      }
+    },
+    {
+      "path": "pages/bill/billDelay",
+      "style": {
+        "navigationBarTitleText": "订单结算中"
+      }
+    },
+    {
+      "path": "pages/common/howToStopPile",
+      "style": {
+        "navigationBarTitleText": "如何停止充电"
+      }
+    },
+    {
+      "path": "pages/station/stationSearch",
+      "style": {
+        "navigationBarTitleText": "站点搜索"
+      }
+    },
+    {
+      "path": "pages/common/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/common/version",
+      "style": {
+        "navigationBarTitleText": "关于超易充"
+      }
+    },
+    {
+      "path": "pages/common/service",
+      "style": {
+        "navigationBarTitleText": "服务协议"
+      }
+    },
+    {
+      "path": "pages/common/privacy",
+      "style": {
+        "navigationBarTitleText": "隐私政策"
+      }
+    },
+    {
+      "path": "pages/bill/comment",
+      "style": {
+        "navigationBarTitleText": "评价"
+      }
+    },
+    {
+      "path": "pages/coupon/useCoupon",
+      "style": {
+        "navigationBarTitleText": "使用卡券"
+      }
+    }
+  ],
+	"tabBar": {
+	  "customize": true,
+	  "color": "#999999",
+	  "selectedColor": "#1890FF",
+	  "borderStyle": "black",
+	  "backgroundColor": "#ffffff",
+	  "list": [
+		{
+		  "pagePath": "pages/index/index",
+		  "text": "首页"
+		},
+		{
+		  "pagePath": "pages/my/my",
+		  "text": "我的"
+		}
+  
+	  ]
+	},
+	"globalStyle": {
+	  "pageOrientation": "portrait",
+	  "navigationStyle": "custom",
+	  "backgroundColor": "#F8F8F8",
+	  "backgroundColorTop": "#F4F5F6",
+	  "backgroundColorBottom": "#F4F5F6",
+	  "enablePullDownRefresh": false
+	}
+  }
+  

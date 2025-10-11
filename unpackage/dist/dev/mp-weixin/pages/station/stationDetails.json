@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "站点详情",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#007AFF",
+  "usingComponents": {
+    "price-info": "../../components/station/PriceInfo",
+    "uv-scroll-list": "../../uni_modules/uv-scroll-list/components/uv-scroll-list/uv-scroll-list",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
+    "uv-tags": "../../uni_modules/uv-tags/components/uv-tags/uv-tags"
+  }
+}

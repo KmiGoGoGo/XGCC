@@ -1,0 +1,1 @@
+<view class="filter-options data-v-9b02abb1"><view class="filter-title data-v-9b02abb1">{{a}}</view><view class="options-grid data-v-9b02abb1"><view wx:for="{{b}}" wx:for-item="option" wx:key="b" class="{{['option-item', 'data-v-9b02abb1', option.c && 'option-active']}}" bindtap="{{option.d}}">{{option.a}}</view></view></view>

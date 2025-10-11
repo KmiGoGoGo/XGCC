@@ -1,0 +1,1 @@
+<view class="{{['card', 'data-v-aea130cd', a]}}" style="{{b}}" bindtap="{{c}}"><slot></slot></view>

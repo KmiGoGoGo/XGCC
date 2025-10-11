@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "评价",
+  "usingComponents": {
+    "uv-tooltip": "../../uni_modules/uv-tooltip/components/uv-tooltip/uv-tooltip",
+    "uv-rate": "../../uni_modules/uv-rate/components/uv-rate/uv-rate",
+    "uv-textarea": "../../uni_modules/uv-textarea/components/uv-textarea/uv-textarea",
+    "uv-upload": "../../uni_modules/uv-upload/components/uv-upload/uv-upload",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button"
+  }
+}

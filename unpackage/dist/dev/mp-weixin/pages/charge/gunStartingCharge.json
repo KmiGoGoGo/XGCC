@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "启动充电",
+  "navigationBarTextStyle": "white",
+  "navigationBarBackgroundColor": "#007AFF",
+  "usingComponents": {
+    "charge-idle-view": "../../components/charge/ChargeIdleView",
+    "charge-busy-view": "../../components/charge/ChargeBusyView",
+    "stage-price-info": "../../components/station/StagePriceInfo",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
+    "uv-popup": "../../uni_modules/uv-popup/components/uv-popup/uv-popup"
+  }
+}

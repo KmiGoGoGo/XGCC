@@ -1,0 +1,1 @@
+<view class="selected-gun-section data-v-447ac0b6"><sub-selected-gun wx:if="{{a}}" class="data-v-447ac0b6" u-i="447ac0b6-0" bind:__l="__l" u-p="{{a}}"/></view>

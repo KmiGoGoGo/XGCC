@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "充电中",
+  "usingComponents": {
+    "uv-alert": "../../uni_modules/uv-alert/components/uv-alert/uv-alert"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "card": "../common/Card",
+    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button"
+  }
+}

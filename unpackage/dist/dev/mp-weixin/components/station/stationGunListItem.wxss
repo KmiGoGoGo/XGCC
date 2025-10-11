@@ -1,0 +1,113 @@
+
+.gun-type-info.data-v-1deef733 {
+		display: flex;
+		flex-direction: row;
+		gap: 10rpx;
+}
+.current-price-value.data-v-1deef733 {
+		font-size: 28rpx;
+		font-weight: bold;
+}
+.gun-item-state.data-v-1deef733 {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #ECF5FF;
+		width: 140rpx;
+		height: 140rpx;
+		border-radius: 50%;
+		flex-shrink: 0;
+}
+.gun-item-info.data-v-1deef733 {
+		display: flex;
+		flex-direction: column;
+		padding: 20rpx;
+		flex: 1;
+		gap: 10rpx;
+		min-width: 0;
+}
+.gun-item.data-v-1deef733 {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: 10rpx;
+}
+.gun-state-container.data-v-1deef733 {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		padding: 20rpx;
+}
+.list-item.data-v-1deef733 {
+		display: flex;
+		flex-direction: row;
+		flex: 1;
+		justify-content: space-between;
+		background-color: #fff;
+		margin-bottom: 20rpx;
+		padding: 20rpx;
+		border-radius: 10rpx;
+}
+.item-top.data-v-1deef733 {
+		display: flex;
+		align-items: center;
+		margin-bottom: 20rpx;
+		width: 100%;
+}
+.item-top-left.data-v-1deef733 {
+		display: flex;
+		flex-direction: column;
+		gap: 10rpx;
+}
+.gun-name.data-v-1deef733 {
+		font-size: 32rpx;
+		font-weight: bold;
+}
+.gun-type.data-v-1deef733,
+	.current-type.data-v-1deef733 {
+		font-size: 24rpx;
+		margin-left: 10rpx;
+		padding: 2rpx 8rpx;
+		border-radius: 5rpx;
+}
+.gun-type.data-v-1deef733 {
+        background-color: #e0f0ff;
+        color: #007aff;
+}
+.current-type.data-v-1deef733 {
+		background-color: #e6f7f2;
+		color: #00c777;
+}
+.gun-state.data-v-1deef733 {
+		font-size: 28rpx;
+}
+.gun-state.free.data-v-1deef733 {
+		color: #00c777;
+}
+.gun-state.charging.data-v-1deef733 {
+		color: #ff5500;
+}
+.gun-state.ready.data-v-1deef733 {
+		color: #007aff;
+}
+.gun-state.offline.data-v-1deef733 {
+		color: #999;
+}
+.item-bottom.data-v-1deef733 {
+		display: flex;
+		justify-content: space-between;
+}
+.item-bottom-item.data-v-1deef733 {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+}
+.value.data-v-1deef733 {
+		font-size: 28rpx;
+		font-weight: bold;
+}
+.label.data-v-1deef733 {
+		font-size: 24rpx;
+		color: #999;
+}

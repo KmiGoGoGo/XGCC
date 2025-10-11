@@ -1,0 +1,232 @@
+page {
+  height: 100%;
+  /* 从白色到 #F3F3F3 的快速渐变背景 */
+  background: #F3F4F6;
+}
+.page-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-left: 20rpx;
+  padding-right: 20rpx;
+  /* 从白色到 #F3F3F3 的快速渐变背景 */
+  background: #F3F3F3;
+}
+/* 自定义导航栏样式 */
+.navbar-left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5rpx;
+  padding: 8rpx 12rpx;
+  border-radius: 20rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.city-text {
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+.navbar-center {
+  flex: 1;
+  margin: 0 20rpx;
+}
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 12rpx;
+  border-radius: 20rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+.filter-text {
+  color: #fff;
+  font-size: 26rpx;
+}
+.swiper-view {
+  background-color: #ffffff;
+  margin-top: 20rpx;
+  border-radius: 20rpx;
+}
+.header-image2 {
+  width: 100%;
+  height: 200rpx;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+.swiper-banner {
+  width: 100%;
+  height: 200rpx;
+  position: relative;
+  z-index: 2;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+.swiper-item-images {
+  width: 100%;
+  height: 100%;
+  border-radius: 20rpx;
+}
+/* 可滚动内容区域 */
+.content-container {
+  flex: 1;
+  overflow-y: auto;
+  /* uv-navbar组件会自动处理占位，不需要手动设置margin-top */
+}
+/* 底部安全区域 */
+.bottom-safe-area {
+  height: calc(140rpx + env(safe-area-inset-bottom));
+  background: transparent;
+}
+.scroll-h {
+  width: 750rpx;
+  height: 80rpx;
+  flex-direction: row;
+  white-space: nowrap;
+}
+.uni-tab-item {
+  display: inline-block;
+  flex-wrap: nowrap;
+  padding-left: 34rpx;
+  padding-right: 34rpx;
+}
+.uni-tab-item-title {
+  color: #fff;
+  font-size: 30rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.uni-tab-item-title-active {
+  color: #FFC0CB;
+}
+.content {
+  margin-top: 100rpx;
+}
+.head-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #F3F3F3;
+  /* 活动状态样式 */
+  /* 图片1样式 */
+  /* 图片2样式 */
+  /* 导航栏样式 */
+  /* 全局样式 */
+}
+.head-nav .activite {
+  color: #000000;
+  color: #1890FF;
+  /* 主题蓝色 */
+}
+.head-nav .img1 {
+  width: 30px;
+  /* 宽度 */
+  height: 30px;
+  /* 高度 */
+  position: absolute;
+  /* 绝对定位 */
+  margin-left: 50px;
+  /* 左外边距 */
+}
+.head-nav .img2 {
+  width: 72px;
+  /* 宽度 */
+  height: 6px;
+  /* 高度 */
+  position: absolute;
+  /* 绝对定位 */
+  margin-top: 46px;
+  /* 上外边距 */
+  margin-left: -68px;
+  /* 左外边距 */
+}
+.head-nav .nav {
+  display: flex;
+  /* 弹性布局 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 13px;
+  /* 字号 */
+  /* 导航项 */
+}
+.head-nav .nav .nav-item {
+  margin: 0 24px;
+  /* 左右外边距 */
+}
+.head-nav .all {
+  display: flex;
+  /* 弹性布局 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 13px;
+  /* 字号 */
+  /* 全站图标 */
+}
+.head-nav .all .allSite {
+  width: 15px;
+  /* 宽度 */
+  height: 15px;
+  /* 高度 */
+  margin-right: 11px;
+  /* 右外边距 */
+}
+.head-nav .filter-img {
+  width: 30rpx;
+  height: 30rpx;
+}
+.header {
+  background-color: #007AFF;
+}
+/* 筛选弹窗样式 */
+.filter-popup-content {
+  background-color: #fff;
+  border-radius: 20rpx 20rpx 0 0;
+  padding: 0;
+  max-height: 80vh;
+}
+.filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx 32rpx 16rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.filter-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.filter-content {
+  padding: 0 32rpx;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+.filter-footer {
+  display: flex;
+  padding: 24rpx 32rpx 32rpx 32rpx;
+  gap: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+  background-color: #fff;
+}
+.reset-btn,
+.confirm-btn {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 40rpx;
+  border: none;
+  font-size: 28rpx;
+  line-height: 80rpx;
+}
+.reset-btn {
+  background-color: #f5f5f5;
+  color: #666;
+}
+.confirm-btn {
+  background-color: #2594FB;
+  color: #fff;
+}
