@@ -1,8 +1,12 @@
 <template>
     <view class="floating-reminder" v-if="visible" @click="handleClick">
         <view class="reminder-content">
-            <text class="reminder-text">您有未支付订单 ({{ billCount }}单)</text>
-            <text class="reminder-action">去支付 ></text>
+            <view class="badge-container">
+                <uv-badge numberType="overflow" type="error" max="99" :value="billCount"></uv-badge>
+            </view>
+            <view class="text-content">
+                <text class="reminder-text">未支付</text>
+            </view>
         </view>
     </view>
 </template>
@@ -36,38 +40,48 @@ export default {
 .floating-reminder {
     position: fixed;
     bottom: calc(170rpx + env(safe-area-inset-bottom));
-    left: 32rpx;
     right: 32rpx;
     z-index: 10000;
     background: #FFFFFF;
-    border-radius: 24rpx;
-    padding: 24rpx 32rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 50%;
+    width: 80rpx;
+    height: 80rpx;
     box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
     border: 1rpx solid rgba(0, 0, 0, 0.05);
     animation: slideUp 0.3s ease-out;
 }
 
 .reminder-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    position: relative;
     width: 100%;
-    max-width: 750rpx;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.badge-container {
+    position: absolute;
+    top: -8rpx;
+    right: -8rpx;
+    z-index: 10;
+}
+
+.text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 4rpx;
 }
 
 .reminder-text {
     color: #333333;
-    font-size: 28rpx;
+    font-size: 20rpx;
     font-weight: 400;
-}
-
-.reminder-action {
-    color: #007AFF;
-    font-size: 28rpx;
-    font-weight: 500;
+    line-height: 1.2;
 }
 
 /* 动画效果 */

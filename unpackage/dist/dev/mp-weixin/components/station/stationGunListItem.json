@@ -1,6 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uv-tags": "../../uni_modules/uv-tags/components/uv-tags/uv-tags"
-  }
-}

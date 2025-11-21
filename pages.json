@@ -4,7 +4,7 @@
       "path": "pages/index/index",
       "style": {
         "navigationStyle": "custom",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "onReachBottomDistance": 500,
         "enablePullDownRefresh": false
       }
@@ -13,7 +13,7 @@
       "path": "pages/my/my",
       "style": {
         "navigationBarTitleText": "我的",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -21,7 +21,7 @@
       "path": "pages/station/stationDetails",
       "style": {
         "navigationBarTitleText": "站点详情",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -29,7 +29,7 @@
       "path": "pages/station/stationGunList",
       "style": {
         "navigationBarTitleText": "充电枪列表",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -37,7 +37,7 @@
       "path": "pages/station/stationGunDetails",
       "style": {
         "navigationBarTitleText": "充电枪详情",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -45,7 +45,7 @@
       "path": "pages/charge/gunStartingCharge",
       "style": {
         "navigationBarTitleText": "启动充电",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -135,6 +135,22 @@
       }
     },
     {
+      "path": "pages/advertisDetail/advertisDetail",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
+      "path": "components/webView/webView",
+      "style": {
+        "navigationBarTitleText": "加载中...",
+        "navigationBarTextStyle": "black",
+        "enablePullDownRefresh": false
+      }
+    },
+    {
       "path": "pages/invoice/invoice",
       "style": {
         "navigationBarTitleText": "发票开具"
@@ -174,7 +190,7 @@
       "path": "pages/bill/settlementInfo",
       "style": {
         "navigationBarTitleText": "订单已完成",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -182,7 +198,7 @@
       "path": "pages/bill/settlementPay",
       "style": {
         "navigationBarTitleText": "订单结算",
-        "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarBackgroundColor": "#007AFF"
       }
     },
@@ -243,37 +259,43 @@
     {
       "path": "pages/common/settings",
       "style": {
-        "navigationBarTitleText": "设置"
+        "navigationBarTitleText": "设置",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/common/version",
       "style": {
-        "navigationBarTitleText": "关于超易充"
+        "navigationBarTitleText": "关于超易充",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/common/service",
       "style": {
-        "navigationBarTitleText": "服务协议"
+        "navigationBarTitleText": "服务协议",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/common/privacy",
       "style": {
-        "navigationBarTitleText": "隐私政策"
+        "navigationBarTitleText": "隐私政策",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/bill/comment",
       "style": {
-        "navigationBarTitleText": "评价"
+        "navigationBarTitleText": "评价",
+        "navigationStyle": "custom"
       }
     },
     {
       "path": "pages/coupon/useCoupon",
       "style": {
-        "navigationBarTitleText": "使用卡券"
+        "navigationBarTitleText": "使用卡券",
+        "navigationStyle": "custom"
       }
     }
   ],
@@ -296,6 +318,7 @@
 	  ]
 	},
 	"globalStyle": {
+    "navigationBarTextStyle": "black",
 	  "pageOrientation": "portrait",
 	  "navigationStyle": "custom",
 	  "backgroundColor": "#F8F8F8",
@@ -303,5 +326,5 @@
 	  "backgroundColorBottom": "#F4F5F6",
 	  "enablePullDownRefresh": false
 	}
-  }
+}
   

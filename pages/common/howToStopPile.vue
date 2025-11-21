@@ -1,5 +1,6 @@
 <template>
     <view :style="objColor">
+      <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
       <view class="stopCon">
         <view class="title">若在小程序上结束充电后电桩仍在充电运行中：</view>
         <view class="textCon">

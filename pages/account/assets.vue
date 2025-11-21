@@ -1,86 +1,68 @@
 <template>
 	<view class="assets-page">
-		<!-- 头部绿色背景 -->
-		<view class="header-section" v-if="memberInfo.tokenMemberType === 0">
-			<text class="header-title">个人账户总资产</text>
-			<view class="total-balance">
-				<text>¥ </text>
-				<text class="amount">{{ formattedTotalBalance }}</text>
-			</view>
-			<view class="records-button" @click="goToRecords">
-				<text>收支记录</text>
+		
+        <uv-navbar :border="false" autoBack title="我的资产" placeholder safeAreaInsetTop></uv-navbar>
+		
+		<!-- 页面内容容器 -->
+		<view class="page-container">
+			<!-- 个人钱包卡片 -->
+			<view class="wallet-card" v-if="memberInfo.tokenMemberType === 0">
+				<view class="card-header">
+					<text class="card-title">个人钱包</text>
+				</view>
+				<view class="balance-section">
+					<text class="balance-label">可用金额</text>
+					<text class="balance-amount">¥ {{ formattedPersonalAvailable }}</text>
+					<text class="unavailable-label">不可用金额 ¥ {{ formattedPersonalUnavailable }}</text>
+				</view>
+			<view class="divider"></view>
+			<view class="action-grid">
+				<view class="action-item blue" @click="goToRechargePage">
+					<text class="action-label" style="color: #FFFFFF;">充值</text>
+				</view>
+				<view class="action-item water-blue" @click="goToRecords">
+					<text class="action-label" style="color: #999;">账单</text>
+				</view>
+				<view class="action-item green" @click="goToRefundPage">
+					<text class="action-label" style="color: #1BA035;">退款</text>
+				</view>
 			</view>
 		</view>
 
-		<!-- 卡片及列表容器 -->
-		<view class="content-container">
-			<!-- 个人钱包卡片 -->
-			<view class="wallet-card" v-if="memberInfo.tokenMemberType === 0">
-				<view class="card-title-bar">
-					<text class="card-title">个人钱包(元)</text>
-					<text class="question-mark">?</text>
+		<!-- 电卡钱包卡片 -->
+		<view class="wallet-card" v-if="memberInfo.tokenMemberType === 0">
+			<view class="card-header">
+				<text class="card-title">电卡钱包</text>
+			</view>
+			<view class="balance-section">
+				<text class="balance-label">可用金额</text>
+				<text class="balance-amount">¥ {{ formattedCardAvailable }}</text>
+				<text class="unavailable-label">不可用金额 ¥ {{ formattedCardUnavailable }}</text>
+			</view>
+			<view class="divider"></view>
+			<view class="action-grid single">
+				<view class="action-item water-blue" @click="goToRecords">
+					<text class="action-label" style="color: #999;">账单</text>
 				</view>
-				<text class="card-amount">¥ {{ formattedPersonalBalance }}</text>
-				<view class="info-strip-group">
-					<view class="info-strip">
-						<text>• 可用金额：{{ formattedPersonalAvailable }}元</text>
-					</view>
-					<view class="info-strip">
-						<text>• 不可用金额：{{ formattedPersonalUnavailable }}元</text>
-					</view>
-				</view>
-				<view class="card-actions">
-					<view class="action-button" @click="goToRecords">
-						<text class="icon">[账]</text>
-						<text>账单</text>
-					</view>
-					<view class="action-button primary">
-						<text class="icon">[充]</text>
-						<text @click="goToRechargePage">余额充值</text>
-					</view>
-					<view class="action-button" @click="goToRefundPage">
-						<text class="icon">[退]</text>
-						<text>申请退款</text>
-					</view>
-				</view>
+			</view>
 			</view>
 
-			<!-- 电卡钱包卡片 -->
-			<view class="wallet-card" v-if="memberInfo.tokenMemberType === 0">
-				<view class="card-title-bar">
-					<text class="card-title">电卡钱包(元)</text>
-					<text class="question-mark">?</text>
+			<!-- 企业钱包卡片 -->
+			<view class="wallet-card" v-if="memberInfo.tokenMemberType === 2">
+				<view class="card-header">
+					<text class="card-title">企业钱包</text>
 				</view>
-				<text class="card-amount">¥ {{ formattedCardBalance }}</text>
-				<view class="info-strip-group">
-					<view class="info-strip">
-						<text>• 可用金额：{{ formattedCardAvailable }}元</text>
-					</view>
-					<view class="info-strip">
-						<text>• 不可用金额：{{ formattedCardUnavailable }}元</text>
-					</view>
+				<view class="balance-section">
+					<text class="balance-label">可用金额</text>
+					<text class="balance-amount">¥ {{ formattedPersonalAvailable }}</text>
 				</view>
-				<view class="card-actions">
-					<view class="action-button" @click="goToRecords">
-						<text class="icon">[账]</text>
-						<text>账单</text>
+				<view class="divider"></view>
+				<view class="action-grid">
+					<view class="action-item blue" @click="goToPersonalRechargePage">
+						<text class="action-label" style="color: #FFFFFF;">充值</text>
 					</view>
-				</view>
-			</view>
-			<view class="wallet-card" v-if="memberInfo.tokenMemberType === 2" style="margin-top: 32rpx;">
-				<view class="card-title-bar">
-					<text class="card-title">企业钱包(元)</text>
-					<text class="question-mark">?</text>
-				</view>
-				<text class="card-amount">¥ {{ formattedPersonalBalance }}</text>
-				<view class="card-actions">
-					<view class="action-button primary">
-						<text class="icon">[充]</text>
-						<text @click="goToPersonalRechargePage">余额充值</text>
-					</view>
-					<view class="action-button" @click="goToPersonalRefundPage">
-						<text class="icon">[退]</text>
-						<text>申请退款</text>
+					<view class="action-item green" @click="goToPersonalRefundPage">
+						<text class="action-label" style="color: #1BA035;">退款</text>
 					</view>
 				</view>
 			</view>
@@ -188,6 +170,43 @@
 				return this.accountInfo ? this.formatCurrency(this.accountInfo.unAvailablePersonBalance) : '0.00';
 			}
 		},
+		// onShow时刷新页面
+		async onShow() {
+			uni.showLoading({
+				title: '加载中...'
+			});
+			try {
+				this.memberInfo = uni.getStorageSync('memberInfo');
+				const tokenMemberType = uni.getStorageSync('tokenMemberType');
+				const res = await getAccountInfo({
+					tab: tokenMemberType === 0 ? 1 : 2
+				});
+				if (res.code === 0) {
+					this.accountInfo = res.data;
+				} else {
+					uni.showToast({
+						title: res.msg || '获取资产失败',
+						icon: 'none'
+					});
+				}
+
+				// 如果是企业用户，获取流水列表
+				if (this.memberInfo.tokenMemberType === 2) {
+					await this.getFlowList();
+				}
+			} catch (error) {
+				console.error('获取账户信息失败', error);
+				if (error.code === 2) {
+					uni.showToast({ title: '请先登录', icon: 'none' });
+					return;
+				} else {
+					uni.showToast({ title: '网络错误', icon: 'none' });
+					return;
+				}
+			} finally {
+				uni.hideLoading();
+			}
+		},
 		async onLoad() {
 			uni.showLoading({
 				title: '加载中...'
@@ -213,10 +232,13 @@
 				}
 			} catch (error) {
 				console.error('获取账户信息失败', error);
-				uni.showToast({
-					title: '网络错误',
-					icon: 'none'
-				});
+				if (error.code === 2) {
+					uni.showToast({ title: '请先登录', icon: 'none' });
+					return;
+				} else {
+					uni.showToast({ title: '网络错误', icon: 'none' });
+					return;
+				}
 			} finally {
 				uni.hideLoading();
 			}
@@ -370,145 +392,134 @@
 
 <style lang="scss" scoped>
 	.assets-page {
-		background-color: #f7f8fa;
+		background-color: #f6f7f8;
 		min-height: 100vh;
+		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	}
 
-	.header-section {
-		// 背景颜色 从 #007AFF 渐变到 #F7F8FA
-		background: linear-gradient(to bottom, #007AFF, #F7F8FA);
-		color: white;
-		padding: 40rpx 32rpx;
-		position: relative;
-	}
-
-	.header-title {
-		font-size: 28rpx;
-		opacity: 0.8;
-	}
-
-	.total-balance {
-		font-size: 48rpx;
-		font-weight: bold;
-		margin-top: 16rpx;
-
-		.amount {
-			font-size: 64rpx;
-		}
-	}
-
-	.records-button {
-		position: absolute;
-		top: 40rpx;
-		right: 32rpx;
-		background-color: white;
-		color: #007AFF;
-		padding: 12rpx 24rpx;
-		border-radius: 30rpx;
-		font-size: 24rpx;
-		font-weight: bold;
-	}
-
-	.content-container {
-		padding: 0 32rpx;
-		margin-top: -40rpx;
-		position: relative;
-		z-index: 1;
+	.page-container {
+		padding: 32rpx;
 	}
 
 	.wallet-card {
 		background-color: white;
-		border-radius: 16rpx;
-		padding: 32rpx;
-		margin-bottom: 24rpx;
+		border-radius: 24rpx;
+		padding: 48rpx 48rpx 40rpx;
+		margin-bottom: 32rpx;
+		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+		border: 1rpx solid rgba(0, 0, 0, 0.06);
 	}
 
-	.card-title-bar {
-		display: flex;
-		align-items: center;
-		margin-bottom: 24rpx;
+	.card-header {
+		margin-bottom: 32rpx;
 	}
 
 	.card-title {
-		font-size: 32rpx;
-		font-weight: bold;
+		font-size: 36rpx;
+		font-weight: 700;
+		color: #0d171b;
+		line-height: 1.2;
+		letter-spacing: -0.015em;
 	}
 
-	.question-mark {
-		width: 36rpx;
-		height: 36rpx;
-		border: 1px solid #ccc;
-		border-radius: 50%;
-		display: inline-flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 24rpx;
-		color: #999;
-		margin-left: 16rpx;
-	}
-
-	.card-amount {
-		font-size: 56rpx;
-		font-weight: bold;
-		color: #333;
-	}
-
-	.info-strip-group {
-		margin: 24rpx 0;
-	}
-
-	.info-strip {
-		background-color: #f7f8fa;
-		padding: 8rpx 16rpx;
-		border-radius: 8rpx;
-		font-size: 24rpx;
-		color: #909399;
-		margin-bottom: 12rpx;
-	}
-
-	.card-actions {
+	.balance-section {
 		display: flex;
-		justify-content: flex-end;
-		align-items: center;
-		border-top: 1px solid #f0f0f0;
-		padding-top: 24rpx;
-		margin-top: 24rpx;
+		flex-direction: column;
+		gap: 8rpx;
+		margin-bottom: 32rpx;
 	}
 
-	.action-button {
-		display: flex;
-		align-items: center;
+	.balance-label {
 		font-size: 28rpx;
-		color: #606266;
-		margin-left: 40rpx;
+		font-weight: 400;
+		color: #6b7280;
+		line-height: 1.4;
+	}
 
-		&.primary {
-			color: #007AFF;
-			font-weight: bold;
+	.balance-amount {
+		font-size: 80rpx;
+		font-weight: 700;
+		color: #13a4ec;
+		line-height: 1.2;
+		letter-spacing: -0.015em;
+	}
+
+	.unavailable-label {
+		font-size: 28rpx;
+		font-weight: 400;
+		color: #6b7280;
+		line-height: 1.4;
+	}
+
+	.divider {
+		height: 2rpx;
+		background-color: #e5e7eb;
+		margin: 32rpx 0;
+	}
+
+	.action-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16rpx;
+
+		&.single {
+			grid-template-columns: repeat(1, 1fr);
+			justify-content: flex-start;
+		}
+	}
+
+	.action-item {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 12rpx 24rpx;
+		text-align: center;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		border-radius: 16rpx;
+		min-height: 60rpx;
+
+		&.blue {
+			background-color: #1F67FD;
 		}
 
-		.icon {
-			margin-right: 8rpx;
+		&.water-blue {
+			background-color: #EEF1F6;
 		}
+
+		&.green {
+			background-color: #F0F9F2;
+		}
+	}
+
+	.action-label {
+		font-size: 28rpx;
+		font-weight: 1000;
+		color: #0d171b;
+		line-height: 1.4;
 	}
 
 	/* 流水列表样式 */
 	.flow-section {
 		background-color: white;
-		border-radius: 16rpx;
-		margin-bottom: 24rpx;
+		border-radius: 24rpx;
+		margin-bottom: 32rpx;
 		overflow: hidden;
+		box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+		border: 1rpx solid rgba(0, 0, 0, 0.06);
 	}
 
 	.flow-header {
-		padding: 32rpx 32rpx 24rpx;
-		border-bottom: 1px solid #f0f0f0;
+		padding: 48rpx 48rpx 32rpx;
+		border-bottom: 2rpx solid #f3f4f6;
 	}
 
 	.flow-title {
-		font-size: 32rpx;
-		font-weight: bold;
-		color: #333;
+		font-size: 36rpx;
+		font-weight: 700;
+		color: #0d171b;
+		line-height: 1.2;
+		letter-spacing: -0.015em;
 	}
 
 	.flow-list {
@@ -519,8 +530,8 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		padding: 24rpx 32rpx;
-		border-bottom: 1px solid #f5f5f5;
+		padding: 32rpx 48rpx;
+		border-bottom: 2rpx solid #f9fafb;
 
 		&:last-child {
 			border-bottom: none;
@@ -532,15 +543,17 @@
 	}
 
 	.flow-event-name {
-		font-size: 30rpx;
+		font-size: 32rpx;
 		font-weight: 500;
-		color: #333;
+		color: #0d171b;
 		margin-bottom: 8rpx;
+		line-height: 1.4;
 	}
 
 	.flow-create-time {
-		font-size: 24rpx;
-		color: #999;
+		font-size: 26rpx;
+		color: #6b7280;
+		line-height: 1.4;
 	}
 
 	.flow-item-right {
@@ -549,46 +562,57 @@
 
 	.flow-amount-change {
 		font-size: 32rpx;
-		font-weight: bold;
+		font-weight: 700;
 		margin-bottom: 8rpx;
+		line-height: 1.2;
 
 		&.positive {
-			color: #007AFF;
+			color: #13a4ec;
 		}
 
 		&.negative {
-			color: #f56c6c;
+			color: #ef4444;
 		}
 	}
 
 	.flow-balance {
-		font-size: 24rpx;
-		color: #666;
+		font-size: 26rpx;
+		color: #6b7280;
+		line-height: 1.4;
 	}
 
 	.load-more-section {
-		padding: 32rpx;
+		padding: 48rpx;
 		text-align: center;
 	}
 
 	.load-more-btn {
-		background-color: #f0f0f0;
-		color: #666;
-		padding: 16rpx 32rpx;
-		border-radius: 8rpx;
+		background-color: #f3f4f6;
+		color: #6b7280;
+		padding: 24rpx 48rpx;
+		border-radius: 16rpx;
 		font-size: 28rpx;
+		font-weight: 500;
 		display: inline-block;
+		transition: all 0.2s ease;
+
+		&:active {
+			background-color: #e5e7eb;
+			transform: scale(0.98);
+		}
 	}
 
 	.loading-text, .no-more-text {
-		color: #999;
-		font-size: 24rpx;
+		color: #6b7280;
+		font-size: 26rpx;
+		line-height: 1.4;
 	}
 
 	.empty-state {
-		padding: 80rpx 32rpx;
+		padding: 120rpx 48rpx;
 		text-align: center;
-		color: #999;
+		color: #6b7280;
 		font-size: 28rpx;
+		line-height: 1.4;
 	}
 </style>

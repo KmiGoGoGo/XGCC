@@ -1,10 +1,10 @@
 <template>
   <view class="vehicle-list-container">
+    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
     <!-- 车辆列表 -->
     <view class="card-list">
       <view class="vehicle-card" v-for="(vehicle, index) in vehicleList" :key="vehicle.id">
         <view class="card-main">
-          <view class="type-tag">{{ vehicle.vehicleType === 'DianDong' ? '纯电动汽车' : '其他' }}</view>
           <view class="plate-number">{{ vehicle.plateNo }}</view>
           <view class="separator"></view>
           <view class="card-footer">
@@ -14,27 +14,27 @@
               </view>
               <text :class="{ 'default-text-active': vehicle.defaultVehicle === 0 }">设为默认</text>
             </view>
-            <view class="more-actions" @click="toggleActions(index)">
-              <text>更多</text><uv-icon name="arrow-down" size="20"></uv-icon>
+            <view class="more-actions">
+              <uv-icon color="#F01F1F" name="trash" size="20" @click="deleteVehicle(vehicle)"></uv-icon>
+              <uv-icon color="#2582DB" name="edit-pen" size="20" @click="editVehicle(vehicle)"></uv-icon>
             </view>
           </view>
         </view>
         <!-- 更多操作面板 -->
-        <view class="actions-panel" v-if="vehicle.showActions">
+        <!-- <view class="actions-panel" v-if="vehicle.showActions">
           <view class="action-btn delete-btn" @click="deleteVehicle(vehicle)">删除</view>
           <view class="action-btn edit-btn" @click="editVehicle(vehicle)">编辑</view>
-        </view>
+        </view> -->
       </view>
     </view>
 
     <!-- 添加车辆按钮 -->
     <view class="add-vehicle-button" @click="showAddVehiclePopup">
-      <text class="plus-icon">+</text>
       <text>添加爱车，享专属服务</text>
     </view>
 
     <!-- 车牌号输入弹窗 -->
-    <uv-popup ref="addVehiclePopup" mode="bottom" :close-on-click-overlay="false" custom-style="height: 500rpx;">
+    <uv-popup ref="addVehiclePopup" mode="bottom" :close-on-click-overlay="false" :custom-style="popupStyle">
       <view class="popup-container">
         <view class="popup-header">
           <text class="popup-title">{{ isEditMode ? '编辑车辆' : '添加车辆' }}</text>
@@ -42,9 +42,12 @@
         </view>
         <view class="popup-content">
           <vehicle-plate-input
-            @plateInput="plateInput"
+            v-model="newVehiclePlate"
             ref="plateInput"
-            :value="newVehiclePlate"
+            @input="handlePlateInput"
+            @change="handlePlateChange"
+            @keyboard-show="onKeyboardShow"
+            @keyboard-hide="onKeyboardHide"
           />
           <view class="button-container">
             <uv-button 
@@ -80,16 +83,39 @@ export default {
       vehicleList: [],
       newVehiclePlate: '',
       isEditMode: false, // 是否为编辑模式
-      currentEditVehicle: null // 当前编辑的车辆信息
+      currentEditVehicle: null, // 当前编辑的车辆信息
+      keyboardVisible: false // 键盘是否显示
     };
+  },
+  computed: {
+    popupStyle() {
+      // 键盘显示时高度为80vh，隐藏时为350rpx
+      const height = this.keyboardVisible ? '1000rpx' : '550rpx';
+      return `height: ${height}; max-height: ${height}; transition: height 0.3s ease;`;
+    }
   },
   onLoad() {
     this.fetchVehicleList();
   },
   methods: {
-    plateInput(plateNo) {
+    // 处理车牌号输入
+    handlePlateInput(plateNo) {
       this.newVehiclePlate = plateNo;
-      console.log('车牌号输入:', this.newVehiclePlate);
+    },
+    
+    // 处理车牌号变化
+    handlePlateChange(plateNo) {
+      this.newVehiclePlate = plateNo;
+    },
+    
+    // 键盘显示时的回调
+    onKeyboardShow() {
+      this.keyboardVisible = true;
+    },
+    
+    // 键盘隐藏时的回调
+    onKeyboardHide() {
+      this.keyboardVisible = false;
     },
     async fetchVehicleList() {
       uni.showLoading({ title: '加载中...' });
@@ -106,7 +132,13 @@ export default {
         }
       } catch (error) {
         console.error('获取车辆列表失败:', error);
-        uni.showToast({ title: '网络错误', icon: 'none' });
+        if (error.code === 2) {
+          uni.showToast({ title: '请先登录', icon: 'none' });
+          return;
+        } else {
+          uni.showToast({ title: '网络错误', icon: 'none' });
+          return;
+        }
       } finally {
         uni.hideLoading();
       }
@@ -183,7 +215,15 @@ export default {
       this.isEditMode = false;
       this.currentEditVehicle = null;
       this.newVehiclePlate = '';
+      this.keyboardVisible = false;
       this.$refs.addVehiclePopup.open('bottom');
+      
+      // 延迟后自动聚焦到输入框
+      setTimeout(() => {
+        if (this.$refs.plateInput) {
+          this.$refs.plateInput.focusInput(0);
+        }
+      }, 300);
     },
 
     /**
@@ -194,16 +234,35 @@ export default {
       this.isEditMode = true;
       this.currentEditVehicle = vehicle;
       this.newVehiclePlate = vehicle.plateNo || '';
+      this.keyboardVisible = false;
       // 关闭操作面板
       vehicle.showActions = false;
       this.$refs.addVehiclePopup.open('bottom');
+      
+      // 延迟后自动聚焦到输入框
+      setTimeout(() => {
+        if (this.$refs.plateInput) {
+          // 如果是编辑模式，找到第一个空位或最后一位
+          const emptyIndex = this.$refs.plateInput.plateChars.findIndex(char => char === '');
+          const focusIndex = emptyIndex !== -1 ? emptyIndex : this.$refs.plateInput.plateChars.length - 1;
+          this.$refs.plateInput.focusInput(focusIndex);
+        }
+      }, 300);
     },
 
     /**
      * @description 关闭添加车辆弹窗
      */
     closeAddVehiclePopup() {
-      this.$refs.addVehiclePopup.close();
+      // 先关闭键盘
+      if (this.$refs.plateInput) {
+        this.$refs.plateInput.closeKeyboard();
+      }
+      this.keyboardVisible = false;
+      // 延迟关闭弹窗，让键盘动画完成
+      setTimeout(() => {
+        this.$refs.addVehiclePopup.close();
+      }, 100);
     },
 
     /**
@@ -211,6 +270,7 @@ export default {
      */
     handleSubmit() {
       const plateNo = this.newVehiclePlate;
+      
       if (this.isEditMode) {
         this.updateVehicle(plateNo);
       } else {
@@ -231,7 +291,7 @@ export default {
       }
 
       // 验证车牌号格式
-      if (plateNo.length < 2) {
+      if (plateNo.length < 7) {
         uni.showToast({
           title: '请输入完整的车牌号',
           icon: 'none'
@@ -293,7 +353,7 @@ export default {
       }
 
       // 验证车牌号格式
-      if (plateNo.length < 2) {
+      if (plateNo.length < 7) {
         uni.showToast({
           title: '请输入完整的车牌号',
           icon: 'none'
@@ -367,7 +427,9 @@ export default {
         confirmColor: '#ff4757',
         success: (res) => {
           if (res.confirm) {
-            this.confirmDeleteVehicle(vehicle.id);
+            // 检查是否是默认车辆，如果是，需要在删除后设置新的默认车辆
+            const isDefaultVehicle = vehicle.defaultVehicle === 0;
+            this.confirmDeleteVehicle(vehicle.id, isDefaultVehicle);
           }
         }
       });
@@ -378,8 +440,9 @@ export default {
     /**
      * @description 确认删除车辆
      * @param {number} vehicleId - 车辆ID
+     * @param {boolean} isDefaultVehicle - 是否是默认车辆
      */
-    async confirmDeleteVehicle(vehicleId) {
+    async confirmDeleteVehicle(vehicleId, isDefaultVehicle = false) {
       if (!vehicleId) {
         uni.showToast({
           title: '删除失败：车辆ID无效',
@@ -396,6 +459,20 @@ export default {
         if (response.code === 0) {
           // 删除成功后重新获取车辆列表
           await this.fetchVehicleList();
+          
+          // 如果删除的是默认车辆，且还有剩余车辆，将第一个车辆设为默认
+          if (isDefaultVehicle && this.vehicleList.length > 0) {
+            const firstVehicle = this.vehicleList[0];
+            if (firstVehicle && firstVehicle.id) {
+              try {
+                await updateDefaultVehicle(firstVehicle.id);
+                // 重新获取列表以更新状态
+                await this.fetchVehicleList();
+              } catch (error) {
+                console.error('设置默认车辆失败:', error);
+              }
+            }
+          }
           
           uni.showToast({
             title: '车辆删除成功',
@@ -472,26 +549,60 @@ export default {
   display: flex;
   align-items: center;
   font-size: 28rpx;
-  color: #999;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 8rpx 12rpx;
+  border-radius: 8rpx;
 }
+
+.default-option:hover {
+  background-color: #f5f5f5;
+}
+
 .default-text-active {
-    color: #007AFF;
+  color: #24A4EF;
+  font-weight: 500;
 }
+
 .radio-btn {
-  width: 36rpx;
-  height: 36rpx;
+  width: 40rpx;
+  height: 40rpx;
   border-radius: 50%;
-  border: 2rpx solid #ccc;
-  margin-right: 12rpx;
+  border: 3rpx solid #d1d5db;
+  margin-right: 16rpx;
   display: flex;
   justify-content: center;
   align-items: center;
   color: white;
+  background-color: #ffffff;
+  transition: all 0.3s ease;
+  position: relative;
 }
+
+.radio-btn::after {
+  content: '';
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: #24A4EF;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.3s ease;
+}
+
 .radio-btn.checked {
-  background-color: #007AFF;
-  border-color: #007AFF;
-  color: white;
+  border-color: #24A4EF;
+  background-color: #ffffff;
+}
+
+.radio-btn.checked::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.radio-btn.checked text {
+  display: none;
 }
 .more-actions {
   font-size: 28rpx;
@@ -524,16 +635,20 @@ export default {
 .add-vehicle-button {
   position: fixed;
   bottom: 32rpx;
-  left: 5%;
-  width: 90%;
-  background-color: #007aff;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 600rpx;
+  background-color: #24A4EF;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 24rpx;
-  border-radius: 40rpx;
+  padding: 32rpx 24rpx;
+  border-radius: 50rpx;
   font-size: 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 122, 255, 0.3);
+  z-index: 100;
 }
 .plus-icon {
   font-size: 40rpx;
@@ -571,6 +686,8 @@ export default {
   flex: 1;
   padding: 30rpx;
   overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .button-container {

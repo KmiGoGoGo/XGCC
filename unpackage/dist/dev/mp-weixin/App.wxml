@@ -1,1 +1,0 @@
-<view id="app"><global-navbar wx:if="{{c}}" bindleftClick="{{a}}" bindrightClick="{{b}}" u-i="13cf55b3-0" bind:__l="__l" u-p="{{c}}"/><view class="page-content" style="{{'padding-top:' + d}}"></view></view>

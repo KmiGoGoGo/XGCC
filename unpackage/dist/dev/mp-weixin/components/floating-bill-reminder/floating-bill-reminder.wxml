@@ -1,1 +1,0 @@
-<view wx:if="{{a}}" class="floating-reminder data-v-909ddfee" bindtap="{{c}}"><view class="reminder-content data-v-909ddfee"><text class="reminder-text data-v-909ddfee">您有未支付订单 ({{b}}单)</text><text class="reminder-action data-v-909ddfee">去支付 &gt;</text></view></view>

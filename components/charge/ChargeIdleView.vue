@@ -1,14 +1,14 @@
 <template>
   <view class="content-wrapper" :class="{ 'keyboard-show': isKeyboardShow }">
     <!-- 当前身份 -->
-      <view class="identity-section">
+      <!-- <view class="identity-section">
         <view>
           <text>当前身份：</text>
           <text>{{ memberInfo.tokenMemberType === 0 ? '个人身份' : '车队身份' }}</text>
           <text>（{{ memberInfo.name }}）</text>
         </view>
         <text @click="changeUser" v-if="memberInfo.groupName">切换身份</text>
-      </view>
+      </view> -->
 
     <!-- 选中枪信息 -->
     <SelectedGun 
@@ -22,165 +22,205 @@
 
     <!-- 价格信息 -->
     <view class="price-section-card">
-      <view class="price-symbol">
-        <text class="price-symbol-text">¥</text>
-      </view>
-      <view class="price-section-header">
-        <text class="price-section-title">费用信息</text>
-        <text class="price-details-btn" @click="showPriceDetails">价格详情</text>
-      </view>
-      <view class="tag">
-        <text>当前计费时段 {{ currentPriceInfo.currentStartTime }} - {{ currentPriceInfo.currentEndTime }}</text>
-      </view>
-      <view>
-        <text class="current-price">{{ currentPriceInfo.currentPriceStr }}</text>
-        <text style="font-size: 28rpx; color: #999;"> 元/度</text>
-        <text v-if="currentPriceInfo.discount" class="original-price">{{ currentPriceInfo.sweepPriceStr }} 元/度</text>
-      </view>
-      <view class="price-row sub-price">
-        <text>电费 {{ currentPriceInfo.currentPowerPriceStr }} 元/度</text>
-        <text style="margin-left: 10rpx;">服务费 {{ currentPriceInfo.currentServicePriceStr }} 元/度</text>
-      </view>
-      <!-- <view class="price-row" v-if="currentPriceInfo.discount">
-        <text class="discount-tag">有优惠</text>
-      </view> -->
-    </view>
-
-    <!-- 充电车辆 -->
-    <view class="vehicle-section-card">
-      <view class="vehicle-symbol">
-        <!-- <image 
-          :src="vehicleSvg" 
-          mode="widthFix" 
-          :style="{width: memberInfo.plateNo ? '72px' : '32px', height: memberInfo.plateNo ? '72px' : '32px'}"
-        /> -->
-      </view>
-      <text class="section-title">充电车辆</text>
-      <view class="plate-no-wrapper" v-if="memberInfo.plateNo">
-        <text class="plate-no">{{ memberInfo.plateNo }}</text>
-        <uv-icon name="edit-pen" color="#007BFF" size="22" @click="goToVehicleList"></uv-icon>
-      </view>
-      <view style="margin-top: 20rpx;" v-else>
-        <uv-button type="primary" plain shape="circle" @click="goToVehicleList">添加车辆</uv-button>
-      </view>
-      <view class="parking-collapse">
-        <view class="parking-header" @click="toggleParkingCollapse">
-          <image
-            :src="parkingSvg"
-            mode="widthFix"
-            style="width: 30rpx; height: 30rpx;"
-          />
-          <text class="parking-title">停车费说明</text>
-          <view class="arrow-icon" :class="{ 'rotated': isParkingExpanded }">
-            <uv-icon name="arrow-down" color="#999" size="14"></uv-icon>
+      <!-- 当前时段价格信息 -->
+      <view class="current-price-section">
+        <view class="price-main-row">
+          <view class="price-left">
+            <view class="main-price">
+              <view class="price-row">
+                <text class="price-value">{{ currentPriceInfo.currentPriceStr }}</text>
+                <text class="price-unit">元/度</text>
+                <view v-if="currentPriceInfo.discount && currentPriceInfo.sweepPriceStr" class="discount-price-row">
+                  <text class="discount-price">{{ currentPriceInfo.sweepPriceStr }}</text>
+                  <text class="discount-unit">元/度</text>
+                </view>
+              </view>
+            </view>
+            <view class="price-breakdown">
+              <text class="breakdown-text">电费{{ currentPriceInfo.currentPowerPriceStr }}元/度</text>
+              <text class="breakdown-separator">|</text>
+              <text class="breakdown-text">服务费{{ currentPriceInfo.currentServicePriceStr }}元/度</text>
+            </view>
+            <view class="current-time-slot">
+              <text class="time-slot-text">时段 {{ currentPriceInfo.currentStartTime }} - {{ currentPriceInfo.currentEndTime }}</text>
+            </view>
           </view>
-        </view>
-
-        <view>
-          <view class="parking-header" @click="toggleOccupyCollapse">
-            <image
-              :src="parkingSvg"
-              mode="widthFix"
-              style="width: 30rpx; height: 30rpx;"
-            />
-            <text class="parking-title">超时占位说明</text>
-            <view class="arrow-icon" :class="{ 'rotated': isOccupyExpanded }">
-              <uv-icon name="arrow-down" color="#999" size="14"></uv-icon>
+          <view class="price-right">
+            <view class="details-link" @click="showPriceDetails">
+              <text class="details-text">费用详细</text>
+              <!-- <text class="details-arrow">></text> -->
             </view>
           </view>
         </view>
       </view>
-      <view class="parking-content" :class="{ 'expanded': isParkingExpanded }">
-        <text class="parking-text">{{ pileInfo.parking }}</text>
+      
+      <!-- 分隔线 -->
+      <view class="price-divider"></view>
+      
+      <!-- 下一时段价格信息 -->
+      <view class="next-price-section" v-if="nextPriceInfo && nextPriceInfo.currentStartTime">
+        <view class="next-price-row">
+          <!-- <text class="next-time-text">下一时段 {{ nextPriceInfo.currentStartTime }}-{{ nextPriceInfo.currentEndTime }}</text> -->
+          <StatusTag
+            :text="`下一时段 ${nextPriceInfo.currentStartTime}-${nextPriceInfo.currentEndTime}`"
+            backgroundColor="#E2F7FA"
+            textColor="#6AAAFB"
+            fontSize="24rpx"
+            padding="4rpx 12rpx"
+            borderRadius="8rpx"
+            fontWeight="bold"
+          />
+          <view class="next-price-info">
+            <text class="next-price-value" :class="isPriceDown ? 'trend-down' : 'trend-up'">{{ nextPriceInfo.currentPriceStr }}元/度</text>
+            <view class="price-trend" :class="isPriceDown ? 'trend-down' : 'trend-up'">
+              <text class="trend-icon">{{ isPriceDown ? '↓' : '↑' }}</text>
+            </view>
+          </view>
+        </view>
       </view>
+    </view>
 
+    <!-- 充电车辆 -->
+    <view class="vehicle-section-card">
+      <view class="vehicle-header">
+        <view class="vehicle-info">
+          <text class="plate-no">{{ memberInfo.plateNo || '未绑定车辆' }}</text>
+        </view>
+        <text class="switch-vehicle-btn" @click="goToVehicleList">管理车辆</text>
+      </view>
+      <text class="vehicle-warning" v-if="memberInfo.plateNo">{{ pileInfo.parking || '临牌不享受停车减免政策,启动充电后无法修改车牌' }}</text>
     </view>
 
     <!-- 支付方式 -->
     <view class="section-card">
-      <text class="section-title">支付方式</text>
-      <view v-show="memberInfo.tokenMemberType == 0">
-        <uv-radio-group 
-        v-model="paymentType" 
-        placement="column" 
-        @change="handlePaymentChange"
-        >
-          <view v-for="item in filteredPaymentMethods" :key="item.payType" class="payment-option">
-            <uv-radio
-              :name="item.payType"
-              :label="item.accountName"
-              :labelColor="item.disabled ? '#c8c9cc' : '#303133'"
-              :disabled="item.disabled"
-              :customStyle="{flex: 1}"
+      <view style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 20rpx;">
+        <text class="section-title">支付方式</text>
+        <view style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx; margin-top: 10rpx;">
+          <view style="display: flex; align-items: center;">
+            <view 
+              v-if="memberInfo.motorcadeName"
+              :style="{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: memberInfo.tokenMemberType === 2 ? '#E8F5E9' : '#FFF3E0',
+                padding: '4rpx 12rpx',
+                borderRadius: '8rpx'
+              }"
             >
-              <template #default>
-                <view class="payment-label">
-                  <text>{{ item.accountName }}</text>
-                  <text v-if="item.balance" class="balance-text">(余额：<text class="balance-text-value">{{ (parseInt(item.balance) / 100).toFixed(2) }}</text>元)</text>
-                </view>
-              </template>
-            </uv-radio>
-            <uv-button 
-              v-if="item.showTopUp" 
-              type="primary"
-              plain
-              size="mini"
-              shape="circle"
-              @click="goToTopUp(item)"
-            >
-              去充值
-            </uv-button>
+              <text :style="{
+                color: memberInfo.tokenMemberType === 2 ? '#4CAF50' : '#FF9800',
+                fontSize: '22rpx'
+              }">
+                {{ memberInfo.tokenMemberType === 2 ? memberInfo.motorcadeName : '个人身份' }}
+              </text>
+            </view>
           </view>
-        </uv-radio-group>
+          <view @click="changeUser" style="display: flex; align-items: center;">
+            <view v-if="memberInfo.motorcadeName" style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rpx;">
+              <view class="change-user">切换身份</view>
+              <view>
+                <uv-icon name="reload" color="#007AFF" size="14"></uv-icon>
+              </view>
+            </view>
+          </view>
+        </view>
       </view>
-      <view v-if="memberInfo.tokenMemberType == 2"> 车队账户 </view>
-    </view>
-
-    <!-- 预设充电金额 -->
-    <view class="section-card" v-if="memberInfo.tokenMemberType == 0">
-      <text class="section-title">预设充电金额</text>
-      <text class="section-description">充电费用达到上限或者充满电量则自动停止充电</text>
-      <input 
-        class="amount-input"
-        placeholder="请输入充电金额" 
-        type="number"
-        inputmode="numeric"
-        :value="amountInputValue"
-        @input="handleAmountInput"
-        @focus="handleInputFocus"
-        @blur="handleInputBlur"
-        ref="amountInput"
-      />
-        <view class="preset-options" v-if="paymentType == 1">
-          <uv-button 
-            v-for="amount in presetOptions" 
-            :key="amount.value" 
-            :text="amount.label"
-            :type="isPresetAmountActive(amount) ? 'primary' : 'default'"
-            :plain="!isPresetAmountActive(amount)"
-            hoverStayTime="0"
-            shape="circle"
-            customTextStyle="font-size: 30rpx;"
-            :customStyle="getPresetButtonStyle(amount.value)"
-            @click="$emit('set-preset-amount', amount.value)"
+      <view v-show="memberInfo.tokenMemberType == 0">
+        <view class="payment-methods-container">
+          <view v-for="item in filteredPaymentMethods" :key="item.payType" 
+                class="payment-option-new" 
+                :class="{ 'payment-option-selected': paymentType == item.payType }"
+                @tap="selectPaymentMethod(item.payType)">
+            <view class="payment-left">
+              <view class="payment-icon" :class="getPaymentIconClass(item.payType)">
+                <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>
+              </view>
+              <view class="payment-info">
+                <text class="payment-name-new">{{ item.accountName }}</text>
+                <text v-if="item.balance" class="balance-text-new">余额 {{ (parseInt(item.balance) / 100).toFixed(2) }}元</text>
+              </view>
+            </view>
+            <view class="payment-right">
+              <uv-button 
+                v-if="item.showTopUp" 
+                type="primary"
+                plain
+                size="mini"
+                shape="circle"
+                customStyle="background: linear-gradient(to right, #6099ff, #3a7dff); color: white; border: none; font-size: 24rpx; padding: 8rpx 24rpx;"
+                @click.stop="goToTopUp(item)"
+              >
+                去充值
+              </uv-button>
+              <view class="radio-button" :class="{ 'radio-selected': paymentType == item.payType }">
+                <view v-if="paymentType == item.payType" class="radio-inner"></view>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view v-if="memberInfo.tokenMemberType == 2" class="fleet-account-badge"> 车队账户 </view>
+      <uv-divider v-if="memberInfo.tokenMemberType != 2"></uv-divider>
+      <!-- 预设充电金额 -->
+      <view v-if="memberInfo.tokenMemberType == 0">
+        <text class="section-description-new">充电费用达到上限或者充满电量则自动停止充电</text>
+        <view class="amount-input-container-new">
+          <text class="currency-symbol-new">¥</text>
+          <input 
+            class="amount-input-new"
+            placeholder="0.00" 
+            type="digit"
+            inputmode="numeric"
+            :value="amountInputValue"
+            @input="handleAmountInput"
+            @focus="handleInputFocus"
+            @blur="handleInputBlur"
+            ref="amountInput"
           />
         </view>
+        <view class="preset-options-new" v-if="paymentType == 1">
+          <view 
+            v-for="amount in presetOptions" 
+            :key="amount.value" 
+            class="preset-button"
+            :class="{ 'preset-button-active': isPresetAmountActive(amount) }"
+            @click="$emit('set-preset-amount', amount.value)"
+          >
+            <text class="preset-button-text">{{ amount.label }}</text>
+          </view>
+        </view>
+      </view>
     </view>
 
-    <!-- 超时占位费说明 -->
-    <view class="section-card" v-if="pileInfo.stationData.occupyCostModel">
-      <text class="section-title">超时占位费说明</text>
-      <view class="occupy-fee-details">
-        <view class="occupy-fee-item">
-          <text class="occupy-fee-label">超时占位费:</text>
-          <text class="occupy-fee-value">{{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟</text>
+
+
+    <!-- 超时占位说明 -->
+    <view class="occupy-section-card" v-if="pileInfo.stationData.occupyCostModel">
+      <view class="occupy-header" @click="toggleOccupyCollapse">
+        <image
+          :src="parkingSvg"
+          mode="widthFix"
+          style="width: 30rpx; height: 30rpx;"
+        />
+        <text class="occupy-title">超时占位说明</text>
+        <view class="arrow-icon" :class="{ 'rotated': isOccupyExpanded }">
+          <uv-icon name="arrow-down" color="#999" size="14"></uv-icon>
         </view>
-        <view class="occupy-fee-item">
-          <text class="occupy-fee-label">当前收费时段:</text>
-          <text class="occupy-fee-value">{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr}}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr }}</text>
-        </view>
-        <view class="occupy-fee-description">
-          充电结束后请于{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟内拔枪驶离充电车位，若车辆充电结束{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{ parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100 }}元
+      </view>
+      <view class="occupy-content" :class="{ 'expanded': isOccupyExpanded }">
+        <view class="occupy-fee-details">
+          <view class="occupy-fee-item">
+            <text class="occupy-fee-label">超时占位费:</text>
+            <text class="occupy-fee-value">{{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟</text>
+          </view>
+          <view class="occupy-fee-item">
+            <text class="occupy-fee-label">当前收费时段:</text>
+            <text class="occupy-fee-value">{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr}}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr }}</text>
+          </view>
+          <view class="occupy-fee-description">
+            充电结束后请于{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟内拔枪驶离充电车位，若车辆充电结束{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{ parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100 }}元
+          </view>
         </view>
       </view>
     </view>
@@ -194,13 +234,15 @@ import Card from '@/components/common/Card.vue';
 import SelectedGun from '@/components/gun/SelectedGun.vue';
 import { changeUser } from '@/api/member';
 import { getStationGunDetails } from '@/api/station';
+import StatusTag from '@/components/common/StatusTag.vue';
 
 export default {
   // name: 'ChargeIdelView',
   components: {
     PileGunCard,
     Card,
-    SelectedGun
+    SelectedGun,
+    StatusTag
   },
   props: {
     pileInfo: Object,
@@ -260,6 +302,22 @@ export default {
       // 根据 gunId 查找对应的枪
       const targetGun = this.pileInfo.gunDTOList.find(gun => gun.gunid === this.mainGunParams.gunId);
       return targetGun ? (targetGun.nowPrice || {}) : {};
+    },
+    // 下一时段价格信息
+    nextPriceInfo() {
+      if (!this.pileInfo || !this.pileInfo.gunDTOList) return {};
+      if (!this.mainGunParams || !this.mainGunParams.gunId) return {};
+      
+      // 根据 gunId 查找对应的枪
+      const targetGun = this.pileInfo.gunDTOList.find(gun => gun.gunid === this.mainGunParams.gunId);
+      return targetGun ? (targetGun.nextStagePrice || {}) : {};
+    },
+    // 价格趋势：true表示下降，false表示上升
+    isPriceDown() {
+      if (!this.currentPriceInfo || !this.nextPriceInfo) return false;
+      const currentPrice = this.currentPriceInfo.currentPrice || 0;
+      const nextPrice = this.nextPriceInfo.currentPrice || 0;
+      return nextPrice < currentPrice;
     },
     // 根据用户身份过滤支付方式
     filteredPaymentMethods() {
@@ -373,6 +431,7 @@ export default {
       changeUser(changeType).then(res => {
         if (res.code === 0) {
           uni.setStorageSync('token', res.data);
+          this.paymentType = -1;
           // 发射事件通知父组件重新加载页面
           this.$emit('user-changed');
         }
@@ -383,11 +442,32 @@ export default {
       // uv-radio-group的change事件直接传递name值
       this.$emit('payment-change', Number(name));
     },
+    selectPaymentMethod(payType) {
+      // 点击行时选中对应的支付方式
+      if (!this.filteredPaymentMethods.find(item => item.payType === payType)?.disabled) {
+        this.paymentType = payType;
+        this.$emit('payment-change', Number(payType));
+      }
+    },
     handleAmountInput(event) {
-      const value = event.target.value;
+      let value = event.target.value || event.detail?.value || '';
       console.log('handleAmountInput触发，值:', value);
+      
+      // 限制最多两位小数
+      if (value) {
+        // 如果包含小数点，检查小数位数
+        if (value.includes('.')) {
+          const parts = value.split('.');
+          // 如果小数点后超过两位，截取前两位
+          if (parts[1] && parts[1].length > 2) {
+            value = parts[0] + '.' + parts[1].substring(0, 2);
+          }
+        }
+      }
+      
       // 更新本地输入值
       this.amountInputValue = value;
+      
       // 将输入的元转换为分
       const numValue = parseFloat(value) || 0;
       const centValue = parseInt(numValue * 100);
@@ -432,14 +512,19 @@ export default {
     },
     // 判断预设金额按钮是否为激活状态
     isPresetAmountActive(amount) {
-      // 首先检查是否与数值匹配
-      if (this.presetAmount == amount.value) {
-        return true;
+      // 如果是"全部余额"选项
+      if (amount.value === 'all') {
+        // 检查当前预设金额是否等于个人账户余额
+        const personalAccount = this.paymentMethods.find(p => p.payType === 1);
+        if (personalAccount && personalAccount.balance) {
+          const accountBalance = parseInt(personalAccount.balance);
+          return this.presetAmount == accountBalance;
+        }
+        return false;
       }
-      if (this.presetAmount === 'all') {
-        return true;
-      }
-      return false;
+      
+      // 其他选项直接比较数值
+      return this.presetAmount == amount.value;
     },
     // 获取预设金额按钮样式
     getPresetButtonStyle(value) {
@@ -493,6 +578,32 @@ export default {
       } finally {
         uni.hideLoading();
       }
+    },
+    // 获取支付方式图标样式类
+    getPaymentIconClass(payType) {
+      switch (payType) {
+        case -1: // 充完即退
+          return 'icon-refresh';
+        case 1: // 个人账户
+          return 'icon-wallet';
+        case 2: // 车队账户
+          return 'icon-team';
+        default:
+          return 'icon-default';
+      }
+    },
+    // 获取支付方式图标文本
+    getPaymentIconText(payType) {
+      switch (payType) {
+        case -1: // 充完即退
+          return '↻';
+        case 1: // 个人账户
+          return '💳';
+        case 2: // 车队账户
+          return '👥';
+        default:
+          return '💰';
+      }
     }
   },
   mounted() {
@@ -516,44 +627,13 @@ export default {
 </script>
 
 <style scoped>
-.price-section-title {
-  font-size: 36rpx;
-  font-weight: bold;
-}
-
 .section-title {
   font-size: 36rpx;
   font-weight: bold;
 }
 
-.current-price {
-  font-size: 48rpx;
-  font-weight: bold;
-  color: #007BFF;
-}
-
-.original-price {
-  font-size: 24rpx;
-  color: #999;
-  margin-left: 10rpx;
-  text-decoration: line-through;
-}
-
-.tag {
-  background: #E7F1FE;
-  color: #007BFF;
-  font-size: 26rpx;
-  padding: 2rpx 8rpx;
-  border-radius: 4rpx;
-  margin-right: 8rpx;
-  flex-shrink: 0;
-  display: inline-block;
-  width: fit-content;
-}
-
 .content-wrapper {
   padding: 20rpx;
-  min-height: 100vh;
   box-sizing: border-box;
 }
 
@@ -575,23 +655,256 @@ export default {
   margin-bottom: 24rpx;
 }
 
+/* 价格卡片容器 */
 .price-section-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+/* 当前时段价格区域 */
+.current-price-section {
+  margin-bottom: 20rpx;
+}
+
+.price-main-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.price-left {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 12rpx;
+}
+
+.price-right {
+  display: flex;
+  align-items: center;
+}
+
+/* 主价格显示 */
+.main-price {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.price-value {
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #00A9FF;
+  line-height: 1;
+}
+
+.price-unit {
+  font-size: 32rpx;
+  font-weight: normal;
+  color: #04AAFF;
+}
+
+/* 折扣价格显示 */
+.discount-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.discount-price {
+  font-size: 24rpx;
+  font-weight: normal;
+  color: #999999;
+  text-decoration: line-through;
+  line-height: 1;
+}
+
+.discount-unit {
+  font-size: 18rpx;
+  font-weight: normal;
+  color: #999999;
+  text-decoration: line-through;
+}
+
+/* 价格明细 */
+.price-breakdown {
+  display: flex;
+  align-items: center;
+}
+
+.breakdown-text {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.2;
+}
+
+.breakdown-separator {
+  font-size: 24rpx;
+  color: #999999;
+  margin: 0 8rpx;
+}
+
+/* 当前时段信息 */
+.current-time-slot {
+  margin-top: 4rpx;
+}
+
+.time-slot-text {
+  font-size: 24rpx;
+  color: #999999;
+  line-height: 1.2;
+}
+
+/* 费用详细链接 */
+.details-link {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  cursor: pointer;
+}
+
+.details-text {
+  font-size: 28rpx;
+  color: #1890ff;
+  line-height: 1.2;
+}
+
+.details-arrow {
+  font-size: 24rpx;
+  color: #1890ff;
+  font-weight: bold;
+}
+
+/* 分隔线 */
+.price-divider {
+  height: 1rpx;
+  background-color: #f0f0f0;
+  margin: 20rpx 0;
+}
+
+/* 下一时段价格区域 */
+.next-price-section {
+  margin-top: 20rpx;
+}
+
+.next-price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.next-time-text {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.2;
+}
+
+.next-price-info {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.next-price-value {
+  font-size: 28rpx;
+  color: #22C55E;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.next-price-value.trend-down {
+  color: #52c41a;
+}
+
+.next-price-value.trend-up {
+  color: #ff4d4f;
+}
+
+/* 价格趋势图标 */
+.price-trend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+}
+
+.trend-down {
+  background-color: #f6ffed;
+}
+
+.trend-up {
+  background-color: #fff2e8;
+}
+
+.trend-icon {
+  font-size: 20rpx;
+  font-weight: bold;
+}
+
+.trend-down .trend-icon {
+  color: #52c41a;
+}
+
+.trend-up .trend-icon {
+  color: #ff4d4f;
+}
+.vehicle-section-card {
   background-color: #ffffff;
   border-radius: 16rpx;
   padding: 30rpx;
-  gap: 20rpx;
   margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
-.vehicle-section-card {
+
+.vehicle-header {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+.vehicle-info {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.plate-no {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.common-tag {
   background-color: #ffffff;
-  border-radius: 16rpx;
-  padding: 30rpx 30rpx 0 30rpx;
-  gap: 20rpx;
-  margin-bottom: 24rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 6rpx;
+  padding: 4rpx 12rpx;
+  font-size: 24rpx;
+  color: #333;
+}
+
+.switch-vehicle-btn {
+  font-size: 28rpx;
+  color: #007AFF;
+  font-weight: 500;
+}
+
+.vehicle-warning {
+  font-size: 24rpx;
+  color: #999;
+  line-height: 1.4;
 }
 .identity-section {
   display: flex;
@@ -619,60 +932,68 @@ export default {
   pointer-events: none; /* 不阻止点击事件 */
 }
 
-.price-symbol {
-  position: absolute;
-  /* bottom: 100rpx; */
-  margin-top: 30rpx;
-  right: 80rpx;
-  /* z-index: -999; 在背景之上，但在内容之下 */
-  pointer-events: none; /* 不阻止点击事件 */
-}
-.price-symbol-text {
-  color: #A0CFFF;
-  font-size: 200rpx;
-  font-weight: bold;
-  font-style: italic;
-  opacity: 0.75;
-  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.3); /* 添加阴影增强可读性 */
-}
-.price-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.price-details-btn {
-  color: #007aff;
-}
-.sub-price {
-  color: #999;
-  font-size: 24rpx;
-}
-.discount-tag {
-  color: #ff5500;
-}
 .payment-option {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10rpx 0;
-  min-height: 50rpx;
+  padding: 24rpx 0;
+  min-height: 60rpx;
+  border-radius: 12rpx;
+  margin-bottom: 8rpx;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.payment-option-selected {
+  background: linear-gradient(to right, rgba(170, 223, 250, 0.1) -20%, #FFFFFF 100%);
+  padding: 24rpx 16rpx;
+  margin: 0 -16rpx 8rpx -16rpx;
+}
+
+.payment-radio {
+  margin-right: 20rpx;
+}
+
+.payment-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .payment-label {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.payment-name {
+  font-size: 32rpx;
+  color: #303133;
+  font-weight: 500;
+}
+
+.recommend-tag {
+  background-color: #FF6B35;
+  color: #ffffff;
+  font-size: 20rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
 }
 
 .balance-text {
-  margin-left: 20rpx;
   font-size: 24rpx;
   color: #999;
 }
+
 .balance-text-value {
   font-size: 24rpx;
   color: #FC7F5D;
+  font-weight: 500;
 }
+
 .section-description {
   font-size: 24rpx;
   color: #999;
@@ -691,21 +1012,59 @@ export default {
   gap: 20rpx;
 }
 /* 停车费折叠组件样式 */
-.parking-collapse {
-  margin-top: 10rpx;
-  display: flex;
-  flex: 1;
-  justify-content: space-between;
+.parking-section-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
 }
-.parking-title {
-  margin-left: 5rpx;
+
+.occupy-section-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.parking-header, .occupy-header {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.parking-title, .occupy-title {
+  margin-left: 10rpx;
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+  flex: 1;
+}
+
+.arrow-icon {
+  transition: transform 0.3s ease;
+}
+
+.arrow-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.parking-content, .occupy-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.parking-content.expanded, .occupy-content.expanded {
+  max-height: 300rpx;
+  margin-top: 20rpx;
+}
+
+.parking-text, .occupy-text {
   font-size: 24rpx;
-  color: #999;
-  /* 斜体 */
-  font-style: italic;
-  /* 下划线 */
-  text-decoration: underline;
-  /* z-index: 10; */
+  color: #666;
+  line-height: 1.5;
 }
 
 .parking-header {
@@ -782,25 +1141,272 @@ export default {
   border-radius: 8rpx;
 }
 
+/* 金额输入框容器样式 */
+.amount-input-container {
+  display: flex;
+  align-items: center;
+  background-color: #F7F8FC;
+  border: 1rpx solid #B8DBFF;
+  border-radius: 20rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  position: relative;
+  z-index: 0;
+}
+
+.currency-symbol {
+  font-size: 36rpx;
+  color: #333;
+  font-weight: bold;
+  margin-right: 16rpx;
+}
+
 /* 原生input样式 */
 .amount-input {
-  width: 100%;
-  height: 80rpx;
-  font-size: 40rpx;
+  flex: 1;
+  height: 60rpx;
+  font-size: 36rpx;
   border: none;
-  border-bottom: 2rpx solid #e0e0e0;
   background: transparent;
   outline: none;
-  padding: 20rpx 0 10rpx 0;
+  padding: 0;
   box-sizing: border-box;
+  color: #333;
+  font-weight: bold;
+  z-index: 1;
+  position: relative;
 }
 
 .amount-input:focus {
-  border-bottom-color: #007aff;
+  outline: none;
 }
 
 .amount-input::placeholder {
   color: #999;
   font-size: 32rpx;
+  font-weight: normal;
+}
+
+/* 新的支付方式样式 */
+.payment-methods-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0rpx;
+}
+
+.payment-option-new {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24rpx 0;
+  min-height: 20rpx;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 12rpx;
+  margin: 0 -16rpx;
+  padding: 24rpx 16rpx;
+}
+
+.payment-option-selected {
+  background-color: #04AAFF;
+}
+
+.payment-option-selected .payment-name-new {
+  color: white;
+}
+
+.payment-option-selected .balance-text-new {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.payment-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 24rpx;
+}
+
+.payment-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+}
+
+.icon-refresh {
+  background-color: #E8F5E8;
+  color: #4CAF50;
+}
+
+.icon-wallet {
+  background-color: #E3F2FD;
+  color: #2196F3;
+}
+
+.icon-team {
+  background-color: #FFF3E0;
+  color: #FF9800;
+}
+
+.icon-default {
+  background-color: #F5F5F5;
+  color: #666;
+}
+
+.icon-text {
+  font-size: 32rpx;
+  font-weight: bold;
+}
+
+.payment-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.payment-name-new {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 700;
+}
+
+.balance-text-new {
+  font-size: 24rpx;
+  color: #FF4444;
+  font-weight: 500;
+}
+
+.payment-right {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.radio-button {
+  width: 48rpx;
+  height: 48rpx;
+  border: 2rpx solid #D3D3D3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.radio-selected {
+  border-color: #007AFF;
+  background-color: white;
+}
+
+.radio-inner {
+  width: 24rpx;
+  height: 24rpx;
+  background-color: #007AFF;
+  border-radius: 50%;
+}
+
+/* 新的预设金额样式 */
+.section-description-new {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 64rpx;
+  line-height: 1.4;
+}
+
+.amount-input-container-new {
+  position: relative;
+  background-color: #F5F7FA;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  margin-top: 24rpx;
+}
+
+.currency-symbol-new {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  margin-right: 16rpx;
+}
+
+.amount-input-new {
+  flex: 1;
+  height: 48rpx;
+  font-size: 48rpx;
+  font-weight: bold;
+  border: none;
+  background: transparent;
+  outline: none;
+  padding: 0;
+  box-sizing: border-box;
+  color: #333;
+  z-index: 1;
+  position: relative;
+}
+
+.amount-input-new:focus {
+  outline: none;
+}
+
+.amount-input-new::placeholder {
+  color: #999;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.preset-options-new {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 24rpx;
+}
+
+.preset-button {
+  padding: 20rpx 0;
+  border-radius: 16rpx;
+  background-color: #F5F7FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1rpx solid #F5F7FA;
+}
+
+.preset-button-active {
+  background-color: #007AFF;
+  border-color: #007AFF;
+}
+
+.preset-button-text {
+  font-size: 30rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.preset-button-active .preset-button-text {
+  color: white;
+}
+
+.fleet-account-badge {
+  display: inline-block;
+  padding: 16rpx 20rpx;
+  background-color: #E8F5E9;
+  color: #2E7D32;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+/* 切换身份按钮样式 */
+.change-user {
+  font-size: 24rpx;
+  color: #007AFF;
+  font-weight: bold;
 }
 </style>

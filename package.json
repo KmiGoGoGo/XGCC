@@ -1,0 +1,16 @@
+{
+  "name": "xg-mini",
+  "version": "1.0.0",
+  "description": "星光超充小程序",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "lottie-miniprogram": "^1.0.12"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
+

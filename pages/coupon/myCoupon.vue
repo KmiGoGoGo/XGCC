@@ -1,58 +1,59 @@
 <template>
   <view class="container">
-    <!-- 优惠券列表 -->
-    <view class="coupon-list">
-      <view class="coupon-item" v-for="coupon in coupons" :key="coupon.id">
-        <!-- 左侧 -->
-        <view class="left-section">
-          <view class="price-section">
-            <text class="currency">¥</text>
-            <text class="amount">{{ formatBalance(coupon.couponBalance) }}</text>
-          </view>
-          <text class="coupon-type">{{ coupon.couponTypeStr }}</text>
-          <text class="usage-scope">指定站点</text>
+    <uv-navbar :border="false" title="我的卡券" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    
+    <!-- 顶部标签切换 -->
+    <view class="tab-switch-wrapper">
+      <view class="tab-switch-container">
+        <view 
+          :class="['tab-switch-item', activeTab === 'my' ? 'active' : '']"
+          @click="switchTab('my')"
+        >
+          <text class="tab-switch-text">我的卡券</text>
         </view>
-        <!-- 右侧 -->
-        <view class="right-section">
-          <view class="info-section">
-            <text class="title">{{ coupon.activityName }}</text>
-            <text class="usage-condition">满{{ coupon.limitBalance }}可用</text>
-            <text class="date-time">@ {{ coupon.startDate }}</text>
-            <text class="date-time">@ {{ coupon.endDate }}</text>
-          </view>
-          <view class="button-section">
-            <view class="site-link" @click="showSiteInfo(coupon)">
-              <text>适用站点 ></text>
-            </view>
-            <uv-button 
-              type="primary" 
-              size="small"
-              @click="showUseConfirm"
-              class="use-card-btn"
-            >
-              使用
-            </uv-button>
-          </view>
+        <view 
+          :class="['tab-switch-item', activeTab === 'history' ? 'active' : '']"
+          @click="switchTab('history')"
+        >
+          <text class="tab-switch-text">历史卡券</text>
         </view>
       </view>
     </view>
 
-    <!-- 底部标签页 -->
-    <view class="bottom-tabs">
-      <text class="tab-item active">历史卡券</text>
-      <text class="tab-item">券码中心</text>
+    <!-- 优惠券列表 -->
+    <view class="coupon-list">
+      <!-- 优惠券列表 -->
+      <template v-if="coupons.length > 0">
+        <CouponCard
+          v-for="coupon in coupons"
+          :key="coupon.id"
+          :coupon="coupon"
+          @use="handleUseCoupon"
+          @show-site-info="handleShowSiteInfo"
+        />
+      </template>
+      
+      <!-- 空状态 -->
+      <view v-else class="empty-state">
+        <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
+        <text class="empty-text">{{ activeTab === 'my' ? '暂无可用卡券' : '暂无历史卡券' }}</text>
+      </view>
     </view>
-
   </view>
 </template>
 
 <script>
 import { myCouponPage } from '@/api/coupon.js';
+import CouponCard from '@/components/coupon/CouponCard.vue';
 
 export default {
+  components: {
+    CouponCard
+  },
   data() {
     return {
-      coupons: []
+      coupons: [],
+      activeTab: 'my'
     };
   },
   onLoad() {
@@ -65,12 +66,14 @@ export default {
       });
       try {
         const res = await myCouponPage({
-          tab: 1,
+          tab: this.activeTab === 'my' ? 1 : 2,
           current: 1,
           size: 10
         });
         if (res.code === 0) {
           this.coupons = res.data.records;
+        } else if(res.code === 4) {
+
         } else {
           uni.showToast({
             title: '加载失败',
@@ -79,27 +82,49 @@ export default {
         }
       } catch (error) {
         console.error('获取优惠券失败:', error);
-        uni.showToast({
-          title: '网络错误',
-          icon: 'none'
-        });
+        if (error.code === 2) {
+          uni.showToast({ title: '请先登录', icon: 'none' });
+          return;
+        } else {
+          uni.showToast({ title: '网络错误', icon: 'none' });
+          return;
+        }
       } finally {
         uni.hideLoading();
       }
     },
     /**
-     * @description 格式化余额，移除不必要的小数
-     * @param {number} balance
-     * @returns {number}
+     * @description 切换标签页
+     * @param {string} tab 标签页类型
      */
-    formatBalance(balance) {
-      return parseInt(balance, 10);
+    switchTab(tab) {
+      this.activeTab = tab;
+      this.coupons = [];
+      this.fetchCoupons();
     },
     /**
-     * @description 显示适用站点信息
+     * @description 处理使用优惠券
      * @param {Object} coupon 优惠券对象
      */
-    showSiteInfo(coupon) {
+    handleUseCoupon(coupon) {
+      if (coupon.couponTypeStr.includes('服务') || coupon.couponTypeStr.includes('现金')) {
+        uni.navigateTo({
+          url: `/pages/index/index`
+        });
+      } else {
+        uni.showModal({
+          title: '提示',
+          content: '请在对应微信小程序端进行使用',
+          showCancel: false,
+          confirmText: '我知道了'
+        });
+      }
+    },
+    /**
+     * @description 处理显示适用站点信息
+     * @param {Object} coupon 优惠券对象
+     */
+    handleShowSiteInfo(coupon) {
       if (coupon.availableSiteName && coupon.availableSiteName.length > 0) {
         const siteList = coupon.availableSiteName;
         uni.showModal({
@@ -116,160 +141,85 @@ export default {
           confirmText: '我知道了'
         });
       }
-    },
-    showUseConfirm() {
-      uni.showModal({
-        title: '提示',
-        content: '请在微信小程序端进行使用',
-        showCancel: false,
-        confirmText: '我知道了'
-      });
     }
   }
 };
 </script>
 
 <style scoped>
+/* 页面容器 */
 .container {
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #f0f8ff 0%, #ffffff 100%);
   min-height: 100vh;
-  padding: 16rpx;
+  padding-bottom: 32rpx;
 }
 
-.coupon-list {
-  padding-bottom: 120rpx; /* 为底部tab留出空间 */
+/* 顶部标签切换 */
+.tab-switch-wrapper {
+  padding: 32rpx;
+  padding-bottom: 16rpx;
 }
 
-.coupon-item {
+.tab-switch-container {
   display: flex;
-  margin-bottom: 24rpx;
+  height: 72rpx;
+  background-color: rgba(203, 213, 225, 0.5);
   border-radius: 16rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  padding: 6rpx;
+  position: relative;
 }
 
-.left-section {
-  background-color: #FF7F00;
-  color: white;
-  padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 200rpx;
-}
-
-.price-section {
-  display: flex;
-  align-items: baseline;
-}
-
-.currency {
-  font-size: 32rpx;
-}
-
-.amount {
-  font-size: 56rpx;
-  font-weight: bold;
-}
-
-.coupon-type {
-  font-size: 24rpx;
-  margin-top: 8rpx;
-}
-
-.usage-scope {
-  font-size: 20rpx;
-  margin-top: 4rpx;
-}
-
-.right-section {
-  background-color: white;
-  padding: 24rpx;
+.tab-switch-item {
   flex: 1;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.info-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.usage-condition {
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
-}
-
-.date-time {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 8rpx;
-}
-
-.site-link {
-  margin-top: 16rpx;
-  padding: 8rpx 0;
-}
-
-.site-link text {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.button-section {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-left: 16rpx;
-}
-
-.use-card-btn {
-  width: 120rpx !important;
-  height: 60rpx !important;
-}
-
-.bottom-tabs {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
   justify-content: center;
+  border-radius: 12rpx;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.tab-switch-item.active {
+  background-color: #ffffff;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+}
+
+.tab-switch-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #94a3b8;
+  transition: all 0.3s ease;
+}
+
+.tab-switch-item.active .tab-switch-text {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+/* 优惠券列表 */
+.coupon-list {
+  padding: 16rpx 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  background-color: white;
-  padding: 24rpx 0;
-  border-top: 1rpx solid #eee;
+  justify-content: center;
+  padding: 200rpx 32rpx;
+  min-height: 60vh;
 }
 
-.tab-item {
-  font-size: 32rpx;
-  color: #999;
-  margin: 0 40rpx;
-}
-
-.tab-item.active {
-  color: #333;
-  font-weight: bold;
-}
-
-/* 确认模态框样式 */
-.confirm-content {
-  padding: 32rpx;
-  text-align: center;
-}
-
-.confirm-content text {
-  font-size: 32rpx;
-  color: #333;
-  line-height: 1.5;
+.empty-text {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #94a3b8;
+  font-weight: 400;
 }
 </style>

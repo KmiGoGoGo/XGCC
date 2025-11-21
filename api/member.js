@@ -241,3 +241,44 @@ export function logout() {
 export function upload(data) {
     return http.post('/api-service/common/upload', data);
 }
+
+/**
+ * @description 获取充值优惠金额列表
+ * @param {number} price - 充值金额（单位：分），用于查询哪些金额有优惠
+ * @returns {Promise<object>}
+ *
+ * @example
+ * // 请求
+ * getRechargeDiscounts(100000) // 查询1000元对应的优惠金额列表
+ *
+ * // 响应体
+ * {
+ *   "code": 0,
+ *   "msg": "成功",
+ *   "data": [60000, 30000, 20000, 100000],
+ *   "fail": false,
+ *   "success": true
+ * }
+ */
+export function getRechargeDiscounts(price = 100000) {
+    return http.post(`/api-service/api/getRechargeDiscounts?price=${price}`)
+}
+
+/**
+ * @description 获取充值奖励说明
+ * @param {number} price - 充值金额（单位：分）
+ * @returns {Promise<object>}
+ *
+ * @example
+ * // 请求
+ * getRechargeAwardExplain(20000) // 查询200元对应的奖励说明
+ *
+ * // 响应体
+ * {
+ *   "code": 0,
+ *   "data": ["优惠说明(p标签)", [{"name": "祥龙路"}]]
+ * }
+ */
+export function getRechargeAwardExplain(price) {
+    return http.post(`/api-service/api/getRechargeAwardExplain?price=${price}`)
+}

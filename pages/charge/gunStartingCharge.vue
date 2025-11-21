@@ -1,5 +1,7 @@
 <template>
   <view class="page-container">
+    
+    <uv-navbar :border="false" autoBack :title="gunParams.stationName" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 条件渲染视图 -->
     <template v-if="pileInfo && memberInfo">
       <charge-idle-view
@@ -32,14 +34,7 @@
     </view>
 
     <!-- 底部操作栏 -->
-    <view class="bottom-bar">
-      <uv-button 
-        text="刷新" 
-        type="info" 
-        size="large"
-        shape="circle"
-        @click="refreshData">
-      </uv-button>
+    <view v-if="mainGunState === 1 || mainGunState === 2" class="bottom-bar">
       <uv-button 
         :text="chargeButtonText" 
         type="primary" 
@@ -68,10 +63,10 @@
         </view>
         <view class="price-header">
           <text>收费时段</text>
-          <text>费用(元/度)</text>
+          <text>费用(元/度) = 电费 + 服务费</text>
         </view>
         <view class="price-list">
-          <stage-price-info v-for="(price, index) in priceDetailsData" :key="index" :price-info="price" />
+          <stage-price-info v-for="(price, index) in priceDetailsData" :key="index" :price-info="price" :index="index" :price-list="priceDetailsData" />
         </view>
       </view>
     </uv-popup>
@@ -87,12 +82,15 @@ import ChargeIdleView from '@/components/charge/ChargeIdleView.vue';
 import ChargeBusyView from '@/components/charge/ChargeBusyView.vue';
 import StagePriceInfo from '@/components/station/StagePriceInfo.vue';
 import globalData from '@/globalData.js';
-import { queryMemberStatus } from '@/api/member.js';
+import { queryMemberStatus, getMyOccupyBillPage } from '@/api/member.js';
 import { queryChargeRealy } from '@/api/charge.js';
 import { startCharge } from '@/api/charge.js';
-// 导入支付宝充完即退相关API
+// 导入充完即退相关API（同时支持微信和支付宝）
 import { 
   disposableStartCharge,
+  disposableUnifiedOrders,
+  disposableOrderResultQuery,
+  disposableCancelRecharge,
   alipayDisposableUnifiedOrders, 
   alipayDisposableOrderResultQuery,
   alipayDisposableCancelRecharge
@@ -139,12 +137,13 @@ export default {
         secondaryGun: null
       },
       startChargeButtonStyle: {
-        width: '90%',
-        backgroundColor: '#007aff',
-        color: '#fff'
+        width: '100%',
+        backgroundColor: '#007AFF',
+        color: '#fff',
+        radius: '40rpx',
       },
-      // 支付宝充完即退相关状态
-      alipayOrderInfo: {
+      // 充完即退相关状态（兼容微信和支付宝）
+      disposableOrderInfo: {
         orderNo: '',
         isProcessing: false,
         pollTimer: null,
@@ -161,11 +160,11 @@ export default {
         return '启动中...';
       }
       // 正在轮询支付结果时显示等待状态
-      if (this.alipayOrderInfo.pollTimer) {
+      if (this.disposableOrderInfo.pollTimer) {
         return '支付确认中...';
       }
-      // 支付宝订单处理中时显示处理状态
-      if (this.alipayOrderInfo.isProcessing) {
+      // 订单处理中时显示处理状态
+      if (this.disposableOrderInfo.isProcessing) {
         return '处理中...';
       }
       // 当主枪和从枪都有时显示双枪并充
@@ -178,7 +177,7 @@ export default {
       }
 
       if (this.currentPaymentType == -1 && this.presetAmount < 300) {
-        return '预充金额小于三元';
+        return '预充金额小于3元';
       }
 
       return '开启充电';
@@ -193,12 +192,12 @@ export default {
       if (!this.isGunPlugged) {
         return true;
       }
-      // 支付宝订单处理中时禁用
-      if (this.alipayOrderInfo.isProcessing) {
+      // 订单处理中时禁用
+      if (this.disposableOrderInfo.isProcessing) {
         return true;
       }
       // 正在轮询支付结果时禁用
-      if (this.alipayOrderInfo.pollTimer) {
+      if (this.disposableOrderInfo.pollTimer) {
         return true;
       }
       if ((this.presetAmount == 0 || this.presetAmount == '0') && this.currentPaymentType == 1) {
@@ -225,10 +224,18 @@ export default {
     // 只保存必要的参数用于后续查找
     this.gunParams.gunNo = options.gunNo;
     
-    console.log('接收到的参数:', { pileNo: this.pileNum, gunNo: options.gunNo });
+    console.log('接收到的参数:', { pileNo: options.pileNum, gunNo: options.gunNo });
     
     // 页面打开时立即调用获取桩详情数据
-    this.refreshData();
+    // this.refreshData();
+  },
+  onShow() {
+    // 页面显示时（包括从其他页面返回），重新获取用户信息以更新车辆信息
+    // 只有当页面已经初始化（有pileNo）时才刷新，避免首次加载时重复请求
+    if (this.pileNo) {
+      // this.refreshMemberInfo();
+      this.refreshData();
+    }
   },
   onUnload() {
     // 页面卸载时清理定时器
@@ -242,6 +249,20 @@ export default {
     handlePresetAmountChange(value) {
       console.log('handlePresetAmountChange',value)
       this.presetAmount = value;
+    },
+    // 仅刷新用户信息（用于页面显示时更新车辆信息）
+    async refreshMemberInfo() {
+      try {
+        const memberRes = await getMemberInfo();
+        if (memberRes.code === 0) {
+          this.memberInfo = memberRes.data;
+          uni.setStorageSync('tokenMemberType', this.memberInfo.tokenMemberType);
+          uni.setStorageSync('memberInfo', this.memberInfo);
+        }
+      } catch (error) {
+        console.error('刷新用户信息失败:', error);
+        // 刷新失败时不显示错误，避免影响用户体验
+      }
     },
     async refreshData() {
       uni.showLoading({ title: '正在刷新...' });
@@ -292,28 +313,28 @@ export default {
               // 检查枪状态并给出相应提示
               if (this.mainGunState === 3) {
                 // 枪正在充电
-                uni.showModal({
-                  title: '提示',
-                  content: '该充电枪正在充电中，请重新选择其他充电枪',
-                  showCancel: false,
-                  success: (res) => {
-                    if (res.confirm) {
-                      uni.navigateBack();
-                    }
-                  }
-                });
+                // uni.showModal({
+                //   title: '提示',
+                //   content: '该充电枪正在充电中，请重新选择其他充电枪',
+                //   showCancel: false,
+                //   success: (res) => {
+                //     if (res.confirm) {
+                //       uni.navigateBack();
+                //     }
+                //   }
+                // });
               } else if (this.mainGunState === 5) {
                 // 枪离线
-                uni.showModal({
-                  title: '提示',
-                  content: '该充电枪离线，请重新选择其他充电枪',
-                  showCancel: false,
-                  success: (res) => {
-                    if (res.confirm) {
-                      uni.navigateBack();
-                    }
-                  }
-                });
+                // uni.showModal({
+                //   title: '提示',
+                //   content: '该充电枪离线，请重新选择其他充电枪',
+                //   showCancel: false,
+                //   success: (res) => {
+                //     if (res.confirm) {
+                //       uni.navigateBack();
+                //     }
+                //   }
+                // });
               }
             } else {
               // 未找到指定的枪
@@ -324,6 +345,17 @@ export default {
               return;
             }
           }
+        } else if (pileRes.code === 4) {
+          uni.showModal({
+            title: '提示',
+            content: '桩未上线投运，请选择其他充电桩',
+            showCancel: false,
+            success: (res) => {
+              if (res.confirm) {
+                uni.navigateBack();
+              }
+            }
+          });
         }
         if (memberRes.code === 0) {
           this.memberInfo = memberRes.data;
@@ -362,8 +394,23 @@ export default {
         }
 
       } catch (error) {
-        console.error("刷新数据失败", error);
-        uni.showToast({ title: '刷新失败', icon: 'none' });
+        if (error.code === 2) {
+          uni.showToast({
+            title: '请先登录',
+            icon: 'none'
+          });
+          return;
+        }
+        uni.showModal({
+            title: '提示',
+            content: error.msg || '刷新数据失败',
+            showCancel: false,
+            success: (res) => {
+              if (res.confirm) {
+                uni.navigateBack();
+              }
+            }
+        });
       } finally {
         uni.hideLoading();
       }
@@ -445,6 +492,70 @@ export default {
         uni.showToast({ title: '枪信息未加载完成无法启动充电', icon: 'none' });
         return;
       }
+
+      //查询占位订单
+      // 加载中
+      uni.showLoading({ title: '状态检查中...' });
+      const res1 = await getMyOccupyBillPage({
+        billStatus: 11,
+        current: 1,
+        pageSize: 10
+      });
+      uni.hideLoading();
+      if (res1.code === 0 && res1.data.records.length > 0) {
+        uni.showModal({
+          title: '提示',
+          content: `存在${res1.data.records.length}笔占位订单无法启动充电，请先支付`,
+          showCancel: true,
+          cancelText: '稍后再说',
+          confirmText: '立即支付',
+          success: (res) => {
+            if (res.confirm) {
+              uni.navigateTo({
+                url: '/pages/order/occupy'
+              });
+            }
+          }
+        });
+        return;
+      }
+      
+      // 检查用户是否有车辆信息
+      const hasVehicle = this.memberInfo && this.memberInfo.plateNo && this.memberInfo.plateNo.trim() !== '';
+      if (!hasVehicle) {
+        // 如果没有车辆信息，显示提示
+        const shouldContinue = await new Promise((resolve) => {
+          uni.showModal({
+            title: '提示',
+            content: '如果不绑定车牌号将无法享受停车减免',
+            cancelText: '暂不绑定',
+            confirmText: '去绑定',
+            success: (res) => {
+              if (res.confirm) {
+                // 点击"去绑定"，跳转到车辆管理页面
+                uni.navigateTo({
+                  url: '/pages/vehicle/list'
+                });
+                // 跳转到车辆管理页面后，不继续启动充电流程
+                console.log('跳转到车辆管理页面后，不继续启动充电流程')
+                resolve(false);
+              } else if (res.cancel) {
+                // 点击"暂时不绑定"，继续启动充电流程
+                console.log('点击"暂时不绑定"，继续启动充电流程')
+                resolve(true);
+              }
+            },
+            fail: (err) => {
+              // 提示框显示失败，不继续启动充电流程
+              console.log('提示框显示失败，继续启动充电流程', err)
+              resolve(true);
+            }
+          });
+        });
+        if (!shouldContinue) {
+          return;
+        }
+      }
       
       // 设置启动中状态
       this.isStarting = true;
@@ -477,8 +588,8 @@ export default {
               // 个人余额充电逻辑
               await this.handleBalanceCharging(balanceRes);
             } else if (this.currentPaymentType === -1) {
-              // 支付宝充完即退逻辑
-              await this.handleAlipayDisposableCharging();
+              // 充完即退逻辑（支持微信和支付宝）
+              await this.handleDisposableCharging();
             } else if (this.currentPaymentType === 2) {
               // 车队账户充电逻辑
               await this.handleFleetAccountCharging();
@@ -488,6 +599,8 @@ export default {
           } else {
             if (memberRes && memberRes.code === 3) {
               uni.showToast({ title: '存在未支付账单无法启动充电', icon: 'none' });
+            } else if (memberRes && memberRes.code === 0 && memberRes.data.ifCharging) {
+              uni.showToast({ title: '当前正在充电无法启动', icon: 'none' });
             } else {
               uni.showToast({ title: '会员状态异常无法启动充电', icon: 'none' });
             }
@@ -511,6 +624,15 @@ export default {
     async handleBalanceCharging(balanceRes) {
       try {
         console.log('this.presetAmount',this.presetAmount)
+
+        // 判断presetAmount是否是NaN
+        if (isNaN(this.presetAmount)) {
+          uni.showToast({ 
+            title: '预充金额非法', 
+            icon: 'none' 
+          });
+          return;
+        }
         
         // 校验金额小数位数是否超过2位
         const amountInYuan = this.presetAmount / 100;
@@ -524,9 +646,9 @@ export default {
           return;
         }
         
-        if (balanceRes && balanceRes.code === 0 && (this.presetAmount / 100) < balanceRes.data.configurationValue) {
+        if (balanceRes && balanceRes.code === 0 && (this.presetAmount / 100) < balanceRes.data.configurationValue / 100) {
           uni.showToast({ 
-            title: `最低启动金额为${balanceRes.data.configurationValue}元，当前启动金额为${this.presetAmount / 100}元，无法启动充电`, 
+            title: `最低启动金额为${balanceRes.data.configurationValue / 100}元，当前启动金额为${this.presetAmount / 100}元，无法启动充电`, 
             icon: 'none' 
           });
           return;
@@ -549,7 +671,7 @@ export default {
           payMode: parseInt(this.currentPaymentType),
           pileNo: this.gunParams.pileNum,
           platformNo: null,
-          preChargeAmount: this.presetAmount / 100 > 200 ? 200 : (this.presetAmount / 100).toFixed(2), // 单位为分
+          preChargeAmount: this.presetAmount / 100 > 200 ? 200 : (this.presetAmount / 100).toFixed(2), // 单位为元
           qrCode: "undefined",
           valtageType: 0
         });
@@ -611,20 +733,29 @@ export default {
         }, 1000);
       }
     },
-    // 处理支付宝充完即退充电
-    async handleAlipayDisposableCharging() {
+    // 处理充完即退充电（支持微信和支付宝）
+    async handleDisposableCharging() {
       try {
+        // 判断presetAmount是否是NaN
+        if (isNaN(this.presetAmount)) {
+          uni.showToast({ 
+            title: '预充金额非法', 
+            icon: 'none' 
+          });
+          this.disposableOrderInfo.isProcessing = false;
+          return;
+        }
         // 防止重复提交
-        if (this.alipayOrderInfo.isProcessing) {
+        if (this.disposableOrderInfo.isProcessing) {
           uni.showToast({ title: '正在处理中，请稍候...', icon: 'none' });
           return;
         }
         
-        this.alipayOrderInfo.isProcessing = true;
+        this.disposableOrderInfo.isProcessing = true;
         uni.showLoading({ title: '正在创建订单...' });
         
-        // 第1步：充电前校验
-        console.log('开始支付宝充完即退流程 - 充电前校验');
+        // 第1步：充电前校验（微信和支付宝共用）
+        console.log('开始充完即退流程 - 充电前校验');
         const createOrderRes = await disposableStartCharge({
           pileNo: this.gunParams.pileNum,
           gunNo: this.gunParams.gunNo,
@@ -641,9 +772,33 @@ export default {
         
         console.log('充电前校验成功', createOrderRes.data);
         
-        // 第2步：支付宝统一下单
+        // 第2步：根据平台调用不同的统一下单接口
         uni.showLoading({ title: '正在生成支付参数...' });
-        const unifiedOrderRes = await alipayDisposableUnifiedOrders({
+        
+        // #ifdef MP-WEIXIN
+        // 微信统一下单
+        let unifiedOrderRes = await disposableUnifiedOrders({
+          totalFee: parseFloat(this.presetAmount),
+          openId: uni.getStorageSync('openId'),
+          gunId: this.gunParams.gunId,
+          tradeType: 'JSAPI'
+        });
+        
+        if (unifiedOrderRes.code !== 0) {
+          throw new Error(unifiedOrderRes.msg || '生成支付参数失败');
+        }
+        
+        uni.hideLoading();
+        console.log('支付参数生成成功，准备调起微信支付', unifiedOrderRes.data);
+        this.disposableOrderInfo.orderNo = unifiedOrderRes.data.orderNo;
+        
+        // 第3步：调起微信支付
+        await this.invokeWechatPay(unifiedOrderRes.data);
+        // #endif
+        
+        // #ifdef MP-ALIPAY
+        // 支付宝统一下单
+        let unifiedOrderRes = await alipayDisposableUnifiedOrders({
           totalFee: parseFloat(this.presetAmount),
           openId: uni.getStorageSync('openId'),
         });
@@ -653,31 +808,66 @@ export default {
         }
         
         uni.hideLoading();
-        console.log('支付参数生成成功，准备调起支付宝支付',unifiedOrderRes.data);
-        this.alipayOrderInfo.orderNo = unifiedOrderRes.data.outTradeNo;
+        console.log('支付参数生成成功，准备调起支付宝支付', unifiedOrderRes.data);
+        this.disposableOrderInfo.orderNo = unifiedOrderRes.data.outTradeNo;
         
         // 第3步：调起支付宝支付
         await this.invokeAlipayment(unifiedOrderRes.data.tradeNo);
+        // #endif
         
       } catch (error) {
-        console.error('支付宝充完即退流程失败:', error);
+        console.error('充完即退流程失败:', error);
         setTimeout(() => {
           uni.hideLoading();
         }, 1000);
         uni.showToast({ title: error.message || '启动充电失败', icon: 'none' });
         
         // 发生错误时取消订单
-        if (this.alipayOrderInfo.orderNo) {
-          this.cancelAlipayOrder('启动流程异常');
+        if (this.disposableOrderInfo.orderNo) {
+          this.cancelDisposableOrder('启动流程异常');
         }
       } finally {
-        this.alipayOrderInfo.isProcessing = false;
+        this.disposableOrderInfo.isProcessing = false;
         // 无论成功还是失败，都要重置启动中状态
         this.isStarting = false;
         setTimeout(() => {
           uni.hideLoading();
         }, 1000);
       }
+    },
+    
+    // 调起微信支付
+    async invokeWechatPay(payData) {
+      return new Promise((resolve, reject) => {
+        // #ifdef MP-WEIXIN
+        console.log('调起微信支付', payData);
+        uni.requestPayment({
+          provider: 'wxpay',
+          timeStamp: payData.timeStamp + '',
+          nonceStr: payData.nonceStr,
+          package: payData.package || payData.packageStr,
+          signType: payData.signType || 'MD5',
+          paySign: payData.sign || payData.paySign,
+          success: (res) => {
+            console.log('微信支付调用成功：', res);
+            this.startPaymentResultPolling();
+            uni.showToast({
+              title: '支付成功，请勿离开页面，等待充电启动',
+              icon: 'success'
+            });
+            resolve(res);
+          },
+          fail: (err) => {
+            console.error('微信支付调用失败：', err);
+            uni.showToast({
+              title: '支付取消或失败',
+              icon: 'none'
+            });
+            reject(err);
+          }
+        });
+        // #endif
+      });
     },
     
     // 调起支付宝支付
@@ -723,40 +913,58 @@ export default {
     // 开始轮询支付结果
     startPaymentResultPolling() {
       console.log('开始轮询支付结果...');
-      this.alipayOrderInfo.pollCount = 0;
+      this.disposableOrderInfo.pollCount = 0;
       
       const pollInterval = 3000; // 3秒轮询一次
       const maxPollCount = 20; // 最多轮询10次（30秒）
       
-      this.alipayOrderInfo.pollTimer = setInterval(async () => {
-        this.alipayOrderInfo.pollCount++;
-        console.log(`第${this.alipayOrderInfo.pollCount}次查询支付结果`);
+      this.disposableOrderInfo.pollTimer = setInterval(async () => {
+        this.disposableOrderInfo.pollCount++;
+        console.log(`第${this.disposableOrderInfo.pollCount}次查询支付结果`);
         
         try {
-          console.log('this.alipayOrderInfo.orderNo', this.alipayOrderInfo.orderNo);
-          const queryRes = await alipayDisposableOrderResultQuery({
-            orderNo: this.alipayOrderInfo.orderNo
-          });
+          console.log('this.disposableOrderInfo.orderNo', this.disposableOrderInfo.orderNo);
           
+          // #ifdef MP-WEIXIN
+          // 微信支付结果查询
+          let queryRes = await disposableOrderResultQuery({
+            orderNo: this.disposableOrderInfo.orderNo
+          });
+          // #endif
+          
+          // #ifdef MP-ALIPAY
+          // 支付宝支付结果查询
+          let queryRes = await alipayDisposableOrderResultQuery({
+            orderNo: this.disposableOrderInfo.orderNo
+          });
+          // #endif
+
+          
+          if (queryRes.code === 204) {
+            this.clearPaymentPolling();
+            uni.showToast({ title: '支付确认超时，金额已退回', icon: 'none' });
+          }
           if (queryRes.code === 0) {
             // 支付成功，清除轮询并启动充电
             this.clearPaymentPolling();
             console.log('支付成功，准备启动充电');
             await this.startChargingAfterPayment();
             
-          } else if (this.alipayOrderInfo.pollCount >= maxPollCount) {
+          } else if (this.disposableOrderInfo.pollCount >= maxPollCount) {
             // 轮询超时，取消订单
             this.clearPaymentPolling();
             uni.showToast({ title: '支付结果查询超时，订单已取消', icon: 'none' });
-            this.cancelAlipayOrder('支付结果查询超时');
+            this.cancelDisposableOrder('支付结果查询超时');
           }
           // 其他情况继续轮询
           
         } catch (error) {
-          console.error('查询支付结果失败:', error);
-          if (this.alipayOrderInfo.pollCount >= maxPollCount) {
+          if (error.code === 204) {
+            uni.showToast({ title: '支付确认超时，金额已退回', icon: 'none' });
+          }
+          if (this.disposableOrderInfo.pollCount >= maxPollCount || error.code === 204) {
             this.clearPaymentPolling();
-            this.cancelAlipayOrder('查询支付结果异常');
+            this.cancelDisposableOrder('查询支付结果异常');
           }
         }
       }, pollInterval);
@@ -780,7 +988,7 @@ export default {
           payMode: 1,
           qrCode: "undefined",
           disposablePayMode: true,
-          orderNumber: this.alipayOrderInfo.orderNo,
+          orderNumber: this.disposableOrderInfo.orderNo,
           isParallelCharge: 0
         })
         
@@ -792,7 +1000,7 @@ export default {
           });
           
           // 清理订单信息
-          this.alipayOrderInfo.orderNo = '';
+          this.disposableOrderInfo.orderNo = '';
         } else {
           throw new Error(startChargeRes.msg || '启动充电失败');
         }
@@ -813,16 +1021,28 @@ export default {
       }
     },
     
-    // 取消支付宝订单
-    async cancelAlipayOrder(reason = '用户取消') {
-      if (!this.alipayOrderInfo.orderNo) return;
+    // 取消订单（支持微信和支付宝）
+    async cancelDisposableOrder(reason = '用户取消') {
+      if (!this.disposableOrderInfo.orderNo) return;
       
       try {
-        console.log(`正在取消订单: ${this.alipayOrderInfo.orderNo}, 原因: ${reason}`);
-        const cancelRes = await alipayDisposableCancelRecharge({
-          orderNo: this.alipayOrderInfo.orderNo,
+        console.log(`正在取消订单: ${this.disposableOrderInfo.orderNo}, 原因: ${reason}`);
+        
+        // #ifdef MP-WEIXIN
+        // 微信取消订单
+        let cancelRes = await disposableCancelRecharge({
+          orderNo: this.disposableOrderInfo.orderNo,
           cancelReason: reason
         });
+        // #endif
+        
+        // #ifdef MP-ALIPAY
+        // 支付宝取消订单
+        let cancelRes = await alipayDisposableCancelRecharge({
+          orderNo: this.disposableOrderInfo.orderNo,
+          cancelReason: reason
+        });
+        // #endif
         
         if (cancelRes.code === 0) {
           console.log('订单取消成功');
@@ -834,15 +1054,15 @@ export default {
         console.error('取消订单请求失败:', error);
       } finally {
         // 清理订单信息
-        this.alipayOrderInfo.orderNo = '';
+        this.disposableOrderInfo.orderNo = '';
       }
     },
     
     // 清理支付结果轮询
     clearPaymentPolling() {
-      if (this.alipayOrderInfo.pollTimer) {
-        clearInterval(this.alipayOrderInfo.pollTimer);
-        this.alipayOrderInfo.pollTimer = null;
+      if (this.disposableOrderInfo.pollTimer) {
+        clearInterval(this.disposableOrderInfo.pollTimer);
+        this.disposableOrderInfo.pollTimer = null;
         console.log('支付结果轮询已清理');
       }
     },
@@ -863,9 +1083,9 @@ export default {
       this.clearPaymentPolling();
       
       // 如果正在处理支付宝订单，取消订单
-      if (this.alipayOrderInfo.isProcessing && this.alipayOrderInfo.orderNo) {
-        this.cancelAlipayOrder('页面离开，取消订单');
-      }
+      // if (this.disposableOrderInfo.isProcessing && this.disposableOrderInfo.orderNo) {
+      //   this.cancelDisposableOrder('页面离开，取消订单');
+      // }
       
       console.log('所有定时器清理完成');
     }
@@ -877,6 +1097,7 @@ export default {
 .page-container {
   background-color: #f5f5f5;
   padding-bottom: 180rpx; /* 为底部栏预留安全区域 */
+  min-height: 80vh;
 }
 
 .loading-container {
@@ -902,6 +1123,7 @@ export default {
   padding-right: 30rpx;
   padding-top: 10rpx;
   padding-bottom: 10rpx;
+  z-index: 1000;
 }
 .refresh-button {
   background-color: #f0f0f0;

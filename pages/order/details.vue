@@ -1,5 +1,6 @@
 <template>
   <view class="details-container" v-if="orderDetails">
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 顶部站点信息 -->
     <view class="header-section">
       <text class="station-name">{{ orderDetails.stationName }}</text>

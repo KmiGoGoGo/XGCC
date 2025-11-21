@@ -1,5 +1,24 @@
 <template>
     <view class="page-container">
+        <!-- #ifdef MP-WEIXIN -->
+        <!-- 开屏 LOGO 全屏层 -->
+        <view class="splash-screen" :class="{ 'splash-hidden': splashHidden }" v-if="showSplash">
+            <view class="splash-content">
+                <view class="splash-logo-container" :class="{ 'logo-shift-left': logoShiftLeft }">
+                    <canvas type="2d" id="splashCanvas" class="splash-canvas"></canvas>
+                </view>
+                <text class="splash-text" :class="{ 'text-visible': textVisible }">星光超充</text>
+            </view>
+            
+            <!-- 固定居中显示的停止中文字 -->
+            <view class="loading-text-container">
+                <text class="loading-text">正在停止充电</text>
+            </view>
+        </view>
+        <!-- #endif -->
+        
+        <uv-navbar :border="false" bgColor="transparent" @leftClick="handleBack" title="停止充电中"  placeholder safeAreaInsetTop></uv-navbar>
+        
         <!-- 居中提示文字 -->
         <view class="message-container">
             <text class="main-message">充电桩预计将在60秒内停止</text>
@@ -7,16 +26,12 @@
             <text class="sub-message">为避免产生额外占位费，充电结束后请拔枪驶离车位</text>
         </view>
 
-        <!-- 倒计时圆环 -->
-        <view class="countdown-circle">
-            <view class="circle-container" :style="circleStyle">
-                <text class="countdown-text">{{ countdown }}<text class="countdown-unit">s</text></text>
+        <!-- 倒计时进度条 -->
+        <view class="progress-container">
+            <view class="progress-bar">
+                <view class="progress-fill" :style="{ width: smoothProgress + '%' }"></view>
             </view>
-        </view>
-
-        <!-- 状态提示 -->
-        <view class="status-info">
-            <text class="status-text">正在停止充电...</text>
+            <text class="countdown-text">{{ countdown }}<text class="countdown-unit">s</text></text>
         </view>
     </view>
 </template>
@@ -24,9 +39,19 @@
 <script>
 import { getBillDetailById } from '@/api/bill.js'
 
+// #ifdef MP-WEIXIN
+import lottie from 'lottie-miniprogram'
+import logoAnimationData from '../../static/X2.json'
+// #endif
+
 export default {
     data() {
         return {
+            splashLottieAnimation: null, // 存储开屏 lottie 动画实例
+            showSplash: true, // 是否显示开屏层
+            splashHidden: false, // 开屏层是否隐藏（透明）
+            logoShiftLeft: false, // logo 是否向左移动
+            textVisible: false, // 文字是否可见
             countdown: 60,
             timer: null,
             smoothTimer: null,
@@ -35,14 +60,6 @@ export default {
             busId: null, // 账单ID
             progress: 100, // 进度百分比，从100%开始递减
             smoothProgress: 100 // 用于平滑动画的进度值
-        }
-    },
-    computed: {
-        circleStyle() {
-            // 使用平滑进度值
-            return {
-                '--progress': `${this.smoothProgress}%`
-            }
         }
     },
     onLoad(options) {
@@ -62,6 +79,75 @@ export default {
         this.startCountdown();
     },
     methods: {
+        // 初始化开屏 LOGO lottie 动画（微信小程序）
+        initSplashLottie() {
+            // #ifdef MP-WEIXIN
+            wx.createSelectorQuery()
+                .select('#splashCanvas')
+                .node((res) => {
+                    const canvas = res.node;
+                    const context = canvas.getContext('2d');
+                    
+                    // 设置 canvas 实际大小 - 开屏动画更大
+                    const dpr = wx.getSystemInfoSync().pixelRatio;
+                    const size = 200; // 开屏 logo 尺寸 (rpx)
+                    canvas.width = size * dpr;
+                    canvas.height = size * dpr;
+                    context.scale(dpr, dpr);
+                    
+                    // 使用导入的 lottie JSON 数据
+                    lottie.setup(canvas);
+                    this.splashLottieAnimation = lottie.loadAnimation({
+                        loop: false,
+                        autoplay: true,
+                        animationData: logoAnimationData,
+                        rendererSettings: {
+                            context: context
+                        }
+                    });
+                    
+                    // 监听动画完成事件
+                    this.splashLottieAnimation.addEventListener('complete', () => {
+                        console.log('开屏动画播放完成');
+                        this.onSplashAnimationComplete();
+                    });
+                })
+                .exec();
+            // #endif
+        },
+        
+        // 开屏动画完成后的处理
+        onSplashAnimationComplete() {
+            // 1. logo 向左移动
+            this.logoShiftLeft = true;
+            
+            // 2. 延迟 300ms 后文字渐显
+            setTimeout(() => {
+                this.textVisible = true;
+            }, 300);
+            
+            // 3. 延迟 1000ms 后整个开屏层渐隐
+            setTimeout(() => {
+                this.splashHidden = true;
+                
+                // 4. 完全隐藏后移除开屏层（节省性能）
+                setTimeout(() => {
+                    this.showSplash = false;
+                    // 销毁动画实例
+                    if (this.splashLottieAnimation) {
+                        this.splashLottieAnimation.destroy();
+                        this.splashLottieAnimation = null;
+                    }
+                }, 1000);
+            }, 1300);
+        },
+
+        handleBack() {
+            // 回到首页
+            uni.switchTab({
+                url: '/pages/index/index'
+            });
+        },
         startCountdown() {
             // 主计时器：每秒更新数字
             this.timer = setInterval(() => {
@@ -181,16 +267,37 @@ export default {
         }
     },
     
+    onReady() {
+        this.$nextTick(() => {
+            // 初始化开屏 LOGO lottie 动画（微信小程序）
+            // #ifdef MP-WEIXIN
+            this.initSplashLottie();
+            // #endif
+        });
+    },
+    
     // 页面卸载时清理定时器
     onUnload() {
         this.stopCountdown();
         this.stopPolling();
+        this.destroySplashLottie();
     },
     
     // 页面隐藏时暂停倒计时和轮询
     onHide() {
         this.stopCountdown();
         this.stopPolling();
+    },
+    
+    // 销毁 lottie 动画实例
+    destroySplashLottie() {
+        // #ifdef MP-WEIXIN
+        if (this.splashLottieAnimation) {
+            this.splashLottieAnimation.destroy();
+            this.splashLottieAnimation = null;
+            console.log('已销毁开屏 lottie 动画实例');
+        }
+        // #endif
     },
     
     // 页面显示时重新开始倒计时和轮询
@@ -206,10 +313,103 @@ export default {
 </script>
 
 <style scoped>
+/* 开屏 LOGO 全屏层样式 */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E3F4FC;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 600ms ease-out;
+}
+
+.splash-screen.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.splash-logo-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 500ms ease-out;
+}
+
+.splash-logo-container.logo-shift-left {
+    transform: translate(calc(-50% - 120rpx), -50%);
+}
+
+.splash-canvas {
+    width: 200rpx;
+    height: 200rpx;
+}
+
+.splash-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-25%, -50%);
+    font-size: 48rpx;
+    color: #6AAAFB;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 500ms ease-in;
+    z-index: 9999;
+}
+
+.splash-text.text-visible {
+    opacity: 1;
+}
+
+/* 固定居中显示的文字容器 */
+.loading-text-container {
+    position: fixed;
+    top: 85%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36rpx;
+    color: #6AAAFB;
+    font-weight: bold;
+    transition: opacity 500ms ease-in;
+    z-index: 9999;
+}
+
+/* 呼吸动画文字样式 */
+.loading-text {
+    color: #6AAAFB;
+    animation: textBreathe 2s ease-in-out infinite;
+}
+
+/* 文字呼吸动画 */
+@keyframes textBreathe {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}
+
 .page-container {
     height: 100vh;
     width: 100vw;
-    background: #E2F5FF;
+    background: #E3F4FC;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -222,104 +422,68 @@ export default {
 /* 消息容器 */
 .message-container {
     text-align: center;
-    margin-bottom: 120rpx;
+    margin-bottom: 80rpx;
+    margin-top: -100rpx;
     animation: fadeInUp 0.8s ease-out;
 }
 
 .main-message {
     display: block;
-    font-size: 36rpx;
-    color: #3B82F6;
+    font-size: 32rpx;
+    color: #6AAAFB;
     font-weight: bold;
-    margin-bottom: 24rpx;
-    text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
+    margin-bottom: 20rpx;
 }
 
 .sub-message {
     display: block;
-    font-size: 32rpx;
-    color: #3B82F6;
+    font-size: 26rpx;
+    color: #6AAAFB;
     font-weight: 400;
+    margin-bottom: 8rpx;
+    opacity: 0.8;
 }
 
-/* 倒计时圆环 */
-.countdown-circle {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 120rpx;
+/* 倒计时进度条容器 */
+.progress-container {
+    width: 100%;
+    max-width: 600rpx;
     animation: fadeInScale 0.8s ease-out 0.2s both;
 }
 
-.circle-container {
-    width: 400rpx;
-    height: 400rpx;
-    border-radius: 50%;
-    background: #FFFFFF;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.circle-container::before {
-    content: '';
-    position: absolute;
+/* 进度条 */
+.progress-bar {
     width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: conic-gradient(
-        from 0deg, 
-        #3B82F6 0%, 
-        #3B82F6 var(--progress, 100%), 
-        #f0f0f0 var(--progress, 100%), 
-        #f0f0f0 100%
-    );
-    padding: 16rpx;
-    box-sizing: border-box;
-    mask: radial-gradient(farthest-side, transparent calc(100% - 16rpx), white calc(100% - 16rpx));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 16rpx), white calc(100% - 16rpx));
-    transition: background 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    transform: rotate(-90deg); /* 从顶部开始 */
+    height: 16rpx;
+    background: rgba(106, 170, 251, 0.2);
+    border-radius: 8rpx;
+    overflow: hidden;
+    margin-bottom: 40rpx;
+    position: relative;
 }
 
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6AAAFB 0%, #4A90E2 100%);
+    border-radius: 8rpx;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 20rpx rgba(106, 170, 251, 0.5);
+}
+
+/* 倒计时文字 */
 .countdown-text {
-    font-size: 96rpx;
+    display: block;
+    text-align: center;
+    font-size: 80rpx;
     font-weight: bold;
-    color: #3B82F6;
-    z-index: 1;
-    position: relative;
-    text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+    color: #6AAAFB;
+    animation: countdownPulse 1s ease-in-out infinite;
 }
 
 .countdown-unit {
-    font-size: 48rpx;
-    color: #3B82F6;
+    font-size: 40rpx;
+    color: #6AAAFB;
     margin-left: 8rpx;
-}
-
-/* 状态信息 */
-.status-info {
-    text-align: center;
-    animation: fadeInUp 0.8s ease-out 0.4s both;
-}
-
-.status-text {
-    font-size: 32rpx;
-    color: #3B82F6;
-    position: relative;
-}
-
-.status-text::after {
-    content: '';
-    display: inline-block;
-    width: 8rpx;
-    height: 8rpx;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.8);
-    margin-left: 16rpx;
-    animation: blink 1.5s infinite;
 }
 
 /* 动画效果 */
@@ -345,20 +509,6 @@ export default {
     }
 }
 
-@keyframes blink {
-    0%, 50% {
-        opacity: 1;
-    }
-    51%, 100% {
-        opacity: 0.3;
-    }
-}
-
-/* 倒计时数字变化时的缩放动画 */
-.countdown-text {
-    animation: countdownPulse 1s ease-in-out infinite;
-}
-
 @keyframes countdownPulse {
     0%, 100% {
         transform: scale(1);
@@ -367,6 +517,4 @@ export default {
         transform: scale(1.05);
     }
 }
-
-/* 移除了警告动画相关样式 */
 </style>

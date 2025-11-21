@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "我的车辆",
-  "usingComponents": {
-    "vehicle-plate-input": "../../components/vehicle-plate-input/vehicle-plate-input",
-    "uv-icon": "../../uni_modules/uv-icon/components/uv-icon/uv-icon",
-    "uv-button": "../../uni_modules/uv-button/components/uv-button/uv-button",
-    "uv-popup": "../../uni_modules/uv-popup/components/uv-popup/uv-popup"
-  }
-}

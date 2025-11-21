@@ -263,3 +263,155 @@ export function disposableCancelRecharge(data) {
 export function alipayLeaguerUnifiedOrders(data) {
     return http.post('/api-service/api/alipay/leaguerUnifiedOrders', data);
 }
+
+/**
+ * =====================================
+ * 微信占位订单支付相关API
+ * =====================================
+ */
+
+/**
+ * @description 微信占位订单-统一下单
+ * @param {object} data - 请求体
+ * @param {number} data.totalFee - 支付金额（分）
+ * @param {number} data.orderBalance - 订单金额（分）
+ * @param {string} data.openId - 用户openId
+ * @param {string} data.occupydBillId - 占位账单ID
+ * @returns {Promise<object>} 返回微信统一下单结果，包含调起微信支付所需的参数
+ * 
+ * @example
+ * // 请求参数
+ * {
+ *   "totalFee": 100,
+ *   "orderBalance": 100,
+ *   "openId": "oABCD1234567890",
+ *   "occupydBillId": "BILL123456"
+ * }
+ * 
+ * // 响应结果
+ * {
+ *   "code": 0,
+ *   "msg": "成功",
+ *   "data": {
+ *     "timeStamp": "1234567890",
+ *     "nonceStr": "abc123",
+ *     "package": "prepay_id=wx123456",
+ *     "paySign": "signature",
+ *     "signType": "RSA",
+ *     "outTradeNo": "WX202403150001"
+ *   }
+ * }
+ */
+export function wechatDisposableUnifiedOrders(data) {
+    return http.post('/api-service/api/disposable/unifiedOrders', data);
+}
+
+/**
+ * @description 微信占位订单-查询支付结果
+ * @param {object} data - 请求体
+ * @param {string} data.orderNo - 订单号
+ * @returns {Promise<object>} 返回支付状态查询结果
+ * 
+ * @example
+ * // 请求参数
+ * {
+ *   "orderNo": "WX202403150001"
+ * }
+ * 
+ * // 响应结果 - 支付成功
+ * {
+ *   "code": 0,
+ *   "msg": "成功",
+ *   "data": {
+ *     "payStatus": "SUCCESS",
+ *     "orderNo": "WX202403150001",
+ *     "actualAmount": 100,
+ *     "payTime": "2024-03-15 14:30:25"
+ *   }
+ * }
+ */
+export function wechatDisposableOrderResultQuery(data) {
+    return http.post('/api-service/api/disposable/orderResultQuery', data);
+}
+
+/**
+ * @description 微信占位订单-取消支付
+ * @param {object} data - 请求体
+ * @param {string} data.orderNo - 订单号
+ * @param {string} [data.cancelReason] - 取消原因
+ * @returns {Promise<object>} 返回取消结果
+ * 
+ * @example
+ * // 请求参数
+ * {
+ *   "orderNo": "WX202403150001",
+ *   "cancelReason": "用户取消支付"
+ * }
+ * 
+ * // 响应结果
+ * {
+ *   "code": 0,
+ *   "msg": "订单已取消，退款将在1-3个工作日内到账",
+ *   "data": {
+ *     "orderNo": "WX202403150001",
+ *     "refundStatus": "REFUNDING",
+ *     "refundAmount": 100
+ *   }
+ * }
+ */
+export function wechatDisposableCancelRecharge(data) {
+    return http.post('/api-service/api/disposable/cancelRecharge', data);
+}
+
+/**
+ * =====================================
+ * 微信支付充值相关API
+ * =====================================
+ */
+
+/**
+ * @description 微信支付统一下单接口（充值）
+ * @param {object} data - 请求体
+ * @param {string} data.openId - 用户openId
+ * @param {string} data.totalFee - 支付金额（分）
+ * @param {string} data.tradeType - 交易类型：JSAPI(小程序)/APP(APP支付)/MWEB(H5支付)
+ * @returns {Promise<object>} 返回微信支付下单结果
+ * 
+ * @example
+ * // 响应结果
+ * {
+ *   "code": 0,
+ *   "msg": "成功",
+ *   "data": {
+ *     "timeStamp": "1234567890",
+ *     "nonceStr": "abc123",
+ *     "package": "prepay_id=wx123456",
+ *     "paySign": "signature",
+ *     "orderNo": "ORDER001"
+ *   }
+ * }
+ */
+export function wechatUnifiedOrder(data) {
+    return http.post('/api-service/api/unifiedOrders', data);
+}
+
+/**
+ * @description 微信支付订单状态查询接口（充值）
+ * @param {object} data - 请求体  
+ * @param {string} data.orderNo - 订单号
+ * @returns {Promise<object>} 返回订单状态
+ * 
+ * @example
+ * // 响应结果
+ * {
+ *   "code": 0,
+ *   "msg": "成功",
+ *   "data": {
+ *     "payStatus": "SUCCESS",
+ *     "orderNo": "ORDER001"
+ *   }
+ * }
+ */
+export function wechatOrderResultQuery(data) {
+    return http.post('/api-service/api/orderResultQuery', data);
+}

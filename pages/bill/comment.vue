@@ -1,5 +1,12 @@
 <template>
   <view class="comment-page">
+    <uv-navbar 
+      :title="billDetail.commentStatus == 0 ? '评价' : '已评价'"
+      :border="false"
+      :autoBack="true"
+      :placeholder="true"
+      :safeAreaInsetTop="true"
+    />
     <!-- 订单信息卡片 -->
     <view class="order-info-card">
       <view class="card-title">订单信息</view>
@@ -64,7 +71,7 @@
     <!-- 评价卡片 -->
     <view class="review-card">
       <view class="card-title">评价</view>
-      
+      <text v-if="billDetail.commentStatus == 1" class="date">{{baseFormData.commentDate}}</text>
       <!-- 评分区域 -->
       <view class="rating-section">
         <text class="rating-label">评分</text>
@@ -75,11 +82,13 @@
             active-color="#F59E0B" 
             inactive-color="#E5E7EB"
             size="24"
+			:readonly="baseFormData.isComment"
             @change="handleRatingChange"
           />
           <text class="rating-text">{{ ratingText }}</text>
         </view>
       </view>
+	  
 
       <!-- 评论输入区域 -->
       <view class="comment-section">
@@ -88,20 +97,21 @@
           placeholder="请输入内容"
           :maxlength="200"
           :show-confirm-bar="false"
+		  :disabled="baseFormData.isComment"
           height="128"
           custom-style="background-color: #F8F9FA; border-radius: 12rpx; border: 1px solid #E5E7EB;"
         />
       </view>
 
       <!-- 图片上传区域 -->
-      <view class="upload-section">
+      <view class="upload-section" v-if="billDetail.commentStatus == 0">
         <uv-upload
           :file-list="fileList"
           @afterRead="afterRead"
           @delete="deleteFile"
           name="1"
           multiple
-          :max-count="9"
+          :max-count="1"
           :preview-full-image="true"
           width="144"
           height="144"
@@ -112,10 +122,17 @@
           <text class="upload-status-text">正在上传 {{ uploadingImages.length }} 张图片...</text>
         </view>
       </view>
+	  
+	  <view class="upload-section" v-if="billDetail.commentStatus == 1">
+	  	<img style="width: 90px;height: 90px;margin-right: 30rpx;" v-for="(item,index) in baseFormData.imageValue" :key="index" :src="item"  />
+	  </view>
+	  
+	  
+	  
     </view>
 
     <!-- 底部提交按钮 -->
-    <view class="submit-section">
+    <view class="submit-section" v-if="billDetail.commentStatus == 0">
       <uv-button 
         type="primary" 
         shape="circle"
@@ -131,17 +148,27 @@
 </template>
 
 <script>
-import { getBillDetailById, billComment } from '@/api/bill.js'
-import { upload } from '@/api/member.js'
-import globalData from '../../globalData'
+import { getBillDetailById, billComment,getDetailsByBusId } from '@/api/bill.js'
+import globalData from '../../globalData.js'
 
 export default {
   name: 'CommentPage',
   data() {
     return {
+	  imgUrl: globalData.URL,
       loading: true,
       submitting: false, // 提交中状态
       billId: '',
+	  // 基础表单数据
+	  baseFormData: {
+	  	rateVal: 5,
+	  	introduction: '',
+	  	imageValue:[],
+	  	newSelectList:[],
+	  	isComment:false,
+	  	commentDate:'',
+	  
+	  },
       billDetail: {},
       rating: 5,
       commentText: '',
@@ -163,6 +190,7 @@ export default {
     this.billId = options.billId || options.id
     if (this.billId) {
       this.getBillDetail()
+	  
     } else {
       uni.showToast({
         title: '缺少订单ID',
@@ -172,12 +200,19 @@ export default {
   },
   methods: {
     async getBillDetail() {
+		var that = this
       try {
-        this.loading = true
+        that.loading = true
         const res = await getBillDetailById(this.billId)
         
         if (res.code === 0 && res.data) {
-          this.billDetail = res.data
+          that.billDetail = res.data
+		  if(res.data.commentStatus == 0){
+			  console.log('未评论....',res.data)
+		  }else if(res.data.commentStatus == 1){
+			  console.log('已评论.......',res.data)
+			  that.getMsgDel(res.data.busId);
+		}
         } else {
           uni.showToast({
             title: res.message || '获取订单详情失败',
@@ -199,7 +234,30 @@ export default {
       this.rating = value
     },
     
+	getMsgDel(busId){
+		var that = this;
+		getDetailsByBusId(busId)
+	        .then(function (res) {
+				console.log(res.data,'已评价信息')
+				that.baseFormData.commentDate = res.data.createTime;
+				that.baseFormData.isComment = true;
+	            //that.baseFormData.rateVal = res.data.commentCode;
+				that.commentText = res.data.content
+	            that.rating = res.data.commentCode
+	            that.baseFormData.newSelectList = res.data.taglibList;
+	
+	
+	
+				if(res.data.img){
+					that.baseFormData.imageValue = res.data.img.split(',')
+				}
+	
+	        });
+	},
+
+	
     async afterRead(event) {
+	  console.log("触发执行afterRead方法")
       // 当选择图片后触发
       const { file } = event
       const files = Array.isArray(file) ? file : [file]
@@ -222,7 +280,7 @@ export default {
         try {
           // 对于uni-app，需要使用uni.uploadFile
           const uploadResult = await this.uploadImage(singleFile)
-          
+
           if (uploadResult.code === 0 && uploadResult.data) {
             // 上传成功，更新图片URL
             this.$set(this.fileList, tempIndex, {
@@ -274,9 +332,13 @@ export default {
     
     // 封装图片上传方法
     uploadImage(file) {
+	  var that = this
+	  console.log("url路径",that.imgUrl)
+	  console.log("globalData路径",globalData)
       return new Promise((resolve, reject) => {
+		console.log("图片上传路径==",file.url)
         uni.uploadFile({
-          url: global.URL + '/api-service/common/upload',
+          url: that.imgUrl + '/member-service/common/upload',
           filePath: file.url,
           name: 'file',
           header: {

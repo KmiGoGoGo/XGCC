@@ -1,22 +1,16 @@
 <template>
 	<view class="settlement-container">
+        <uv-navbar :border="false" @leftClick="handleBack" :title="orderStatus === 2 ? '订单待支付 请及时支付订单' : '订单已完成 感谢使用'" placeholder safeAreaInsetTop></uv-navbar>
 		<!-- 页面内容 -->
 		<view class="page-content">
 			<!-- 订单状态提示 -->
-			<view class="status-tip" v-if="orderStatus === 2">
-				<view class="status-title">订单待支付</view>
-				<view class="status-desc">感谢使用，请及时支付订单避免影响后续充电！</view>
-			</view>
-			<view class="status-tip" v-else>
-				<view class="status-title">订单已完成</view>
-				<view class="status-desc" v-if="settlementData.disposableOrder">感谢使用，退款会在1～3个工作日内原路退回！</view>
-				<view class="status-desc" v-else>感谢使用，期待再次充电！</view>
+			<view class="status-section"  v-if="settlementData.disposableOrder">
+				<view class="status-desc">退款将在1-3个工作日内原路退回</view>
 			</view>
 
 			<!-- 实付金额卡片 -->
-			<view class="custom-card amount-card">
+			<!-- <view class="custom-card amount-card">
 				<view class="amount-content">
-					<!-- 微信支付分显示待支付金额 -->
 					<template v-if="orderStatus === 2 && settlementData.wxppOrder">
 						<view class="amount-value">
 							<text class="currency">¥</text>
@@ -32,33 +26,49 @@
 						<view class="amount-label">实付金额</view>
 					</template>
 				</view>
-			</view>
+			</view> -->
 			
 			<!-- 费用明细卡片 -->
 			<view class="custom-card detail-card">
+				<view class="card-header">
+					<text class="card-title">费用详情</text>
+				</view>
 				<view class="detail-content">
+					<!-- 实付金额 -->
+					<view class="detail-row main-amount">
+						<text class="detail-label">实付金额</text>
+						<text class="detail-value main-value">¥{{ settlementData.actualAmount }}</text>
+					</view>
+					
+					<!-- 订单总金额 -->
+					<view class="detail-row">
+						<text class="detail-label">订单总金额</text>
+						<text class="detail-value">¥{{ settlementData.busBalance }}</text>
+					</view>
+					
+					<!-- 电费服务费说明 -->
+					<view class="fee-breakdown">
+						<view class="fee-item">
+							<text class="fee-label">电费</text>
+							<text class="fee-value">¥{{ settlementData.powerBalance }}</text>
+						</view>
+						<view class="fee-item">
+							<text class="fee-label">服务费</text>
+							<text class="fee-value">¥{{ settlementData.serviceBalance }}</text>
+						</view>
+					</view>
+					
 					<!-- 优惠金额 -->
 					<view class="detail-row" v-if="settlementData.totalDiscountBalance > 0">
 						<text class="detail-label">优惠金额</text>
-						<text class="detail-value discount">- ¥ {{ settlementData.totalDiscountBalance }}</text>
+						<text class="detail-value discount">- ¥{{ settlementData.totalDiscountBalance }}</text>
 					</view>
 					
 					<!-- 奖励金抵扣/电卡抵扣 -->
 					<view class="detail-row" v-if="settlementData.deductibleBalance > 0">
 						<text class="detail-label" v-if="settlementData.payMode != 6">奖励金抵扣</text>
 						<text class="detail-label" v-else>电卡抵扣</text>
-						<text class="detail-value discount">- ¥ {{ settlementData.deductibleBalance }}</text>
-					</view>
-					
-					<!-- 订单总金额 -->
-					<view class="detail-row">
-						<text class="detail-label">订单总金额</text>
-						<text class="detail-value">¥ {{ settlementData.busBalance }}</text>
-					</view>
-					
-					<!-- 电费服务费说明 -->
-					<view class="fee-note">
-						电费:¥{{ settlementData.powerBalance }} | 服务费:¥{{ settlementData.serviceBalance }}
+						<text class="detail-value discount">- ¥{{ settlementData.deductibleBalance }}</text>
 					</view>
 					
 					<!-- 可折叠的费用详情 -->
@@ -106,7 +116,7 @@
 										<view class="detail-row">
 											<text class="detail-label">结算退回（充完即退)</text>
 											<view class="detail-right">
-												<text class="detail-value">- ¥ {{ settlementData.refundObj ? (settlementData.refundObj.money/100).toFixed(2) : '0' }}</text>
+												<text class="detail-value">- ¥ {{ settlementData.backAmountCalculate ? settlementData.backAmountCalculate : '-' }}</text>
 												<text class="detail-time">
 													<text style="margin-right: 20rpx;" v-if="settlementData.refundObj">
 														<text v-if="settlementData.refundObj.refundStatus==1">退款成功</text>
@@ -164,6 +174,9 @@
 			
 			<!-- 订单信息卡片 -->
 			<view class="custom-card detail-card">
+				<view class="card-header">
+					<text class="card-title">订单信息</text>
+				</view>
 				<view class="detail-content">
 					<view class="detail-row">
 						<text class="detail-label">订单编号</text>
@@ -211,52 +224,40 @@
 						</view>
 					</view>
 					<view class="occupy-action">
-						<uv-button text="查看详情" type="primary" size="mini" @click="toPlaceholderOrderDetail(settlementData.occupyBill.id)"></uv-button>
+						<uv-button text="查看详情" type="primary"  @click="toPlaceholderOrderDetail(settlementData.occupyBill.id)"></uv-button>
 					</view>
 				</view>
 			</view>
 			
 			<!-- 充电信息卡片 -->
 			<view class="custom-card detail-card charge-card">
+				<view class="card-header">
+					<text class="card-title">充电信息</text>
+				</view>
 				<view class="detail-content">
-					<!-- 标题和标签 -->
-					<view class="charge-header">
-						<view class="section-title">充电信息</view>
-						<view class="charge-tags">
-							<uv-tags :text="settlementData.chargeType == 'man' ? '慢充' : settlementData.chargeType == 'kuai' ? '快充' : settlementData.chargeType == 'overTake' ? '超充' : '其他'" 
-								bg-color="#FFF7ED" color="#EA580C" border="none" size="mini"></uv-tags>
-							<uv-tags :text="settlementData.pileCurrentMode==1 ? '直流' : settlementData.pileCurrentMode==2 ? '交流' : settlementData.pileCurrentMode==3 ? '交直流一体' : settlementData.pileCurrentMode==4 ? '无线设备' : '其他'" 
-								bg-color="#F0FDF4" color="#15803D" border="none" size="mini"></uv-tags>
+					<!-- 充电类型 -->
+					<view class="detail-row">
+						<text class="detail-label">充电类型</text>
+						<text class="detail-value">{{ settlementData.chargeType == 'man' ? '慢充' : settlementData.chargeType == 'kuai' ? '快充' : settlementData.chargeType == 'overTake' ? '超充' : '其他' }}、{{ settlementData.pileCurrentMode==1 ? '直流' : settlementData.pileCurrentMode==2 ? '交流' : settlementData.pileCurrentMode==3 ? '交直流一体' : settlementData.pileCurrentMode==4 ? '无线设备' : '其他' }}</text>
+					</view>
+					
+					<!-- 充电时长 -->
+					<view class="detail-row">
+						<text class="detail-label">充电时长</text>
+						<view class="detail-right">
+							<text class="detail-value">{{ settlementData.difference || '--' }}</text>
+							<text class="detail-time">{{ settlementData.timeS ? settlementData.timeS.join(' ') : '--' }} - {{ settlementData.timeE ? settlementData.timeE.join(' ') : '--' }}</text>
 						</view>
 					</view>
 					
-					<!-- 充电时间信息 -->
-					<view class="charge-time-info">
-						<view class="time-point">
-							<view class="time-date">{{ settlementData.timeS ? settlementData.timeS[0] : '--' }}</view>
-							<view class="time-value">{{ settlementData.timeS ? settlementData.timeS[1] : '--' }}</view>
-						</view>
-						<view class="time-duration">
-							<view class="duration-badge">{{ settlementData.difference || '--' }}</view>
-							<view class="duration-line"></view>
-							<view class="duration-label">充电时长</view>
-						</view>
-						<view class="time-point">
-							<view class="time-date">{{ settlementData.timeE ? settlementData.timeE[0] : '--' }}</view>
-							<view class="time-value">{{ settlementData.timeE ? settlementData.timeE[1] : '--' }}</view>
-						</view>
-					</view>
-					
-					<!-- 设备信息 -->
-					<view class="device-info">
-						<uv-icon name="info-circle" color="#6B7280" size="16"></uv-icon>
-						<text class="device-text">{{ settlementData.endReasonStr || '暂无停止充电原因' }}</text>
+					<!-- 结束充电 -->
+					<view class="detail-row">
+						<text class="detail-label">结束充电</text>
+						<text class="detail-value">{{ settlementData.endReasonStr || '暂无停止充电原因' }}</text>
 					</view>
 					
 					<!-- 可折叠的充电详情 -->
 					<view v-if="chargeDetailExpanded">
-						<!-- 分割线 -->
-						<view class="divider"></view>
 						
 						<!-- 充电详情 -->
 						<view class="charge-details">
@@ -266,7 +267,7 @@
 							</view>
 							<view class="detail-row">
 								<text class="detail-label">已充电量</text>
-								<text class="detail-value">{{ settlementData.sumPower }}度</text>
+								<text class="detail-value">{{ settlementData.sumPower }} kWh</text>
 							</view>
 							<view class="detail-row">
 								<text class="detail-label">结束SOC</text>
@@ -278,7 +279,7 @@
 					<!-- 收起按钮 -->
 					<view class="toggle-btn" @click="toggleChargeDetail">
 						<text class="toggle-text">{{ chargeDetailExpanded ? '收起充电信息' : '展开充电信息' }}</text>
-						<uv-icon :name="chargeDetailExpanded ? 'arrow-up' : 'arrow-down'" color="#007AFF" size="18"></uv-icon>
+						<uv-icon :name="chargeDetailExpanded ? 'arrow-up' : 'arrow-down'" color="#13a4ec" size="18"></uv-icon>
 					</view>
 				</view>
 			</view>
@@ -310,16 +311,15 @@
 			</view>
 		</view>
 
+		
+		<view class="contact-text">如有疑问请联系客服</view>
+
 		<!-- 完成按钮 -->
 		<view class="fixed-bottom-bar" v-if="orderStatus !== 2">
 			<view class="safe-area-bottom">
-				<uv-button 
-					text="完成" 
-					type="primary" 
-					size="large"
-					:custom-style="buttonStyle"
-					@click="handleRecharge"
-				></uv-button>
+				<button class="primary-button" @click="handleRecharge">
+					再次充电
+				</button>
 			</view>
 		</view>
 	</view>
@@ -407,7 +407,56 @@ export default {
 			this.fetchBillDetail();
 		}
 	},
+	
+	// 拦截返回键
+	onBackPress() {
+		// 获取当前页面栈
+		const pages = getCurrentPages();
+		
+		// 如果页面栈长度大于1，说明有上一个页面
+		if (pages.length > 1) {
+			// 获取上一个页面的路由信息
+			const prevPage = pages[pages.length - 2];
+			const prevRoute = prevPage.route || '';
+			
+			// 检查上一个页面是否是 stopping.vue
+			if (prevRoute.includes('stopping')) {
+				console.log('上一个页面是 stopping.vue，跳转到首页');
+				// 跳转到首页
+				uni.reLaunch({
+					url: '/pages/index/index'
+				});
+				// 返回 true 阻止默认返回行为
+				return true;
+			}
+		}
+		
+		// 返回 false 允许默认返回行为
+		return false;
+	},
 	methods: {
+		handleBack() {
+			// 获取当前页面栈
+			const pages = getCurrentPages();
+			
+			// 如果页面栈长度大于1，说明有上一个页面
+			if (pages.length > 1) {
+				// 获取上一个页面的路由信息
+				const prevPage = pages[pages.length - 2];
+				const prevRoute = prevPage.route || '';
+				
+				// 检查上一个页面是否是 stopping.vue
+				if (prevRoute.includes('stopping')) {
+					console.log('上一个页面是 stopping.vue，跳转到首页');
+					// 跳转到首页
+					uni.reLaunch({
+						url: '/pages/index/index'
+					});
+				} else {
+					uni.navigateBack();
+				}
+			}
+		},
 		// 获取账单详情
 		async fetchBillDetail() {
 			if (!this.billId) {
@@ -557,6 +606,11 @@ export default {
 			// 将字符串转为 Date 对象（补全年份，确保可解析）
 			const year = new Date().getFullYear();
 
+			// 如果timeE为空，则让timeE设置为timeS
+			if (!timeE) {
+				timeE = timeS;
+			}
+
 			const start = new Date(`${year}-${timeS.replace('月', '-').replace('日', '')}`);
 			const end = new Date(`${year}-${timeE.replace('月', '-').replace('日', '')}`);
 
@@ -640,7 +694,7 @@ export default {
 		// 去支付
 		goPay() {
 			uni.navigateTo({
-				url: '../orderSettlement/orderSettlement?busId=' + this.billId
+				url: `/pages/bill/settlementPay?billId=${this.billId}&busId=${this.busId}`
 			});
 		},
 		
@@ -653,7 +707,7 @@ export default {
 		// 查看占位订单详情
 		toPlaceholderOrderDetail(id) {
 			uni.navigateTo({
-				url: '/orderSub/pages/placeholderOrderDetail/placeholderOrderDetail?id=' + id
+				url: '/pages/bill/occupyBillPay?id=' + id
 			});
 		},
 		
@@ -676,7 +730,52 @@ export default {
 <style lang="scss" scoped>
 .settlement-container {
 	min-height: 100vh;
-	background-color: #EBF5FF;
+	background-color: #f6f7f8;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 页面内容区域 */
+.page-content {
+	padding: 32rpx 0;
+	padding-bottom: 200rpx; /* 为底部固定按钮留出空间 */
+}
+
+/* 订单状态区域 */
+.status-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 64rpx 32rpx 32rpx;
+	text-align: center;
+	
+	.status-icon {
+		width: 160rpx;
+		height: 160rpx;
+		border-radius: 50%;
+		background: linear-gradient(135deg, #13a4ec, #007AFF);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 32rpx;
+		box-shadow: 0 8rpx 24rpx rgba(19, 164, 236, 0.3);
+	}
+	
+	.status-title {
+		font-size: 56rpx;
+		font-weight: 700;
+		color: #0d171b;
+		line-height: 1.2;
+		margin-bottom: 16rpx;
+		letter-spacing: -0.02em;
+	}
+	
+	.status-desc {
+		font-size: 32rpx;
+		color: #6b7280;
+		line-height: 1.5;
+		font-weight: 400;
+	}
 }
 
 /* 自定义Card样式 */
@@ -696,19 +795,25 @@ export default {
 	}
 }
 
+/* 卡片头部 */
+.card-header {
+	padding: 32rpx 32rpx 0;
+	
+	.card-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #0d171b;
+	}
+}
+
 /* 自定义分割线样式 */
 .divider {
 	height: 1rpx;
-	background-color: #E5E7EB;
+	background-color: #e5e7eb;
 	margin: 32rpx 0;
 }
 
-
-.page-content {
-	padding: 32rpx 0;
-	padding-bottom: 200rpx; /* 为底部固定按钮留出空间 */
-}
-
+/* 金额卡片样式 */
 .amount-card {
 	.amount-content {
 		text-align: center;
@@ -716,7 +821,7 @@ export default {
 		
 		.amount-label {
 			font-size: 28rpx;
-			color: #6B7280;
+			color: #6b7280;
 			margin-bottom: 16rpx;
 		}
 		
@@ -727,52 +832,68 @@ export default {
 			
 			.currency {
 				font-size: 48rpx;
-				color: #1F2937;
-				font-weight: bold;
+				color: #0d171b;
+				font-weight: 700;
 			}
 			
 			.value {
 				font-size: 96rpx;
-				color: #1F2937;
-				font-weight: bold;
+				color: #0d171b;
+				font-weight: 700;
 				margin-left: 8rpx;
 			}
 		}
 	}
 }
 
+/* 详情卡片样式 */
 .detail-card {
 	.detail-content {
-		padding: 48rpx 32rpx 32rpx;
+		padding: 32rpx;
 	}
 }
 
+/* 详情行样式 */
 .detail-row {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 24rpx;
+	padding: 24rpx 0;
+	border-bottom: 1rpx solid #f3f4f6;
 	
 	&:last-child {
-		margin-bottom: 0;
+		border-bottom: none;
+	}
+	
+	&.main-amount {
+		border-bottom: 1rpx solid #e5e7eb;
+		margin-bottom: 16rpx;
+		padding-bottom: 32rpx;
 	}
 	
 	.detail-label {
 		font-size: 28rpx;
-		color: #6B7280;
+		color: #6b7280;
+		font-weight: 400;
 	}
 	
 	.detail-value {
 		font-size: 28rpx;
-		color: #1F2937;
-		font-weight: 600;
+		color: #0d171b;
+		font-weight: 500;
+		text-align: right;
+		
+		&.main-value {
+			font-size: 36rpx;
+			font-weight: 600;
+		}
 		
 		&.discount {
-			color: #EF4444;
+			color: #ef4444;
 		}
 		
 		&.mono {
-			font-family: 'Courier New', monospace;
+			font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 		}
 	}
 	
@@ -781,7 +902,7 @@ export default {
 		
 		.detail-time {
 			font-size: 24rpx;
-			color: #6B7280;
+			color: #9ca3af;
 			display: block;
 			margin-top: 4rpx;
 		}
@@ -794,22 +915,30 @@ export default {
 	}
 }
 
-.fee-note {
-	font-size: 24rpx;
-	color: #6B7280;
-	text-align: right;
-	margin-top: 8rpx;
-}
-
-.section {
-	.section-title {
-		font-size: 32rpx;
-		color: #1F2937;
-		font-weight: 600;
-		margin-bottom: 16rpx;
+/* 费用分解样式 */
+.fee-breakdown {
+	padding: 16rpx 0;
+	margin: 16rpx 0;
+	
+	.fee-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 8rpx 0;
+		
+		.fee-label {
+			font-size: 24rpx;
+			color: #9ca3af;
+		}
+		
+		.fee-value {
+			font-size: 24rpx;
+			color: #6b7280;
+		}
 	}
 }
 
+/* 切换按钮样式 */
 .toggle-btn {
 	display: flex;
 	align-items: center;
@@ -820,124 +949,14 @@ export default {
 	
 	.toggle-text {
 		font-size: 28rpx;
-		color: #007AFF;
-		font-weight: 600;
+		color: #13a4ec;
+		font-weight: 500;
 	}
 }
 
-.charge-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 32rpx;
-	
-	.charge-tags {
-		display: flex;
-		gap: 16rpx;
-	}
-}
-
-.charge-time-info {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 24rpx;
-	
-	.time-point {
-		text-align: center;
-		
-		.time-date {
-			font-size: 24rpx;
-			color: #6B7280;
-			margin-bottom: 8rpx;
-		}
-		
-		.time-value {
-			font-size: 32rpx;
-			color: #1F2937;
-			font-weight: 600;
-		}
-	}
-	
-	.time-duration {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		position: relative;
-		
-		.duration-badge {
-			background: rgba(0, 122, 255, 0.1);
-			border: 2rpx solid #007AFF;
-			border-radius: 48rpx;
-			padding: 12rpx 24rpx;
-			font-size: 28rpx;
-			color: #007AFF;
-			font-family: 'Courier New', monospace;
-			font-weight: 600;
-			z-index: 2;
-			background-color: white;
-		}
-		
-		.duration-line {
-			position: absolute;
-			top: 50%;
-			left: 0;
-			right: 0;
-			height: 2rpx;
-			background: repeating-linear-gradient(
-				to right,
-				#D1D5DB 0,
-				#D1D5DB 8rpx,
-				transparent 8rpx,
-				transparent 16rpx
-			);
-			z-index: 1;
-		}
-		
-		.duration-label {
-			font-size: 24rpx;
-			color: #6B7280;
-			margin-top: 16rpx;
-		}
-	}
-}
-
-.device-info {
-	display: flex;
-	align-items: center;
-	gap: 8rpx;
-	
-	.device-text {
-		font-size: 28rpx;
-		color: #6B7280;
-	}
-}
-
+/* 充电详情样式 */
 .charge-details {
 	margin-bottom: 16rpx;
-}
-
-/* 订单状态提示样式 */
-.status-tip {
-	background-color: #FFFFFF;
-	border-radius: 24rpx;
-	margin: 16rpx 32rpx 32rpx;
-	padding: 32rpx;
-	text-align: center;
-	
-	.status-title {
-		font-size: 32rpx;
-		color: #1F2937;
-		font-weight: 600;
-		margin-bottom: 16rpx;
-	}
-	
-	.status-desc {
-		font-size: 28rpx;
-		color: #6B7280;
-		line-height: 1.5;
-	}
 }
 
 /* 占位信息样式 */
@@ -949,7 +968,7 @@ export default {
 	
 	.occupy-title {
 		font-size: 32rpx;
-		color: #1F2937;
+		color: #0d171b;
 		font-weight: 600;
 	}
 	
@@ -958,14 +977,14 @@ export default {
 		border-radius: 16rpx;
 		font-size: 24rpx;
 		color: #FFFFFF;
-		background-color: #F59E0B;
+		background-color: #f59e0b;
 		
 		&.paid {
-			background-color: #10B981;
+			background-color: #10b981;
 		}
 		
 		&.refunded {
-			background-color: #6B7280;
+			background-color: #6b7280;
 		}
 	}
 }
@@ -981,20 +1000,20 @@ export default {
 		
 		.occupy-value {
 			font-size: 32rpx;
-			color: #1F2937;
+			color: #0d171b;
 			font-weight: 600;
 			margin-bottom: 8rpx;
 			
 			.unit {
 				font-size: 24rpx;
-				color: #6B7280;
+				color: #6b7280;
 				margin-left: 4rpx;
 			}
 		}
 		
 		.occupy-desc {
 			font-size: 24rpx;
-			color: #6B7280;
+			color: #6b7280;
 		}
 	}
 }
@@ -1009,14 +1028,35 @@ export default {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #FFFFFF;
-	border-top: 1rpx solid #E5E7EB;
-	box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.08);
+	background-color: #f6f7f8;
+	padding: 32rpx 32rpx 0;
 	z-index: 999;
 	
 	.safe-area-bottom {
-		padding: 32rpx 32rpx;
 		padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+	}
+	
+	.primary-button {
+		width: 100%;
+		height: 88rpx;
+		background: linear-gradient(135deg, #13a4ec, #007AFF);
+		color: #ffffff;
+		border: none;
+		border-radius: 24rpx;
+		font-size: 32rpx;
+		font-weight: 600;
+		box-shadow: 0 8rpx 24rpx rgba(19, 164, 236, 0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 16rpx;
+	}
+	
+	.contact-text {
+		text-align: center;
+		font-size: 28rpx;
+		color: #13a4ec;
+		padding-bottom: 32rpx;
 	}
 }
 </style>

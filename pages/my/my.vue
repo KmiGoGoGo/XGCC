@@ -6,11 +6,39 @@
 			<view class="info">
 				<view class="info-content">
 					<text @click="login" class="phone">{{ maskedPhone || '注册/登录' }}</text>
-					<text class="group-name" v-if="memberInfo.tokenMemberType === 2">{{ memberInfo.motorcadeName || '未知车队' }}</text>
+					<view style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx; margin-top: 10rpx;">
+						<view style="display: flex; align-items: center;">
+							<view 
+								v-if="memberInfo.motorcadeName"
+								:style="{
+									display: 'inline-flex',
+									alignItems: 'center',
+									justifyContent: 'center',
+									backgroundColor: memberInfo.tokenMemberType === 2 ? '#E8F5E9' : '#FFF3E0',
+									padding: '4rpx 12rpx',
+									borderRadius: '8rpx'
+								}"
+							>
+								<text :style="{
+									color: memberInfo.tokenMemberType === 2 ? '#4CAF50' : '#FF9800',
+									fontSize: '22rpx'
+								}">
+									{{ memberInfo.tokenMemberType === 2 ? memberInfo.motorcadeName : '个人身份' }}
+								</text>
+							</view>
+						</view>
+						<view @click="changeUser" style="display: flex; align-items: center;">
+							<view v-if="memberInfo.motorcadeName" style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rpx;">
+								<view class="change-user">切换身份</view>
+								<view>
+									<uv-icon name="reload" color="#007AFF" size="14"></uv-icon>
+								</view>
+							</view>
+						</view>
+					</view>
 				</view>
-				<text class="change-user" @click="changeUser" v-if="memberInfo.groupName">切换身份</text>
+				<!-- <text class="change-user" @click="changeUser" v-if="memberInfo.groupName">切换身份</text> -->
 			</view>
-		
 		</view>
 
 		<!-- 2. 会员信息区域 -->
@@ -46,31 +74,45 @@
 		</view>
 
 		<!-- 4. 功能入口区域 -->
-		<view class="grid-menu-card">
-			<view class="grid-item" @click="goToOrderPage">
-				<view class="item-content">
-					<text class="title">我的订单</text>
-					<text class="subtitle">待评价: {{ notCommentBillNumber }}</text>
-				</view>
-			</view>
+		<!-- <view class="grid-menu-card">
 			<view class="grid-item" @click="goToVehiclePage">
 				<view class="item-content">
 					<text class="title">我的爱车</text>
 					<text class="subtitle">车牌号: {{ plateNo || '绑定车辆' }}</text>
 				</view>
 			</view>
-		</view>
-
-		<!-- 5. 广告/功能大横幅 -->
-		<view class="card banner-card" @click="goToRefundPage">
-			<text class="banner-title">快速退款</text>
-			<uv-button type="primary" shape="circle" text="点击进入" />
+		</view> -->
+		
+		<view class="card vehicle-card">
+			<view class="vehicle-header">
+				<text class="vehicle-title">我的爱车</text>
+			</view>
+			<view class="vehicle-content" @click="goToVehiclePage">
+				<view class="vehicle-icon">
+					<uv-icon name="car" color="#ffffff" size="32"></uv-icon>
+				</view>
+				<view class="vehicle-info">
+					<view style="display: flex; flex-direction: row; align-items: center; gap: 5rpx;">
+						<text class="plate-number">{{ plateNo || '绑定车辆享受权益' }}</text>
+						<view class="parking-discount-container" v-if="plateNo">
+							<view style="margin-top: 5rpx;">
+								<uv-icon name="checkmark-circle" color="#FF974F" size="12"></uv-icon>
+							</view>
+							<text class="parking-discount-text">停车优惠</text>
+						</view>
+					</view>
+					<text class="vehicle-desc" v-if="plateNo">特定站点享受停车优惠</text>
+				</view>
+				<view class="vehicle-action">
+					<uv-button shape="round" color="#000000" customTextStyle="font-size: 24rpx; color: #ffffff;" text="管理"></uv-button>
+				</view>
+			</view>
 		</view>
 
 		<!-- 6. 功能菜单 -->
 		<view class="card function-menu-card">
 			<view class="menu-item" v-for="item in filteredMenuItems" :key="item.name" @click="goToPage(item.navigateTo)">
-				<view class="menu-icon-placeholder">[图标]</view>
+				<view class="menu-icon-placeholder"><uv-icon :name="item.iconName" size="28"></uv-icon></view>
 				<text class="menu-label">{{ item.name }}</text>
 			</view>
 		</view>
@@ -83,7 +125,7 @@
 import globalData from '@/globalData.js';
 	import Tabbar from '@/components/tabbar/tabbar';
 	import { getStyleConfig } from '@/api/style.js';
-	import {
+		import {
 		getMemberInfo,
 		listPopUp,
 		getInvoiceBySellerId,
@@ -131,53 +173,76 @@ import globalData from '@/globalData.js';
 				notCommentBillNumber: 0,
 				plateNo: null,
 				// 完整菜单项
-				allMenuItems: [{
-						name: '站点收藏'
+				allMenuItems: [
+					{
+						name: '我的账单',
+						navigateTo: '/pages/order/list',
+						iconName: 'empty-order'
+					},
+					{
+						name: '占位订单',
+						navigateTo: '/pages/order/occupy',
+						iconName: 'empty-order'
 					},
 					{
 						name: '发票开具',
-						navigateTo: '/pages/invoice/invoice'
+						navigateTo: '/pages/invoice/invoice',
+						iconName: 'empty-history'
 					},
-					// {
-					// 	name: '我的账单'
-					// },
 					{
 						name: '客服',
-						navigateTo: '/pages/common/service'
+						navigateTo: '/pages/common/service',
+						iconName: 'server-fill'
 					},
-					{
-						name: '兑券'
-					},
+					// {
+					// 	name: '兑券',
+					// 	iconName: 'coupon',
+					// 	navigateTo: '/pages/coupon/myCoupon'
+					// },
 					{
 						name: '设置',
-						navigateTo: '/pages/common/settings'
+						navigateTo: '/pages/common/version',
+						iconName: 'setting'
 					},
 				],
 				// 未登录时显示的菜单项
 				guestMenuItems: [
 					{
 						name: '客服',
-						navigateTo: '/pages/common/service'
+						navigateTo: '/pages/common/service',
+						iconName: 'server-fill'
 					},
 					{
 						name: '设置',
-						navigateTo: '/pages/common/settings'
+						navigateTo: '/pages/common/version',
+						iconName: 'setting'
 					},
 				],
 				groupMenuItems: [
 					{
-						name: '站点收藏'
+						name: '我的账单',
+						iconName: 'empty-order',
+						navigateTo: '/pages/order/list'
 					},
 					{
-						name: '发票开具'
+						name: '占位订单',
+						iconName: 'empty-order',
+						navigateTo: '/pages/order/occupy'
+					},
+					{
+						name: '发票开具',
+						iconName: 'empty-history',
+						navigateTo: '/pages/invoice/invoice'
 					},
 					{
 						name: '客服',
+						iconName: 'server-fill',
 						navigateTo: '/pages/common/service'
 					},
 					{
 						name: '设置',
-						navigateTo: '/pages/common/settings'
+						iconName: 'setting',
+						navigateTo: '/pages/common/version'
 					},
 				],
 			};
@@ -223,8 +288,9 @@ import globalData from '@/globalData.js';
 			},
 			// 计算显示的账户余额
 			displayBalance() {
-				console.log('this.memberInfo.11111',(this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2))
-				return (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) ? '****' : this.balance;
+				console.log('this.memberInfo.11111', this.balance)
+				// return (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) ? '****' : this.balance;
+				return this.balance;
 			}
 		},
 		onLoad() {
@@ -306,6 +372,9 @@ import globalData from '@/globalData.js';
 			},
 			
 			changeUser() {
+				if (!this.memberInfo.motorcadeName) {
+					return;
+				}
 				const deductMode = uni.getStorageSync('deductMode')
 				let changeType = null;
 				if (deductMode === 'LeaguerAccount' && this.memberInfo.tokenMemberType === 2) {
@@ -445,7 +514,7 @@ import globalData from '@/globalData.js';
 					this.deductMode = data.deductMode;
 					uni.setStorageSync("deductMode", this.deductMode);
 					if (this.deductMode === 'TeamAccount' && data.tokenMemberType === 2) {
-						this.balance = '****';
+						this.balance = (data.carAccountBalance / 100).toFixed(2);
 					} else if (this.deductMode === 'LeaguerAccount') {
 						if (data.tokenMemberType === 0) {
 							this.balance = (data.accountBalance / 100).toFixed(2);
@@ -453,6 +522,8 @@ import globalData from '@/globalData.js';
 							this.balance = (data.carAccountBalance / 100).toFixed(2);
 						}
 					} else if (this.deductMode === 'TeamAccount' && data.tokenMemberType === 0) {
+						this.balance = (data.accountBalance / 100).toFixed(2);
+					} else if (this.deductMode === null && data.tokenMemberType === 0) {
 						this.balance = (data.accountBalance / 100).toFixed(2);
 					}
 
@@ -598,10 +669,20 @@ import globalData from '@/globalData.js';
 
 <style lang="scss" scoped>
 	.my-container {
-		background-color: #F0F7FF;
+		background: linear-gradient(to bottom, #E5F6FF 30%, #F3F3F3 50%);
 		min-height: 100vh;
 		padding: 16rpx;
 		box-sizing: border-box;
+	}
+	.parking-discount-container {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		gap: 5rpx;
+	}
+	.parking-discount-text {
+		font-size: 24rpx;
+		color: #FF974F;
 	}
 
 	.card {
@@ -615,8 +696,10 @@ import globalData from '@/globalData.js';
 	// 1. 顶部用户信息
 	.user-info-card {
 		display: flex;
-		align-items: center;
-		padding: 32rpx;
+		padding: 32rpx 0rpx 30rpx 0rpx;
+		margin-top: 60rpx;
+		flex-direction: column;
+		margin-left: 24rpx;
 	}
 
 	.avatar-placeholder {
@@ -631,8 +714,82 @@ import globalData from '@/globalData.js';
 		font-size: 24rpx;
 	}
 
+	.plate-no {
+		font-size: 30rpx;
+		font-weight: bold;
+		color: #5e5e5e;
+	}
+
+	// 车辆卡片样式
+	.vehicle-card {
+		background-color: #ffffff;
+		border-radius: 16rpx;
+		margin: 16rpx 0;
+		padding: 32rpx;
+		box-sizing: border-box;
+	}
+
+	.vehicle-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 24rpx;
+	}
+
+	.vehicle-title {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+
+	.vehicle-manage {
+		font-size: 28rpx;
+		color: #333333;
+	}
+
+	.vehicle-content {
+		display: flex;
+		align-items: center;
+		background-color: #f8f9fa;
+		border-radius: 12rpx;
+		padding: 24rpx;
+		gap: 20rpx;
+	}
+
+	.vehicle-icon {
+		width: 80rpx;
+		height: 80rpx;
+		background-color: #32d74b;
+		border-radius: 12rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+	}
+
+	.vehicle-info {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		gap: 8rpx;
+	}
+
+	.plate-number {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+
+	.vehicle-desc {
+		font-size: 24rpx;
+		color: #999999;
+	}
+
+	.vehicle-action {
+		flex-shrink: 0;
+	}
+
 	.info {
-		margin-left: 24rpx;
 		flex: 1;
 		display: flex;
 		justify-content: space-between;
@@ -772,7 +929,7 @@ import globalData from '@/globalData.js';
 	// 6. 功能菜单
 	.function-menu-card {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-columns: repeat(4, 1fr);
 		gap: 32rpx;
 		padding: 32rpx 16rpx;
 	}
@@ -786,7 +943,6 @@ import globalData from '@/globalData.js';
 	.menu-icon-placeholder {
 		width: 64rpx;
 		height: 64rpx;
-		background-color: #f0f0f0;
 		border-radius: 8rpx;
 		display: flex;
 		justify-content: center;
@@ -799,5 +955,18 @@ import globalData from '@/globalData.js';
 		font-size: 24rpx;
 		color: #333;
 		margin-top: 16rpx;
+	}
+
+	// 身份字体样式
+	.motorcade-name {
+		font-size: 28rpx;
+		color: #999;
+	}
+
+	// 切换字体样式
+	.change-user {
+		font-size: 24rpx;
+		color: #007AFF;
+		font-weight: bold;
 	}
 </style>

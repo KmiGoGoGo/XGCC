@@ -31,7 +31,7 @@
           </view>
         <view class="distance-section" v-if="stationData.distanceDouble">
           <!-- <text class="distance-text" :style="isSuperStation ? 'color: #007AFF' : 'color: #5aaaff'">{{ stationData.distanceDouble }} km</text> -->
-          <uv-button :color="isSuperStation ? '#FFFFFF' : '#F2F8FF'" shape="circle" size="mini" customTextStyle="color: #5aaaff; font-size: 22rpx; font-weight: bold;" :text="stationData.distanceDouble.toFixed(2) + ' km'"></uv-button>
+          <uv-button :color="'#FFFFFF'" shape="circle" size="mini" customTextStyle="color: #999; font-size: 22rpx;" :text="stationData.distanceDouble.toFixed(2) + ' km'"></uv-button>
         </view>
       </view>
       <!-- 第一行：站点名称与距离 space-between布局 -->
@@ -63,45 +63,44 @@
       </view>
 
       <!-- 第三行：充电桩信息 space-between布局（当同时拥有超充和快充时） -->
-      <view class="gun-status-row gun-space-between">
-                  <!-- 超充桩信息 -->
-          <view class="gun-group" v-if="stationData.superGunFastCount > 0">
-            <view class="gun-view">
-              <text class="gun-type-tag">超</text>
-              <view class="gun-status-view" style="background: #F2F6FC;">
-                <text class="free-gun-text">闲{{ stationData.superFastFreeGunCount || 0 }}</text>
-                <text class="separator">/</text>
-                <text class="total-gun-text">{{ stationData.superGunFastCount }}</text>
-              </view>
-            </view>
+      <view class="gun-status-row">
+        <!-- 超充桩信息 -->
+        <view class="gun-group" v-if="stationData.superGunFastCount > 0">
+          <view class="gun-view">
+            <Tag backgroundColor="#EDF4FE" borderRadius="30rpx" padding="1rpx 16rpx">
+              <text class="super-gun-text">超</text>
+              <text class="super-free-gun-text"> &nbsp; {{ stationData.superFastFreeGunCount || 0 }}/{{ stationData.superGunFastCount || 0 }} </text>
+            </Tag>
           </view>
-          <view class="gun-group" v-if="stationData.fastGunCount > 0">
-            <view class="gun-view">
-              <text class="gun-type-tag" style="background: #FA8C16;">快</text>
-              <view class="gun-status-view" style="background: #FAEBDD;">
-                <text class="free-gun-text">闲{{ stationData.fastFreeGunCount || 0 }}</text>
-                <text class="separator">/</text>
-                <text class="total-gun-text">{{ stationData.fastGunCount }}</text>
-              </view>
-            </view>
+        </view>
+        <!-- 快充桩信息 -->
+        <view class="gun-group" v-if="stationData.fastGunCount > 0">
+          <view class="gun-view">
+            <Tag backgroundColor="#FAEBDD" borderRadius="30rpx" padding="1rpx 16rpx">
+              <text class="fast-gun-text">快</text>
+              <text class="fast-free-gun-text"> &nbsp; {{ stationData.fastFreeGunCount || 0 }}/{{ stationData.fastGunCount || 0 }} </text>
+            </Tag>
           </view>
-          <view class="gun-group" v-if="stationData.slowGunCount > 0">
-            <view class="gun-view">
-              <text class="gun-type-tag" style="background: #1BA035;">慢</text>
-              <view class="gun-status-view" style="background: #F0F9F2;">
-                <text class="free-gun-text">闲{{ stationData.slowFreeGunCount || 0 }}</text>
-                <text class="separator">/</text>
-                <text class="total-gun-text">{{ stationData.slowGunCount }}</text>
-              </view>
-            </view>
+        </view>
+        <!-- 慢充桩信息 -->
+        <view class="gun-group" v-if="stationData.slowGunCount > 0">
+          <view class="gun-view">
+            <Tag backgroundColor="#F0F9F2" borderRadius="30rpx" padding="1rpx 16rpx">
+              <text class="slow-gun-text">慢</text>
+              <text class="slow-free-gun-text"> &nbsp; {{ stationData.slowFreeGunCount || 0 }}/{{ stationData.slowGunCount || 0 }} </text>
+            </Tag>
           </view>
+        </view>
       </view>
+
+      <view></view>
 
       <!-- 通知信息 -->
       <!-- <view class="notice-bar" v-if="stationData.notice" :style="{marginBottom: isSuperStation ? '16rpx' : '0'}"> -->
-      <view class="notice-bar" v-if="stationData.notice">
-        <view class="notice-icon">🔊</view>
-        <text class="notice-text">{{ stationData.notice }}</text>
+      <view class="notice-bar" v-if="stationData.notice || stationData.parkingSubsidy">
+        <!-- <view class="notice-icon">🔊</view> -->
+        <text class="notice-text" v-if="stationData.notice">· {{ stationData.notice }}</text>
+        <text class="notice-text" v-if="stationData.parkingSubsidy">· {{ stationData.parkingSubsidy }}</text>
       </view>
     </view>
   </Card>
@@ -109,11 +108,15 @@
 
 <script>
 import Card from '../../components/common/Card.vue'
+import StatusTag from '../../components/common/StatusTag.vue'
+import Tag from '../../components/common/Tag.vue'
 
 export default {
   name: 'StationListItem',
   components: {
-    Card
+    Card,
+    StatusTag,
+    Tag
   },
   props: {
     stationData: {
@@ -396,17 +399,6 @@ export default {
   display: inline-block;
 }
 
-.gun-type-tag {
-  background: #007AFF;
-  color: #fff;
-  font-size: 24rpx;
-  padding: 2rpx 8rpx;
-  border-radius: 4rpx;
-  margin-right: 8rpx;
-  flex-shrink: 0;
-  display: inline-block;
-  z-index: 2;
-}
 
 .station-name {
   font-size: 30rpx;
@@ -443,19 +435,19 @@ export default {
   align-items: baseline;
 
   .price-symbol {
-    font-size: 36rpx;
-    color: #FF6B6B;
+    font-size: 20rpx;
+    color: #666;
     font-weight: bold;
   }
   .price-value {
     font-size: 36rpx;
-    color: #FF6B6B;
+    color: #F9761C;
     font-weight: bold;
     margin: 0 4rpx;
   }
   .price-unit {
     font-size: 24rpx;
-    color: #FF6B6B;
+    color: #F9761C;
   }
   
   // 原价显示样式（划线效果）
@@ -483,12 +475,6 @@ export default {
   display: flex;
   gap: 32rpx;
   margin-bottom: 12rpx;
-
-  /* 当同时拥有超充和快充时，使用space-between布局 */
-  &.gun-space-between {
-    justify-content: space-between;
-    gap: 0;
-  }
 }
 
 .gun-group {
@@ -517,32 +503,52 @@ export default {
   align-items: flex-end;
    .free-gun-text {
      font-size: 22rpx;
-     font-weight: bold;
+     font-weight: 700;
      // color: #161515; // 移除固定颜色，使用动态颜色
      // 调整文字左右间距
      margin-right: 4rpx;
    }
-  .total-gun-text {
+   .super-gun-text {
     font-size: 22rpx;
-    font-weight: bold;
-    color: #6e6c6c;
-    // 调整文字左右间距
-    margin-left: 4rpx;
-  }
-  .separator {
-    font-size: 16rpx;
-    // font-weight: bold;
-    color: #494646;
-  }
+    font-weight: 700;
+    color: #1890FF;
+   }
+   .super-free-gun-text {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: #2E4DB5;
+   }
+   .fast-gun-text {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: #FA8C16;
+   }
+   .fast-free-gun-text {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: #FBA954;
+   }
+   .slow-free-gun-text {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: #1BA035;
+   }
+   .slow-gun-text {
+    font-size: 22rpx;
+    font-weight: 700;
+    color: #1BA035;
+   }
+  
 }
 
 /* 通知栏 */
 .notice-bar {
   display: flex;
   align-items: flex-start;
+  flex-direction: column;
   // 设置背景颜色透明度
   opacity: 0.75;
-  background: #f0f5ff;
+  background: #FFFFFF;
   border-radius: 6rpx;
   padding: 8rpx 8rpx;
   gap: 6rpx;

@@ -1,6 +1,37 @@
 <template>
     <view class="page-container">
+        <!-- #ifdef MP-WEIXIN -->
+        <!-- 开屏 LOGO 全屏层 -->
+        <view class="splash-screen" :class="{ 'splash-hidden': splashHidden, 'no-animation': noAnimation }" v-if="showSplash">
+            <view class="splash-content">
+                <view class="splash-logo-container" :class="{ 'logo-shift-left': logoShiftLeft }">
+                    <canvas type="2d" id="splashCanvas" class="splash-canvas"></canvas>
+                </view>
+                <text class="splash-text" :class="{ 'text-visible': textVisible }">星光超充</text>
+            </view>
+            
+            <!-- 固定居中显示的启动中文字 -->
+            <view class="loading-text-container" :class="{ 'lottie-animation1': animation1, 'no-animation': noAnimation }">
+                <text class="loading-text">充电桩启动中</text>
+            </view>
+        </view>
+        <!-- #endif -->
         
+        <uv-navbar :border="false" bgColor="transparent" autoBack :title="title" placeholder safeAreaInsetTop></uv-navbar>
+        
+        <!-- 头部容器：logo和价格标签 -->
+        <view class="header-container">
+            <view class="logo-container">
+                <!-- #ifdef MP-WEIXIN -->
+                <view class="logo-lottie-container">
+                    <canvas type="2d" id="logoCanvas" class="logo-canvas"></canvas>
+                </view>
+                <!-- #endif -->
+                <text class="logo-text">星光超充</text>
+            </view>
+        </view>
+        
+        <!-- #ifdef MP-ALIPAY -->
         <view class="lottie-container" :class="{ 'lottie-animation1': animation1, 'no-animation': noAnimation }">
             <lottie
             :autoplay="startingLottie.autoplay" 
@@ -11,45 +42,78 @@
             :style="lottieStyle">
             </lottie>
         </view>
-        
-        <!-- 固定居中显示的启动中文字 -->
-        <view class="loading-text-container" :class="{ 'lottie-animation1': animation1, 'no-animation': noAnimation }">
-            <text class="loading-text">启动中</text>
-        </view>
+        <!-- #endif -->
 
         <!-- 充电站信息 -->
         <view class="station-info">
-            <text class="station-name">{{ chargingGunInfo.stationName || '--' }}</text>
-            <text class="station-gun">{{ chargingGunInfo.gunName || '--' }}</text>
+            
+            <text class="station-name">{{ chargingGunInfo.stationName || '测试站' }}</text>
+            <text class="station-gun">{{ chargingGunInfo.gunName || '测试枪' }}</text>
         </view>
 
         <!-- 电量百分比圆环 -->
         <view class="battery-circle">
+            <!-- 气泡容器 -->
+            <view class="bubbles-container">
+                <view 
+                    v-for="bubble in bubbles" 
+                    :key="bubble.id" 
+                    class="bubble"
+                    :style="{
+                        left: bubble.startX + 'px',
+                        top: bubble.startY + 'px',
+                        width: bubble.size + 'px',
+                        height: bubble.size + 'px',
+                        animationDuration: bubble.duration + 's',
+                        animationDelay: bubble.delay + 's',
+                        '--end-x': bubble.translateX + 'px',
+                        '--end-y': bubble.translateY + 'px'
+                    }"
+                ></view>
+            </view>
+            
             <view class="circle-container">
-                <text class="battery-percent">{{ batteryData.percent || '--' }}<text class="battery-percent-unit">%</text>
-                </text>
+                <!-- 波浪圆环层 -->
+                <view class="wave-ring wave-ring-1"></view>
+                <view class="wave-ring wave-ring-2"></view>
+                <view class="wave-ring wave-ring-3"></view>
+                
+                <!-- 中心内容 -->
+                <view class="circle-content">
+                    <text class="battery-percent">{{ batteryData.percent || '--' }}<text class="battery-percent-unit">%</text>
+                    </text>
+                </view>
             </view>
         </view>
 
         <!-- 车牌号和时间 -->
         <view class="car-info">
             <text class="car-number">{{ carNumber || '--' }}</text>
-            <text class="charge-time">{{ chargingTime || '--' }}</text>
+        </view>
+
+        <view class="time-info">
+            <text class="time-value"></text>
+                        
+            <StatusTag
+                :text="`当前电价: ${priceData.currentPrice || '--'}元/度`"
+                backgroundColor="#4A90E2"
+                textColor="#FFFFFF"
+                :fontSize="'22rpx'"
+                :padding="'8rpx 16rpx'"
+                :borderRadius="'20rpx'"
+                :fontWeight="'500'"
+            />
         </view>
 
         <!-- 费用统计卡片 -->
         <view class="stats-card">
-            <view class="price-info">
-                <text class="price-label">当前电价(综合): <text class="price-value">{{ priceData.currentPrice || '--' }}</text>元/度</text>
-            </view>
-            
             <view class="stats-row">
                 <view class="stat-item">
                     <text class="stat-value">{{ chargingStats.duration || '--' }}</text>
                     <text class="stat-label">充电时长(min)</text>
                 </view>
                 <view class="stat-item">
-                    <text class="stat-value">{{ parseFloat(chargingStats.powerAmount).toFixed(2) || '--' }}</text>
+                    <text class="stat-value">{{ parseFloat(chargingStats.powerAmount).toFixed(3) || '--' }}</text>
                     <text class="stat-label">已充电量(度)</text>
                 </view>
                 <view class="stat-item">
@@ -89,7 +153,7 @@
             </view>
         </view>
 
-        <uv-alert title="温馨提示" type="warning" description="预估费用仅供参考，请以实际结算金额为准" showIcon></uv-alert>
+        <uv-alert type="warning" description="预估费用仅供参考，请以实际结算金额为准" showIcon></uv-alert>
 
         <!-- 停止充电按钮 -->
         <view class="stop-button" @tap="handleStopCharging">
@@ -102,15 +166,31 @@
 import { querChargeOnline } from '../../api/charge.js'
 import { getPreChargeAmountByBusId } from '../../api/charge.js'
 import { stopCharge } from '../../api/charge.js'
+import StatusTag from '../../components/common/StatusTag.vue'
+
+// #ifdef MP-WEIXIN
+import lottie from 'lottie-miniprogram'
+import logoAnimationData from '../../static/X2.json'
+// #endif
 
 export default {
+    components: {
+        StatusTag
+    },
     data() {
         return {
+            logoLottieAnimation: null, // 存储 logo lottie 动画实例
+            splashLottieAnimation: null, // 存储开屏 lottie 动画实例
+            showSplash: true, // 是否显示开屏层
+            splashHidden: false, // 开屏层是否隐藏（透明）
+            logoShiftLeft: false, // logo 是否向左移动
+            textVisible: false, // 文字是否可见
             animationEnabled: true,
             animation1: false,
             animation2: false,
             gunStatus: null,
             noAnimation: false,
+            title: '启动中',
             startingLottie: {
                 id: 'startingLottie',
                 desc: '启动中',
@@ -145,6 +225,7 @@ export default {
                 voltage: null,
                 power: null
             },
+            carNumber: '--',
             // 费用数据
             feeData: {
                 preChargeAmount: null,
@@ -162,7 +243,12 @@ export default {
             },
             // 定时器相关
             pollingTimer: null,
-            pollingInterval: 5000 // 5秒
+            pollingInterval: 5000, // 5秒
+            // 气泡相关
+            bubbles: [],
+            bubbleTimer: null,
+            bubbleIdCounter: 0,
+            circleRadius: 160 // 圆环半径（rpx转px后约为160px）
         }
     },
     computed: {
@@ -214,6 +300,180 @@ export default {
         this.getScreenInfo();
     },
     methods: {
+        // 初始化开屏 LOGO lottie 动画（微信小程序）
+        initSplashLottie() {
+            // #ifdef MP-WEIXIN
+            wx.createSelectorQuery()
+                .select('#splashCanvas')
+                .node((res) => {
+                    const canvas = res.node;
+                    const context = canvas.getContext('2d');
+                    
+                    // 设置 canvas 实际大小 - 开屏动画更大
+                    const dpr = wx.getSystemInfoSync().pixelRatio;
+                    const size = 200; // 开屏 logo 尺寸 (rpx)
+                    canvas.width = size * dpr;
+                    canvas.height = size * dpr;
+                    context.scale(dpr, dpr);
+                    
+                    // 使用导入的 lottie JSON 数据
+                    lottie.setup(canvas);
+                    this.splashLottieAnimation = lottie.loadAnimation({
+                        loop: false,
+                        autoplay: true,
+                        animationData: logoAnimationData,
+                        rendererSettings: {
+                            context: context
+                        }
+                    });
+                    
+                    // 监听动画完成事件
+                    this.splashLottieAnimation.addEventListener('complete', () => {
+                        console.log('开屏动画播放完成');
+                        this.onSplashAnimationComplete();
+                    });
+                })
+                .exec();
+            // #endif
+        },
+        
+        // 开屏动画完成后的处理
+        onSplashAnimationComplete() {
+            // 1. logo 向左移动
+            this.logoShiftLeft = true;
+            
+            // 2. 延迟 300ms 后文字渐显
+            setTimeout(() => {
+                this.textVisible = true;
+            }, 300);
+        },
+        
+        // 初始化头部 logo lottie 动画（微信小程序）
+        initLogoLottie() {
+            // #ifdef MP-WEIXIN
+            wx.createSelectorQuery()
+                .select('#logoCanvas')
+                .node((res) => {
+                    const canvas = res.node;
+                    const context = canvas.getContext('2d');
+                    
+                    // 设置 canvas 实际大小
+                    const dpr = wx.getSystemInfoSync().pixelRatio;
+                    const size = 80; // rpx
+                    canvas.width = size * (dpr / 2);
+                    canvas.height = size * (dpr / 2);
+                    context.scale(dpr / 2, dpr / 2);
+                    
+                    // 使用导入的 lottie JSON 数据
+                    lottie.setup(canvas);
+                    this.logoLottieAnimation = lottie.loadAnimation({
+                        loop: false,
+                        autoplay: true,
+                        animationData: logoAnimationData,
+                        rendererSettings: {
+                            context: context
+                        }
+                    });
+                })
+                .exec();
+            // #endif
+        },
+        
+        // 生成单个气泡
+        generateBubble() {
+            // uni-app中320rpx大约等于160px（在375px宽度设备上），所以容器中心是80px
+            const centerX = 80;
+            const centerY = 80;
+            
+            // 在圆环外围随机生成起始位置
+            const angle = Math.random() * Math.PI * 2;
+            const outerRadius = 80 + 120; // 在圆环外120px处生成
+            const startX = centerX + Math.cos(angle) * outerRadius;
+            const startY = centerY + Math.sin(angle) * outerRadius;
+            
+            // 终点在圆心位置
+            const endRadius = 0;
+            const endAngle = 0;
+            const endX = centerX + Math.cos(endAngle) * endRadius;
+            const endY = centerY + Math.sin(endAngle) * endRadius;
+            
+            // 计算移动的距离
+            const translateX = endX - startX;
+            const translateY = endY - startY;
+            
+            // 气泡大小随机（12-24px）
+            const size = 12 + Math.random() * 12;
+            
+            // 动画时长随机（3-5秒），缓慢移动
+            const duration = 3 + Math.random() * 2;
+            
+            // 延迟随机（0-0.5秒）
+            const delay = Math.random() * 0.5;
+            
+            const bubble = {
+                id: this.bubbleIdCounter++,
+                startX,
+                startY,
+                translateX,
+                translateY,
+                size,
+                duration,
+                delay
+            };
+            
+            this.bubbles.push(bubble);
+            
+            // 动画结束后删除气泡，防止内存泄漏
+            setTimeout(() => {
+                const index = this.bubbles.findIndex(b => b.id === bubble.id);
+                if (index > -1) {
+                    this.bubbles.splice(index, 1);
+                }
+            }, (duration + delay + 0.5) * 1000);
+        },
+        
+        // 启动气泡动画
+        startBubbleAnimation() {
+            if (this.bubbleTimer) {
+                clearTimeout(this.bubbleTimer);
+            }
+            
+            // 每隔200-400ms生成气泡，营造连续的气泡流效果
+            const generateBubbles = () => {
+                // 每次生成1个气泡
+                this.generateBubble();
+                
+                const nextInterval = 200 + Math.random() * 200;
+                this.bubbleTimer = setTimeout(generateBubbles, nextInterval);
+            };
+            
+            generateBubbles();
+        },
+        
+        // 停止气泡动画
+        stopBubbleAnimation() {
+            if (this.bubbleTimer) {
+                clearTimeout(this.bubbleTimer);
+                this.bubbleTimer = null;
+            }
+            this.bubbles = [];
+        },    
+        // 销毁所有 lottie 动画实例
+        destroyLottieAnimations() {
+            // #ifdef MP-WEIXIN
+            if (this.splashLottieAnimation) {
+                this.splashLottieAnimation.destroy();
+                this.splashLottieAnimation = null;
+                console.log('已销毁开屏 lottie 动画实例');
+            }
+            if (this.logoLottieAnimation) {
+                this.logoLottieAnimation.destroy();
+                this.logoLottieAnimation = null;
+                console.log('已销毁头部 logo lottie 动画实例');
+            }
+            // #endif
+        },
+        
         // 获取充电数据
         async fetchChargingData() {
             // 检查必要参数是否存在
@@ -230,6 +490,26 @@ export default {
                 });
                 
                 if (querChargeOnlineRes && querChargeOnlineRes.code === 0) {
+                    if (!this.destroiedSplash) {
+                        this.title = '充电中';
+                        this.destroiedSplash = true;
+
+                        // 3. 延迟 1000ms 后整个开屏层渐隐
+                        setTimeout(() => {
+                            this.splashHidden = true;
+                            
+                            // 4. 完全隐藏后移除开屏层（节省性能）
+                            setTimeout(() => {
+                                this.showSplash = false;
+                                // 销毁动画实例
+                                if (this.splashLottieAnimation) {
+                                    this.splashLottieAnimation.destroy();
+                                    this.splashLottieAnimation = null;
+                                }
+                            }, 1000); // 等待透明度动画完成（600ms）
+                        }, 1000); // 文字显示后延迟 1s
+                        console.log('销毁开屏动画');
+                    }
                     // 这里可以根据接口返回的数据更新页面状态
                     console.log('充电数据更新:', querChargeOnlineRes.data);
                     
@@ -375,8 +655,15 @@ export default {
     },
     onReady() {
 		this.$nextTick(() => {
+            // 初始化开屏 LOGO lottie 动画（微信小程序）
+            // #ifdef MP-WEIXIN
+            this.initSplashLottie();
+            this.initLogoLottie();
+            // #endif
+            
             // this.startSuccess = true;
             // 五秒后启动成功
+            // #ifdef MP-ALIPAY
             if (my) {
                 var lottieContext = my.createLottieContext(this.startingLottie.id);
                 console.log('animationEnabled',this.animationEnabled)
@@ -388,34 +675,110 @@ export default {
                     }, 5000);
                 }
             }
+            // #endif
+            
+            // 启动气泡动画
+            this.startBubbleAnimation();
 		});
     },
     
     // 页面隐藏时停止轮询
     onHide() {
         this.stopPolling();
+        this.stopBubbleAnimation();
     },
     
     // 页面显示时重新开始轮询
     onShow() {
         if (this.chargingGunInfo.busId) {
             this.startPolling();
+            this.startBubbleAnimation();
         }
     },
     
     // 页面卸载时清理定时器
     onUnload() {
         this.stopPolling();
+        this.stopBubbleAnimation();
+        this.destroyLottieAnimations();
     },
     
     // 页面销毁前清理定时器
     beforeDestroy() {
         this.stopPolling();
-    }
+        this.stopBubbleAnimation();
+        this.destroyLottieAnimations();
+    },
+
 }
 </script>
 
 <style scoped>
+/* 开屏 LOGO 全屏层样式 */
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #E3F4FC;
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 600ms ease-out;
+}
+
+.splash-screen.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.splash-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.splash-logo-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 500ms ease-out;
+}
+
+.splash-logo-container.logo-shift-left {
+    transform: translate(calc(-50% - 120rpx), -50%);
+}
+
+.splash-canvas {
+    width: 200rpx;
+    height: 200rpx;
+}
+
+.splash-text {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-25%, -50%);
+    font-size: 48rpx;
+    color: #6AAAFB;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 500ms ease-in;
+    z-index: 9999;
+}
+
+.splash-text.text-visible {
+    opacity: 1;
+}
+
+/* 支付宝小程序的开屏动画样式 */
 .lottie-container {
     position: fixed;
     top: 0;
@@ -429,7 +792,7 @@ export default {
 
 .no-animation {
     opacity: 0;
-    background-color: #E2F5FF;
+    background-color: #fff;
     pointer-events: none;
 }
 
@@ -441,22 +804,50 @@ export default {
 }
 
 .lottie-animation2 {
-    background-color: #E2F5FF;
+    background-color: #fff;
     pointer-events: none;
     /* transition: background-color 1s ease; */
 }
 
 
 .page-container {
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     /* display: flex;
     justify-content: center;
     align-items: center; */
-    background-color: #E2F5FF;
+    background-color: #E3F4FC;
     position: relative;
     padding: 0 32rpx;
+    padding-bottom: calc(96rpx + 60rpx + env(safe-area-inset-bottom)); /* 按钮高度 + 外边距 + 底部安全区域 */
     box-sizing: border-box;
+}
+
+/* 头部容器：logo和价格标签 */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20rpx 0;
+    margin-bottom: -55rpx;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+}
+
+.logo-lottie-container {
+    width: 80rpx;
+    height: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-canvas {
+    width: 80rpx;
+    height: 80rpx;
 }
 
 /* 固定居中显示的文字容器 */
@@ -465,12 +856,26 @@ export default {
     top: 85%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: transparent;
-    z-index: 998;
+    font-size: 36rpx;
+    color: #6AAAFB;
+    font-weight: bold;
+    transition: opacity 500ms ease-in;
+    z-index: 9999;
 }
 /* 白色文字样式 */
 .loading-text {
-    color: #FFFFFF;
+    color: #6AAAFB;
+    animation: textBreathe 2s ease-in-out infinite;
+}
+
+/* 文字呼吸动画 */
+@keyframes textBreathe {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
 }
 .back-icon {
     font-size: 48rpx;
@@ -482,6 +887,12 @@ export default {
     font-size: 36rpx;
     color: #333;
     font-weight: 500;
+}
+
+.logo-text {
+    font-size: 32rpx;
+    color: #6AAAFB;
+    font-weight: 1000;
 }
 
 .info-icon {
@@ -499,7 +910,7 @@ export default {
 /* 充电站信息 */
 .station-info {
     text-align: center;
-    padding-top: 20rpx;
+    padding-top: 0rpx;
     margin-bottom: 60rpx;
 }
 
@@ -522,47 +933,162 @@ export default {
     display: flex;
     justify-content: center;
     margin-bottom: 60rpx;
+    position: relative;
+}
+
+/* 气泡容器 */
+.bubbles-container {
+    position: absolute;
+    width: 320rpx;
+    height: 320rpx;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 气泡样式 */
+.bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(74, 144, 226, 0.7);
+    animation: bubbleFloat forwards linear;
+    will-change: transform, opacity;
+    opacity: 0;
+}
+
+/* 气泡向中心移动的动画 */
+@keyframes bubbleFloat {
+    0% {
+        transform: translate(0, 0);
+        opacity: 0;
+    }
+    5% {
+        opacity: 0;
+    }
+    15% {
+        opacity: 0.8;
+    }
+    70% {
+        opacity: 0.6;
+    }
+    90% {
+        opacity: 0.3;
+    }
+    100% {
+        transform: translate(var(--end-x), var(--end-y));
+        opacity: 0;
+    }
 }
 
 .circle-container {
     width: 320rpx;
     height: 320rpx;
     border-radius: 50%;
-    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* 波浪圆环基础样式 */
+.wave-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3rpx solid rgba(74, 144, 226, 0.3);
+    box-sizing: border-box;
+}
+
+/* 第一层波浪圆环 */
+.wave-ring-1 {
+    width: 100%;
+    height: 100%;
+    animation: waveScaleIn 3s ease-in-out infinite;
+}
+
+/* 第二层波浪圆环 */
+.wave-ring-2 {
+    width: 100%;
+    height: 100%;
+    border-color: rgba(74, 144, 226, 0.4);
+    animation: waveScaleIn 3s ease-in-out infinite;
+    animation-delay: 1s;
+}
+
+/* 第三层波浪圆环 */
+.wave-ring-3 {
+    width: 100%;
+    height: 100%;
+    border-color: rgba(74, 144, 226, 0.5);
+    animation: waveScaleIn 3s ease-in-out infinite;
+    animation-delay: 2s;
+}
+
+/* 中心内容容器 */
+.circle-content {
+    width: 70%;
+    height: 70%;
+    border-radius: 50%;
+    background: #75adf5;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
     position: relative;
+    z-index: 3;
+    animation: breathe 3s ease-in-out infinite;
 }
 
-.circle-container::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, #4A90E2 0%, #4A90E2 78%, #E8F4FD 78%, #E8F4FD 100%);
-    padding: 12rpx;
-    box-sizing: border-box;
-    mask: radial-gradient(farthest-side, transparent calc(100% - 12rpx), white calc(100% - 12rpx));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 12rpx), white calc(100% - 12rpx));
+/* 波浪圆环从外到内缩放动画 */
+@keyframes waveScaleIn {
+    0% {
+        transform: scale(1.2);
+        opacity: 0;
+        border-width: 2rpx;
+    }
+    30% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(0.7);
+        opacity: 0;
+        border-width: 4rpx;
+    }
+}
+
+/* 中心容器呼吸动画 */
+@keyframes breathe {
+    0%, 100% {
+        transform: scale(0.9);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.03);
+        opacity: 0.87;
+    }
 }
 
 .battery-percent {
-    font-size: 88rpx;
+    font-size: 88rpx !important;
     font-weight: bold;
-    color: #4A90E2;
-    /* z-index: 1; */
+    color: #e6f1ff;
+    z-index: 4;
 }
+
 .battery-percent-unit {
-    font-size: 48rpx;
-    color: #4A90E2;
+    font-size: 48rpx !important;
+    color: #e6f1ff;
 }
 /* 车牌号和时间 */
 .car-info {
     text-align: center;
-    margin-bottom: 40rpx;
+    margin-bottom: 20rpx;
+}
+
+.time-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20rpx;
 }
 
 .car-number {
@@ -633,16 +1159,22 @@ export default {
 
 /* 停止充电按钮 */
 .stop-button {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: #4A90E2;
     border-radius: 48rpx;
     height: 96rpx;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 auto 60rpx;
-    width: 100%;
+    width: calc(100% - 64rpx);
     max-width: 600rpx;
-    margin-top: 20rpx;
+    margin: 0 auto;
+    margin-bottom: calc(30rpx + env(safe-area-inset-bottom));
+    box-shadow: 0 -4rpx 16rpx rgba(74, 144, 226, 0.2);
+    z-index: 2;
 }
 
 .stop-text {

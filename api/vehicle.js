@@ -33,7 +33,8 @@ export const updateVehicleInfo = (data) => {
  * @returns 
  */
 export const delVehicleInfo = (id) => {
-  return request.post('/api-service/api/delVehicleInfo', { id })
+  // 修改为form-data
+  return request.postForm('/api-service/api/delVehicleInfo', { id })
 }
 
 

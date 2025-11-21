@@ -87,3 +87,10 @@ export function getOccupyBillById(id) {
 export function billComment(data) {
     return request.post('/api-service/api/billComment', data);
 }
+
+/**
+ * @param {Object} params
+ */
+export function getDetailsByBusId(params) {
+  return request.post(`/api-service/api/getDetailsByBusId?busId=${params}`);
+}

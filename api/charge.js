@@ -1,4 +1,5 @@
 import http from '../utils/request'
+import globalData from '../globalData.js';
 
 /**
  * @description 分页获取充电服务监控列表
@@ -15,7 +16,7 @@ export function pageChargeServiceMonitor(data) {
  * @returns {Promise<object>}
  */
 export function startCharge(data) {
-    return http.post('/api-service/api/charge/startCharge', data);
+    return http.post('/api-service/api/charge/startCharge?miniProgramVersion=' + globalData.miniProgramVersion, data);
 }
 
 /**

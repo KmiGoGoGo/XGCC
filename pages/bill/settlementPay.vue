@@ -1,29 +1,39 @@
 <template>
 	<view class="settlement-pay-container">
+        <uv-navbar :border="false" title="感谢使用!请支付订单" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
 		<!-- 页面内容 -->
 		<view class="page-content">
-			<!-- 订单号标题 -->
-			<view class="order-header">
-				<text class="order-title">订单号: {{ orderData.orderNo }}</text>
+			<!-- 订单号卡片 -->
+			<view class="custom-card order-card">
+				<view class="order-card-content">
+					<view class="order-icon-wrapper">
+						<uv-icon name="file-text" size="40" color="#0ea5e9"></uv-icon>
+					</view>
+					<text class="order-text">订单号：{{ orderData.orderNo }}</text>
+					<view class="copy-btn">
+						<uv-button text="复制" type="primary" size="mini" plain @click="copyOrderNo"></uv-button>
+					</view>
+				</view>
 			</view>
 			
-			<!-- 充电站信息卡片 -->
-			<view class="custom-card station-card">
-				<view class="station-content">
-					<view class="station-image">
-						<image 
-							:src="orderData.stationImage" 
-							mode="aspectFill"
-							class="station-img"
-						></image>
-					</view>
-					<view class="station-info">
-						<view class="station-name">{{ orderData.stationName }}</view>
-						<view class="station-detail">
-							充电时长: {{ orderData.chargeDuration }} 已充电量: {{ orderData.chargedAmount }}kwh
+			<!-- 充电信息卡片 -->
+			<view class="custom-card charge-info-card">
+				<view class="charge-info-content">
+					<view class="section-title">充电信息</view>
+					<view class="charge-stats">
+						<view class="stat-item">
+							<text class="stat-value">{{ orderData.chargeDuration }}</text>
+							<text class="stat-label">充电时长</text>
 						</view>
-						<view class="station-fees">
-							电费: ¥ {{ orderData.electricityFee }} | 服务费: ¥ {{ orderData.serviceFee }}
+						<view class="stat-divider"></view>
+						<view class="stat-item">
+							<text class="stat-value">{{ orderData.chargedAmount }}<text class="stat-unit">kwh</text></text>
+							<text class="stat-label">已充电量</text>
+						</view>
+						<view class="stat-divider"></view>
+						<view class="stat-item">
+							<text class="stat-value total-price">¥{{ orderData.busBalance }}</text>
+							<text class="stat-label">充电总费用</text>
 						</view>
 					</view>
 				</view>
@@ -68,18 +78,7 @@
 							<view class="balance-amount" v-if="orderData.payAccountStr == '个人'">
 								<text>￥</text>
 								{{ orderData.payMode == 6 ?memberInfo.jlAccountBalance?memberInfo.jlAccountBalance:'-': memberInfo.accountBalance?GetBalance(memberInfo.accountBalance - memberInfo.jlAccountBalance):'-' }}
-								<text style="margin-left: 10rpx;"
-									v-if="orderData.payAccountStr == '个人' && orderData.payMode!=6">|</text>
 							</view>
-							<uv-button 
-								text="去充值" 
-								type="primary" 
-								size="mini" 
-								plain 
-								@click="handleRecharge"
-								:custom-style="{ fontSize: '24rpx', height: '48rpx', padding: '0 16rpx' }"
-								v-if="orderData.payAccountStr == '个人' && orderData.payMode!=6"
-							></uv-button>
 							<view class="balance-amount" v-if="orderData.payAccountStr !== '个人'">
 								<text v-if="memberInfo.deductMode !== 'TeamAccount'">￥</text>
 								{{ memberInfo.deductMode == 'TeamAccount' ? '****' : memberInfo.carAccountBalance ? (memberInfo.carAccountBalance / 100).toFixed(2) : '-' }}
@@ -87,71 +86,48 @@
 						</view>
 					</view>
 					
+					<view class="dashed-divider"></view>
+					
+					<!-- 电费 -->
+					<view class="price-row">
+						<text class="price-label">电费</text>
+						<text class="price-value">¥{{ orderData.electricityFee }}</text>
+					</view>
+					
+					<!-- 服务费 -->
+					<view class="price-row">
+						<text class="price-label">服务费</text>
+						<text class="price-value">¥{{ orderData.serviceFee }}</text>
+					</view>
+					
+					<view class="dashed-divider"></view>
+					
 					<!-- 充电总费用 -->
 					<view class="price-row">
 						<text class="price-label">充电总费用</text>
-						<text class="price-value-large">￥{{ orderData.busBalance ? orderData.busBalance:'-' }}</text>
-					</view>
-					
-					<view class="divider"></view>
-					
-					<!-- 会员折扣 -->
-					<view class="price-row" style="margin-top: 70rpx" v-if="orderData.memberDiscountBalance>0">
-						<text class="price-label">{{ orderData.payAccountStr == '个人' ? '会员折扣(个人会员)' : '会员折扣(车队会员)' }}</text>
-						<text class="discount-value">
-							<text>-￥</text>
-							{{ orderData.memberDiscountBalance?orderData.memberDiscountBalance:'--' }}
-						</text>
-					</view>
-					
-					<!-- 优惠活动 -->
-					<view class="price-row" style="margin-top: 42rpx" v-if="orderData.discountBalance>0">
-						<text class="price-label">
-							优惠活动({{ orderData.ruleType == '1' ? '会员折扣' : orderData.ruleType == '2' ? '累计优惠' : '站点优惠' }})
-						</text>
-						<text class="discount-value">
-							<text>-￥</text>
-							{{ orderData.discountBalance?orderData.discountBalance:'-' }}
-						</text>
-					</view>
-					
-					<!-- 奖励金/电卡 -->
-					<view class="price-row" style="margin-top: 42rpx" v-if="orderData.deductibleBalance>0">
-						<text class="price-label">{{orderData.payMode == 6?"电卡":"奖励金"}}</text>
-						<text class="discount-value">
-							<text>-￥</text>
-							{{ orderData.deductibleBalance?orderData.deductibleBalance:'-' }}
-						</text>
+						<text class="price-value">¥{{ orderData.busBalance ? orderData.busBalance:'-' }}</text>
 					</view>
 					
 					<!-- 优惠券 -->
-					<view class="price-row" style="margin-top: 70rpx">
-						<text class="price-label">优惠券</text>
-						<view v-if="orderData.payAccountStr == '个人' && orderData.payMode!=6" class="coupon-info"
-							@click="handleCoupon"
-							:data-id="orderData.id">
-							<text class="discount-value">
-								<text>-￥</text>
-								{{ orderData.couponAmount }}
-							</text>
-							<image v-if="orderData.billStatus != 14" class="img"
-								src="https://oos-cn.ctyunapi.cn/front-end/static/orderSub/images/turn.png"></image>
+					<view class="price-row coupon-row" v-if="orderData.payAccountStr == '个人' && orderData.payMode!=6" @click="handleCoupon" :data-id="orderData.id">
+						<text class="price-label">优惠券优惠</text>
+						<view class="coupon-info">
+							<text class="discount-value">-¥{{ orderData.couponAmount }}</text>
+							<text class="arrow-icon" v-if="orderData.billStatus != 14">›</text>
 						</view>
-						<text class="price-label" v-else>暂不可用</text>
+					</view>
+
+					<view class="price-row">
+						<text class="price-label">已优惠</text>
+						<text class="price-value">¥{{ orderData.allCouponAmount ? orderData.allCouponAmount:'0.00' }}</text>
 					</view>
 					
-					<view class="divider"></view>
+					<view class="dashed-divider"></view>
 					
 					<!-- 应付金额汇总 -->
-					<view class="price-row" style="margin-top: 70rpx">
-						<view></view>
-						<view class="summary-text">
-							已优惠
-							<text>￥</text>
-							<view class="payNum1">{{ orderData.allCouponAmount }}</view>
-							，应付￥
-							<view class="payNum2">{{ orderData.actualBalance1 }}</view>
-						</view>
+					<view class="price-row final-amount-row">
+						<text class="final-amount-label">应付金额</text>
+						<text class="final-amount-value">¥{{ orderData.actualBalance1 }}</text>
 					</view>
 				</view>
 			</view>
@@ -161,7 +137,7 @@
 		<view class="fixed-bottom-bar" v-if="orderData.billStatus !== 13">
 			<view class="countdown-info">
 				<text class="countdown-text">
-					结算前可更改使用优惠券，<text class="countdown-time">{{ countdownText }}</text>后将自动付款
+					结算前可更换使用优惠券，<text class="countdown-time">{{ countdownText }}</text>后将自动付款
 				</text>
 			</view>
 			<view class="safe-area-bottom">
@@ -300,7 +276,18 @@ export default {
 			}
 		}
 	},
-	methods: {
+	methods: {		
+		copyOrderNo() {
+			uni.setClipboardData({
+				data: this.orderData.orderNo,
+				success: () => {
+					uni.showToast({
+						title: '订单编号已复制',
+						icon: 'success'
+					});
+				}
+			});
+		},
 		// 获取账单数据
 		async fetchBillData() {
 			if (!this.busId) {
@@ -791,7 +778,7 @@ export default {
 <style lang="scss" scoped>
 .settlement-pay-container {
 	min-height: 100vh;
-	background-color: #F0F7FF;
+	background-color: #f0f9ff; /* sky-50 */
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
@@ -801,15 +788,16 @@ export default {
 .custom-card {
 	background-color: #FFFFFF;
 	border-radius: 24rpx;
+	border: 1px solid rgba(229, 231, 235, 0.8);
 	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-	margin: 0 32rpx 48rpx;
+	margin: 0 32rpx 32rpx;
 	overflow: hidden;
 }
 
-/* 自定义分割线样式 */
-.divider {
-	height: 1rpx;
-	background-color: #E5E7EB;
+/* 分割线样式 */
+.dashed-divider {
+	height: 1px;
+	border-top: 1px dashed rgba(229, 231, 235, 0.8);
 	margin: 24rpx 0;
 }
 
@@ -819,57 +807,108 @@ export default {
 	padding-bottom: 240rpx; /* 为底部固定区域留出空间 */
 }
 
-.order-header {
-	text-align: center;
-	padding: 32rpx 0;
+/* 订单号卡片样式 */
+.order-card {
+	padding: 32rpx;
 	
-	.order-title {
-		font-size: 32rpx;
+	.order-card-content {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		
+		.order-icon-wrapper {
+			width: 80rpx;
+			height: 80rpx;
+			border-radius: 16rpx;
+			background-color: #dbeafe; /* sky-100 */
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-shrink: 0;
+			
+		.order-icon {
+			font-size: 40rpx;
+			color: #0ea5e9; /* primary color */
+		}
+	}
+	
+	.order-text {
+		flex: 1;
+		font-size: 28rpx;
 		font-weight: 500;
-		color: #1F2937;
+		color: #1f2937;
+		margin-left: 24rpx;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	
+	.copy-btn {
+		width: 64rpx;
+		height: 64rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		color: #6b7280;
+		flex-shrink: 0;
+		
+		.copy-icon {
+			font-size: 36rpx;
+		}
+	}
 	}
 }
 
-.station-card {
-	.station-content {
-		display: flex;
-		align-items: center;
-		padding: 32rpx;
-		gap: 32rpx;
-		
-		.station-image {
-			width: 160rpx;
-			height: 160rpx;
-			border-radius: 24rpx;
-			overflow: hidden;
-			flex-shrink: 0;
-			
-			.station-img {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
-			}
+/* 充电信息卡片样式 */
+.charge-info-card {
+	padding: 32rpx;
+	
+	.charge-info-content {
+		.section-title {
+			font-size: 32rpx;
+			font-weight: 600;
+			color: #1f2937;
+			margin-bottom: 32rpx;
+			letter-spacing: -0.3rpx;
 		}
 		
-		.station-info {
-			flex: 1;
+		.charge-stats {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-around;
 			
-			.station-name {
-				font-size: 36rpx;
-				font-weight: bold;
-				color: #1F2937;
-				margin-bottom: 16rpx;
+			.stat-item {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				gap: 8rpx;
+				text-align: center;
+				
+				.stat-value {
+					font-size: 40rpx;
+					font-weight: bold;
+					color: #1f2937;
+					
+					.stat-unit {
+						font-size: 32rpx;
+						font-weight: 500;
+					}
+					
+					&.total-price {
+						color: #0ea5e9;
+					}
+				}
+				
+				.stat-label {
+					font-size: 24rpx;
+					color: #6b7280;
+				}
 			}
 			
-			.station-detail {
-				font-size: 28rpx;
-				color: #6B7280;
-				margin-bottom: 8rpx;
-			}
-			
-			.station-fees {
-				font-size: 28rpx;
-				color: #6B7280;
+			.stat-divider {
+				width: 1px;
+				height: 80rpx;
+				background-color: #e5e7eb;
 			}
 		}
 	}
@@ -877,13 +916,14 @@ export default {
 
 .price-card {
 	.price-content {
-		padding: 48rpx 32rpx 32rpx;
+		padding: 32rpx;
 		
 		.section-title {
-			font-size: 36rpx;
-			font-weight: bold;
-			color: #1F2937;
-			margin-bottom: 40rpx;
+			font-size: 32rpx;
+			font-weight: 600;
+			color: #1f2937;
+			margin-bottom: 32rpx;
+			letter-spacing: -0.3rpx;
 		}
 	}
 }
@@ -892,9 +932,10 @@ export default {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 40rpx;
+	margin-bottom: 24rpx;
 	
 	&.coupon-row {
+		padding: 8rpx 0;
 		cursor: pointer;
 	}
 	
@@ -904,24 +945,24 @@ export default {
 	
 	.price-label {
 		font-size: 28rpx;
-		color: #6B7280;
+		color: #6b7280;
 	}
 	
 	.price-value {
 		font-size: 28rpx;
-		color: #1F2937;
+		color: #1f2937;
 		font-weight: 500;
 	}
 	
 	.price-value-large {
 		font-size: 40rpx;
-		color: #1F2937;
+		color: #1f2937;
 		font-weight: bold;
 	}
 	
 	.discount-value {
 		font-size: 28rpx;
-		color: #EF4444;
+		color: #f97316; /* orange-500 */
 		font-weight: 500;
 	}
 	
@@ -931,16 +972,22 @@ export default {
 		gap: 16rpx;
 		
 		.balance-amount {
-			font-size: 40rpx;
-			color: #1F2937;
-			font-weight: bold;
+			font-size: 32rpx;
+			color: #1f2937;
+			font-weight: 500;
 		}
 	}
 	
 	.coupon-info {
 		display: flex;
 		align-items: center;
-		gap: 8rpx;
+		gap: 16rpx;
+		
+		.arrow-icon {
+			font-size: 36rpx;
+			color: #9ca3af;
+			font-weight: bold;
+		}
 	}
 	
 	.zhifufen_icon {
@@ -960,58 +1007,19 @@ export default {
 		margin-left: 8rpx;
 	}
 	
-	.summary-text {
-		font-size: 28rpx;
-		color: #1F2937;
-		display: flex;
-		align-items: center;
+	&.final-amount-row {
+		padding-top: 16rpx;
 		
-		.payNum1 {
-			color: #EF4444;
-			font-weight: bold;
+		.final-amount-label {
+			font-size: 32rpx;
+			font-weight: 600;
+			color: #1f2937;
 		}
 		
-		.payNum2 {
-			color: #1F2937;
-			font-weight: bold;
-		}
-	}
-	
-	.radio-group {
-		display: flex;
-		gap: 32rpx;
-		
-		.radio-item {
-			display: flex;
-			align-items: center;
-			gap: 8rpx;
-			font-size: 28rpx;
-			color: #6B7280;
-			
-			input[type="radio"] {
-				width: 30rpx;
-				height: 30rpx;
-				accent-color: #3699FF;
-			}
-		}
-	}
-}
-
-.summary-section {
-	text-align: center;
-	margin: 0 32rpx;
-	
-	.summary-text {
-		font-size: 32rpx;
-		color: #1F2937;
-		
-		.discount-text {
-			color: #EF4444;
-		}
-		
-		.final-amount {
+		.final-amount-value {
 			font-size: 48rpx;
 			font-weight: bold;
+			color: #0ea5e9;
 		}
 	}
 }
@@ -1022,21 +1030,23 @@ export default {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	background-color: #FFFFFF;
+	background-color: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(20rpx);
+	border-top: 1px solid rgba(229, 231, 235, 0.5);
 	box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.08);
 	z-index: 999;
 	
 	.countdown-info {
-		padding: 24rpx 32rpx 16rpx;
+		padding: 24rpx 32rpx;
 		text-align: center;
 		
 		.countdown-text {
 			font-size: 24rpx;
-			color: #6B7280;
+			color: #6b7280;
 			
 			.countdown-time {
-				color: #007AFF;
-				font-weight: 500;
+				color: #f97316; /* orange-500 */
+				font-weight: 600;
 			}
 		}
 	}
@@ -1044,6 +1054,17 @@ export default {
 	.safe-area-bottom {
 		padding: 0 32rpx 32rpx;
 		padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+		
+		::v-deep .uv-button {
+			background: linear-gradient(to right, #38bdf8, #2563eb) !important;
+			box-shadow: 0 8rpx 24rpx rgba(56, 189, 248, 0.2);
+			border: none !important;
+			transition: all 0.2s ease;
+			
+			&:active {
+				transform: scale(0.98);
+			}
+		}
 	}
 }
 </style>

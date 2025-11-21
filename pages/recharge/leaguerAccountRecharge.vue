@@ -1,85 +1,78 @@
 <template>
     <view class="recharge-container">
-        <!-- 充值优惠横幅 -->
-        <!-- <view class="promo-banner">
-            <view class="promo-content">
-                <view class="promo-tag">充值优惠</view>
-                <text class="promo-text">{{ promoText || '充值赠券活动赠送优惠券为充电服务...' }}</text>
-            </view>
-            <view class="promo-action" @click="showPromoDetail">
-                <text class="promo-link">查看详情</text>
-                <text class="chevron-right">›</text>
-            </view>
-        </view> -->
+        
+        <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
 
-        <!-- 充值金额标题 -->
-        <view class="section-title">
-            <text class="title">充值金额</text>
-            <text class="subtitle">充值金额可能出现延迟到账情况，请稍作等待</text>
-        </view>
+        <view class="content-wrapper">
+            <!-- 充值优惠横幅 -->
+            <view class="promo-banner">
+                <view class="promo-content">
+                    <text class="promo-title">充值优惠</text>
+                    <text class="promo-text">{{ promoText || '当前充值享多重好礼' }}</text>
+                </view>
+                <view class="promo-action" @click="showPromoDetail">
+                    <text class="promo-link">查看详情</text>
+                    <text class="chevron-right">›</text>
+                </view>
+            </view>
 
-        <!-- 金额输入框 -->
-        <view class="amount-input-section">
-            <uv-input 
-                v-model="rechargeAmount"
-                placeholder="请输入充值金额"
-                type="digit"
-                :disabled="isPaymentProcessing"
-                border="none"
-                fontSize="36rpx"
-                color="#1A202C"
-                :customStyle="inputCustomStyle"
-                @input="onAmountChange"
-            >
-                <template v-slot:prefix>
+            <!-- 金额输入框 -->
+            <view class="amount-input-section">
+                <view class="amount-label">充值金额</view>
+                <view class="amount-input-wrapper">
                     <text class="currency-symbol">¥</text>
-                </template>
-            </uv-input>
-        </view>
-
-        <!-- 快捷金额选择 -->
-        <view class="amount-grid">
-            <view 
-                v-for="(amount, index) in quickAmounts" 
-                :key="index"
-                :class="['amount-card', { 'selected': numericRechargeAmount === amount.value, 'special': amount.special }]"
-                @click="selectAmount(amount.value)"
-            >
-                <view v-if="amount.special" class="special-tag">充值特惠</view>
-                <view class="amount-display">
-                    <text class="amount-value">{{ amount.value }}</text>
-                    <text class="amount-unit">元</text>
-                </view>
-                <view v-if="numericRechargeAmount === amount.value" class="selected-check">
-                    <text class="check-icon">✓</text>
+                    <uv-input 
+                        v-model="rechargeAmount"
+                        placeholder="请输入充值金额"
+                        type="digit"
+                        :disabled="isPaymentProcessing"
+                        border="none"
+                        fontSize="48rpx"
+                        color="#0d171b"
+                        :customStyle="inputCustomStyle"
+                        @input="onAmountChange"
+                    />
                 </view>
             </view>
-        </view>
 
-        <!-- 充值奖励 -->
-        <!-- <view class="reward-section" v-if="hasReward">
-            <text class="section-header">充值奖励</text>
-            <view class="reward-card"> -->
-                <!-- <view class="reward-title">
-                    <text class="gift-icon">🎁</text>
-                    <text class="reward-text">{{ currentReward.title }}</text>
+            <!-- 快捷金额选择 -->
+            <view class="amount-grid">
+                <view 
+                    v-for="(amount, index) in quickAmounts" 
+                    :key="index"
+                    :class="['amount-card', { 'selected': numericRechargeAmount === amount.value, 'special': amount.special }]"
+                    @click="selectAmount(amount.value)"
+                >
+                    <view v-if="amount.special" class="special-offer">特惠</view>
+                    <text class="amount-text">{{ amount.value }}元</text>
                 </view>
-                <text class="reward-desc">
-                    {{ currentReward.description }}
-                </text>
-                <view class="expand-details" @click="toggleStationList">
-                    <text class="expand-text">{{ showStationList ? '收起适用站点详情' : '展开适用站点详情' }}</text>
-                    <text class="expand-icon">{{ showStationList ? '⌃' : '⌄' }}</text>
-                </view> -->
-                
-                <!-- 适用站点列表 -->
-                <!-- <view v-if="showStationList" class="station-list">
-                    <text v-for="(station, index) in stationList" :key="index" class="station-item">
-                        {{ station }}
-                    </text>
-                </view> -->
-            <!-- </view>
-        </view> -->
+            </view>
+
+            <!-- 充值奖励 -->
+            <view class="reward-section" v-if="hasReward">
+                <view class="reward-card">
+                    <text class="reward-title">充值奖励 - 新手专享券包</text>
+                    <view class="reward-content">
+                        <text class="reward-item">20元充电券 x2</text>
+                        <text class="reward-item">服务费5折券 x5</text>
+                    </view>
+                    <view class="expand-details" @click="toggleStationList">
+                        <text class="expand-text">{{ showStationList ? '收起适用站点详情' : '展开适用站点详情' }}</text>
+                        <text class="expand-icon">{{ showStationList ? '⌃' : '⌄' }}</text>
+                    </view>
+                    
+                    <!-- 适用站点列表 -->
+                    <view v-if="showStationList" class="station-list">
+                        <text v-for="(station, index) in stationList" :key="index" class="station-item">
+                            {{ station }}
+                        </text>
+                    </view>
+                </view>
+            </view>
+            
+            <view class="navbar-action" @click="goToRecords">
+                <text class="action-text">充值记录</text>
+            </view>
 
         <!-- 支付方式 -->
         <!-- <view class="payment-section">
@@ -98,22 +91,21 @@
             </view>
         </view> -->
 
-        <!-- 支付状态提示 -->
-        <view v-if="paymentStatus" class="payment-status">
-            <text :class="['status-text', paymentStatus.type]">{{ paymentStatus.message }}</text>
+            <!-- 支付状态提示 -->
+            <view v-if="paymentStatus" class="payment-status">
+                <text :class="['status-text', paymentStatus.type]">{{ paymentStatus.message }}</text>
+            </view>
         </view>
 
         <!-- 底部支付按钮 -->
         <view class="bottom-payment">
-            <uv-button 
-                :text="isPaymentProcessing ? '支付处理中...' : '立即充值'"
-                type="primary"
-                size="large"
-                :disabled="isPaymentProcessing || numericRechargeAmount <= 0"
-                :loading="isPaymentProcessing"
-                :customStyle="buttonCustomStyle"
+            <view 
+                class="payment-button"
+                :class="{ 'disabled': isPaymentProcessing || numericRechargeAmount <= 0 }"
                 @click="recharge"
-            />
+            >
+                <text class="button-text">{{ isPaymentProcessing ? '支付处理中...' : '立即充值' }}</text>
+            </view>
         </view>
 
         <!-- 详情弹窗 -->
@@ -153,11 +145,12 @@ export default {
                 { value: 1000, special: true }
             ],
             inputCustomStyle: { // uv-input自定义样式
-                padding: '32rpx 96rpx 32rpx 96rpx',
-                fontSize: '36rpx',
-                fontWeight: '500',
+                padding: '0',
+                fontSize: '48rpx',
+                fontWeight: 'bold',
                 backgroundColor: 'transparent',
-                height: '150rpx'
+                height: 'auto',
+                flex: '1'
             },
             buttonCustomStyle: { // uv-button自定义样式
                 width: '100%',
@@ -636,105 +629,153 @@ export default {
 
 <style scoped>
 .recharge-container {
-    padding: 32rpx;
-    background-color: #E9F5FF;
+    background-color: #f6f7f8;
     min-height: 100vh;
-    font-family: 'PingFang SC', sans-serif;
-    padding-bottom: 120rpx; /* 为底部按钮留空间 */
+    font-family: 'Inter', 'PingFang SC', sans-serif;
+    position: relative;
+}
+
+/* 顶部导航栏 */
+.top-navbar {
+    position: sticky;
+    top: 0;
+    background-color: rgba(246, 247, 248, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    padding: 32rpx 32rpx 16rpx;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.back-btn {
+    width: 80rpx;
+    height: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.back-icon {
+    font-size: 48rpx;
+    color: #0d171b;
+    font-weight: bold;
+}
+
+.navbar-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #0d171b;
+    flex: 1;
+    text-align: center;
+    padding-right: 80rpx;
+}
+
+.navbar-action {
+    flex-shrink: 0;
+}
+
+.action-text {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #007AFF;
+}
+
+/* 内容包装器 */
+.content-wrapper {
+    padding: 0 32rpx 128rpx;
 }
 
 /* 充值优惠横幅 */
 .promo-banner {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: 24rpx;
-    padding: 24rpx;
+    padding: 32rpx;
     margin-bottom: 48rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .promo-content {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 8rpx;
     flex: 1;
-    min-width: 0; /* 允许flex项目收缩 */
 }
 
-.promo-tag {
-    background: rgba(0, 122, 255, 0.1);
-    color: #007AFF;
-    font-size: 24rpx;
+.promo-title {
+    font-size: 32rpx;
     font-weight: bold;
-    padding: 8rpx 16rpx;
-    border-radius: 20rpx;
-    margin-right: 16rpx;
-    flex-shrink: 0; /* 防止标签收缩 */
+    color: #007AFF;
+    line-height: 1.2;
 }
 
 .promo-text {
-    color: #1A202C;
     font-size: 28rpx;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
+    color: #64748b;
+    line-height: 1.4;
 }
 
 .promo-action {
     display: flex;
     align-items: center;
+    gap: 8rpx;
     flex-shrink: 0;
 }
 
 .promo-link {
-    color: #007AFF;
-    font-weight: 600;
     font-size: 28rpx;
-    margin-right: 8rpx;
+    font-weight: 500;
+    color: #007AFF;
 }
 
 .chevron-right {
+    font-size: 32rpx;
     color: #007AFF;
-    font-size: 36rpx;
     font-weight: bold;
-}
-
-/* 标题区域 */
-.section-title {
-    margin-bottom: 32rpx;
-}
-
-.title {
-    font-size: 36rpx;
-    font-weight: 600;
-    color: #1A202C;
-    display: block;
-    margin-bottom: 16rpx;
-}
-
-.subtitle {
-    font-size: 28rpx;
-    color: #4A5568;
-    display: block;
 }
 
 /* 金额输入框 */
 .amount-input-section {
+    margin-bottom: 48rpx;
+}
+
+.amount-label {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 16rpx;
+    display: block;
+}
+
+.amount-input-wrapper {
+    position: relative;
     background: #FFFFFF;
     border-radius: 24rpx;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
-    margin-bottom: 48rpx;
-    padding: 0;
+    border: 2rpx solid #e2e8f0;
+    height: 128rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 32rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.amount-input-wrapper:focus-within {
+    border-color: #007AFF;
+    box-shadow: 0 0 0 4rpx rgba(0, 122, 255, 0.1);
 }
 
 .currency-symbol {
     font-size: 48rpx;
-    font-weight: 500;
-    color: #1A202C;
+    font-weight: bold;
+    color: #334155;
     margin-right: 16rpx;
 }
 
@@ -742,209 +783,192 @@ export default {
 .amount-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32rpx;
-    margin-bottom: 64rpx;
+    gap: 24rpx;
+    margin-bottom: 48rpx;
+}
+
+/* 支付方式选择 */
+.payment-method-section {
+    margin-bottom: 48rpx;
+}
+
+.payment-method-label {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 16rpx;
+    display: block;
+}
+
+.payment-method-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24rpx;
+}
+
+.payment-method-item {
+    background: #FFFFFF;
+    border-radius: 24rpx;
+    border: 2rpx solid #e2e8f0;
+    height: 120rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    transition: all 0.2s ease;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.payment-method-item:active {
+    background-color: rgba(0, 122, 255, 0.05);
+    border-color: #007AFF;
+}
+
+.payment-method-item.active {
+    border-color: #007AFF;
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.method-icon {
+    font-size: 32rpx;
+}
+
+.method-name {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #334155;
+}
+
+.payment-method-item.active .method-name {
+    color: #007AFF;
 }
 
 .amount-card {
     position: relative;
     background: #FFFFFF;
     border-radius: 24rpx;
-    padding: 32rpx;
-    text-align: center;
-    cursor: pointer;
-    border: 2rpx solid transparent;
+    height: 128rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2rpx solid #e2e8f0;
     transition: all 0.2s ease;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.amount-card:hover {
+.amount-card:active {
+    background-color: rgba(0, 122, 255, 0.1);
     border-color: #007AFF;
 }
 
 .amount-card.selected {
     border-color: #007AFF;
-    box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.2);
+    background-color: rgba(0, 122, 255, 0.1);
 }
 
-.amount-card.special {
-    position: relative;
-}
-
-.special-tag {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 122, 255, 0.1);
-    color: #007AFF;
-    font-size: 24rpx;
-    font-weight: 600;
-    padding: 8rpx 16rpx;
-    border-top-left-radius: 24rpx;
-    border-bottom-right-radius: 24rpx;
-}
-
-.amount-display {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-.amount-value {
-    font-size: 48rpx;
-    font-weight: bold;
-    color: #1A202C;
-}
-
-.amount-card.selected .amount-value {
-    color: #007AFF;
-}
-
-.amount-unit {
+.amount-text {
     font-size: 32rpx;
-    font-weight: normal;
-    color: inherit;
-    margin-left: 4rpx;
+    font-weight: 500;
+    color: #334155;
 }
 
-.selected-check {
+.amount-card.selected .amount-text {
+    color: #007AFF;
+}
+
+.special-offer {
     position: absolute;
-    top: -16rpx;
-    right: -16rpx;
-    background: #007AFF;
-    border-radius: 50%;
-    width: 48rpx;
-    height: 48rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.check-icon {
+    top: -10rpx;
+    right: -10rpx;
+    background-color: #FFA500;
     color: white;
-    font-size: 32rpx;
-    font-weight: bold;
+    padding: 4rpx 12rpx;
+    font-size: 20rpx;
+    font-weight: 500;
+    border-radius: 12rpx;
+    transform: rotate(15deg);
 }
 
 /* 充值奖励 */
 .reward-section {
-    margin-bottom: 64rpx;
-}
-
-.section-header {
-    font-size: 36rpx;
-    font-weight: 600;
-    color: #1A202C;
-    display: block;
-    margin-bottom: 16rpx;
+    margin-bottom: 48rpx;
 }
 
 .reward-card {
-    background: rgba(0, 122, 255, 0.1);
-    border-radius: 24rpx;
-    padding: 32rpx;
-    font-size: 28rpx;
-}
-
-.reward-title {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-    color: #007AFF;
-    margin-bottom: 16rpx;
-}
-
-.gift-icon {
-    margin-right: 16rpx;
-    font-size: 32rpx;
-}
-
-.reward-text {
-    font-size: 32rpx;
-}
-
-.reward-desc {
-    color: #4A5568;
-    line-height: 1.6;
-    display: block;
-    margin-bottom: 24rpx;
-}
-
-.expand-details {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.expand-text {
-    color: #007AFF;
-    font-weight: 500;
-    margin-right: 8rpx;
-}
-
-.expand-icon {
-    color: #007AFF;
-    font-size: 36rpx;
-}
-
-/* 支付方式 */
-.payment-section {
-    margin-bottom: 64rpx;
-}
-
-.payment-method {
     background: #FFFFFF;
     border-radius: 24rpx;
     padding: 32rpx;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.payment-info {
-    display: flex;
-    align-items: center;
+.reward-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #0d171b;
+    line-height: 1.2;
+    margin-bottom: 24rpx;
+    display: block;
 }
 
-.payment-logo {
-    width: 80rpx;
-    height: 80rpx;
-    margin-right: 32rpx;
+.reward-content {
+    border-top: 2rpx solid #e2e8f0;
+    padding-top: 24rpx;
+    margin-bottom: 24rpx;
 }
 
-.payment-details {
-    display: flex;
-    flex-direction: column;
-}
-
-.payment-name {
-    font-weight: 600;
-    color: #1A202C;
+.reward-item {
     font-size: 32rpx;
+    color: #64748b;
+    line-height: 1.4;
+    display: block;
     margin-bottom: 8rpx;
 }
 
-.payment-desc {
-    font-size: 28rpx;
-    color: #4A5568;
+.reward-item:last-child {
+    margin-bottom: 0;
 }
 
-.help-btn {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-    background: #f5f5f5;
+.expand-details {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    border-top: 2rpx solid #e2e8f0;
+    padding-top: 24rpx;
 }
 
-.help-icon {
-    color: #4A5568;
-    font-size: 32rpx;
+.expand-text {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #007AFF;
+}
+
+.expand-icon {
+    font-size: 36rpx;
+    color: #007AFF;
+}
+
+/* 站点列表 */
+.station-list {
+    margin-top: 24rpx;
+    padding: 16rpx;
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: 12rpx;
+    border: 1rpx solid rgba(0, 122, 255, 0.1);
+}
+
+.station-item {
+    display: block;
+    font-size: 26rpx;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 8rpx;
+    padding: 8rpx 0;
+    border-bottom: 1rpx solid rgba(0, 122, 255, 0.1);
+}
+
+.station-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 /* 支付状态提示 */
@@ -958,54 +982,27 @@ export default {
 .status-text {
     font-size: 28rpx;
     font-weight: 500;
-}
-
-.status-text.success {
-    color: #52c41a;
-    background-color: #f6ffed;
-    border: 1px solid #b7eb8f;
-}
-
-.status-text.error {
-    color: #ff4d4f;
-    background-color: #fff2f0;
-    border: 1px solid #ffccc7;
-}
-
-.status-text.warning {
-    color: #faad14;
-    background-color: #fffbe6;
-    border: 1px solid #ffe58f;
-}
-
-.payment-status .status-text {
     display: block;
     padding: 20rpx;
     border-radius: 12rpx;
 }
 
-/* 站点列表 */
-.station-list {
-    margin-top: 24rpx;
-    padding: 16rpx;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12rpx;
-    border: 1rpx solid rgba(0, 122, 255, 0.2);
+.status-text.success {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border: 1rpx solid #bbf7d0;
 }
 
-.station-item {
-    display: block;
-    font-size: 26rpx;
-    color: #4A5568;
-    line-height: 1.5;
-    margin-bottom: 8rpx;
-    padding: 8rpx 0;
-    border-bottom: 1rpx solid rgba(0, 122, 255, 0.1);
+.status-text.error {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1rpx solid #fecaca;
 }
 
-.station-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
+.status-text.warning {
+    color: #d97706;
+    background-color: #fffbeb;
+    border: 1rpx solid #fed7aa;
 }
 
 /* 详情弹窗 */
@@ -1077,8 +1074,40 @@ export default {
     left: 0;
     right: 0;
     padding: 32rpx;
-    background: rgba(233, 245, 255, 0.8);
+    background: linear-gradient(to top, #f6f7f8, transparent);
     backdrop-filter: blur(10px);
-    border-top: 1rpx solid #E2E8F0;
+}
+
+.payment-button {
+    width: 100%;
+    height: 112rpx;
+    background: linear-gradient(to right, #007AFF, #60a5fa);
+    border-radius: 24rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.payment-button:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 4rpx 16rpx rgba(0, 122, 255, 0.4);
+}
+
+.payment-button.disabled {
+    background: #e2e8f0;
+    box-shadow: none;
+    transform: none;
+}
+
+.button-text {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.payment-button.disabled .button-text {
+    color: #94a3b8;
 }
 </style>

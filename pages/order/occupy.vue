@@ -1,27 +1,40 @@
 <template>
   <view class="occupy-order-container">
+    <uv-navbar :border="false" title="超时占位订单" autoBack placeholder safeAreaInsetTop></uv-navbar>
     <view class="order-list">
-      <view class="order-card" v-for="order in orderList" :key="order.id" @click="goToDetails(order.id)">
-        <view class="card-header">
-          <text class="station-name">{{ order.stationName }}</text>
-          <text class="order-status" :class="getStatusClass(order.billStatus)">
-            {{ getStatusText(order.billStatus) }} >
-          </text>
-        </view>
-        <view class="card-body">
-          <text class="info-line subtitle">{{ order.pileName }}-{{ order.gunName }}</text>
-          <text class="info-line">超时占位时长：{{ order.actualDuration }}分钟</text>
-          <text class="info-line">
-            超时占位费用：
-            <text class="amount">¥{{ formatAmount(order.busBalance) }}</text>
-          </text>
-        </view>
-        <view class="card-footer">
-          <view class="actions">
-            <view class="action-btn btn-secondary">详情</view>
-            <view class="action-btn btn-primary" v-if="order.billStatus === 11" @click="goToDetails(order.id)">立即支付</view>
+      <!-- 订单列表 -->
+      <template v-if="orderList.length > 0">
+        <view class="order-card" v-for="order in orderList" :key="order.id">
+          <view class="card-header">
+            <text class="station-name">{{ order.stationName }}</text>
+            <view class="order-status" :class="getStatusClass(order.billStatus)">
+              {{ getStatusText(order.billStatus) }}
+            </view>
+          </view>
+          <view class="card-body">
+            <view class="info-item">
+              <text class="info-text">超时占位时长: {{ order.actualDuration }}分钟</text>
+            </view>
+            <view class="info-item">
+              <text class="info-text">
+                超时占位费用: 
+                <text class="amount">¥{{ formatAmount(order.busBalance) }}</text>
+              </text>
+            </view>
+          </view>
+          <view class="card-footer">
+            <view class="actions">
+              <view class="action-btn btn-secondary" @click="goToDetails(order.id)">详情</view>
+              <view class="action-btn btn-primary" v-if="order.billStatus === 11" @click="goToDetails(order.id)">立即支付</view>
+            </view>
           </view>
         </view>
+      </template>
+      
+      <!-- 空状态 -->
+      <view v-else class="empty-state">
+        <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
+        <text class="empty-text">暂无超时占位订单</text>
       </view>
     </view>
   </view>
@@ -40,7 +53,7 @@ export default {
       }
     };
   },
-  onLoad() {
+  onShow() {
     this.loadData();
   },
   methods: {
@@ -117,93 +130,217 @@ export default {
 
 <style scoped>
 .occupy-order-container {
-  background-color: #f5f5f5;
+  background-color: #f6f7f8;
   min-height: 100vh;
-  padding: 16rpx;
+  padding: 32rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .order-list {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 32rpx;
 }
 
 .order-card {
-  background-color: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  border: 1rpx solid rgba(0, 0, 0, 0.04);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 16rpx;
+  margin-bottom: 32rpx;
 }
 
 .station-name {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1e293b;
+  flex: 1;
+  margin-right: 16rpx;
+  line-height: 1.4;
 }
 
 .order-status {
-  font-size: 28rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  padding: 8rpx 24rpx;
+  border-radius: 9999rpx;
+  white-space: nowrap;
 }
+
 .status-unpaid {
-  color: #ff976a; /* 橙色 */
+  background-color: #fed7aa;
+  color: #ea580c;
 }
+
 .status-paid {
-  color: #007AFF; /* 绿色 */
+  background-color: #dbeafe;
+  color: #13a4ec;
 }
 
 .card-body {
-  padding: 16rpx 0;
-  border-top: 1rpx solid #f5f5f5;
-  border-bottom: 1rpx solid #f5f5f5;
+  padding: 32rpx 0;
+  border-top: 1rpx solid #f1f5f9;
+  border-bottom: 1rpx solid #f1f5f9;
+  margin: 0 -32rpx;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
 }
 
-.info-line {
-  display: block;
-  font-size: 26rpx;
-  color: #666;
-  margin-top: 12rpx;
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
 }
-.info-line .amount {
-  color: #ff4d4f;
-  font-weight: bold;
+
+.info-item:last-child {
+  margin-bottom: 0;
 }
-.subtitle {
-  font-size: 24rpx;
-  color: #999;
+
+.info-icon {
+  font-size: 32rpx;
+  color: #64748b;
+  margin-right: 16rpx;
+  width: 32rpx;
+  text-align: center;
+  font-family: 'Material Symbols Outlined', sans-serif;
+}
+
+.info-text {
+  font-size: 28rpx;
+  color: #64748b;
+  flex: 1;
+}
+
+.amount {
+  color: #1e293b;
+  font-weight: 600;
 }
 
 .card-footer {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding-top: 16rpx;
+  padding-top: 32rpx;
 }
 
 .actions {
   display: flex;
-  gap: 16rpx;
+  gap: 24rpx;
 }
 
 .action-btn {
-  padding: 10rpx 24rpx;
-  border-radius: 30rpx;
+  padding: 18rpx 40rpx;
+  border-radius: 9999rpx;
   font-size: 28rpx;
-  border: 1rpx solid;
+  font-weight: 500;
+  min-width: 168rpx;
+  text-align: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
+
 .btn-secondary {
-  color: #666;
-  border-color: #ccc;
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1rpx solid #e2e8f0;
 }
+
+.btn-secondary:active {
+  background-color: #e2e8f0;
+  transform: scale(0.98);
+}
+
 .btn-primary {
-  background-color: #007AFF;
-  color: white;
-  border-color: #007AFF;
+  background: linear-gradient(135deg, #60a5fa 0%, #13a4ec 100%);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4rpx 12rpx rgba(19, 164, 236, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(19, 164, 236, 0.4);
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .occupy-order-container {
+    background-color: #101c22;
+  }
+  
+  .order-card {
+    background-color: rgba(30, 41, 59, 0.5);
+    border-color: rgba(71, 85, 105, 0.2);
+  }
+  
+  .station-name {
+    color: #f1f5f9;
+  }
+  
+  .status-unpaid {
+    background-color: rgba(234, 88, 12, 0.2);
+    color: #fb923c;
+  }
+  
+  .status-paid {
+    background-color: rgba(19, 164, 236, 0.2);
+    color: #60a5fa;
+  }
+  
+  .card-body {
+    border-color: #334155;
+  }
+  
+  .info-icon,
+  .info-text {
+    color: #94a3b8;
+  }
+  
+  .amount {
+    color: #f1f5f9;
+  }
+  
+  .btn-secondary {
+    background-color: #334155;
+    color: #f1f5f9;
+    border-color: #475569;
+  }
+  
+  .btn-secondary:active {
+    background-color: #475569;
+  }
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 32rpx;
+  min-height: 60vh;
+}
+
+.empty-text {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+/* 深色模式下的空状态 */
+@media (prefers-color-scheme: dark) {
+  .empty-text {
+    color: #64748b;
+  }
 }
 </style>

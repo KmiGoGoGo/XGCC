@@ -1,5 +1,6 @@
 <template>
   <view class="page-container">
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
     <view class="content-wrapper">
       <!-- 状态显示区域 -->
       <view class="status-section">

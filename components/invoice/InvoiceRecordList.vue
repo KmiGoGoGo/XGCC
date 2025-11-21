@@ -1,47 +1,41 @@
 <template>
   <view class="invoice-record-container">
     <!-- 发票记录列表 -->
-    <view v-if="recordList.length > 0">
-      <uv-list>
-        <uv-list-item 
-          v-for="(item, index) in recordList" 
-          :key="index"
-          :customStyle="{ padding: '20rpx 30rpx' }"
-        >
-          <view class="record-item" @click="onItemClick(item)">
-            <view class="record-info">
-              <view class="info-row">
-                <text class="label">申请时间：</text>
-                <text class="value">{{ formatTime(item.recordsCreateTime || item.createTime) }}</text>
-              </view>
-              <view class="info-row">
-                <text class="label">充电费用：</text>
-                <text class="amount">¥{{ (item.totalBalance / 100).toFixed(2) }}</text>
-              </view>
-              <view class="info-row">
-                <text class="label">运营单位：</text>
-                <text class="value">{{ item.unitName || '-' }}</text>
-              </view>
-              <view class="info-row">
-                <text class="label">开票状态：</text>
-                <text class="status" :class="getStatusClass(item.invoiceStatus)">{{ getStatusText(item.invoiceStatus) }}</text>
-              </view>
+    <view v-if="recordList.length > 0" class="record-list">
+      <view 
+        v-for="(item, index) in recordList" 
+        :key="index"
+        class="record-card"
+        @click="onItemClick(item)"
+      >
+        <view class="record-item">
+          <view class="record-info">
+            <view class="info-header">
+              <text class="company-name">{{ item.unitName || '-' }}</text>
+              <text class="amount">¥{{ (item.totalBalance / 100).toFixed(2) }}</text>
             </view>
-            <view class="arrow-icon">
-              <uv-icon name="arrow-right" color="#ccc" size="24rpx"></uv-icon>
+            <view class="info-details">
+              <text class="detail-item">申请时间：{{ formatTime(item.recordsCreateTime || item.createTime) }}</text>
+              <view class="status-row">
+                <text class="detail-item">开票状态：</text>
+                <text class="status">{{ getStatusText(item.invoiceStatus) }}</text>
+              </view>
             </view>
           </view>
-        </uv-list-item>
-        
-        <!-- 加载更多 -->
-        <uv-load-more 
-          :status="loadStatus" 
-          @loadmore="onLoadMore"
-          loadmore-text="上拉或点击加载更多"
-          loading-text="正在加载..."
-          nomore-text="没有更多数据了"
-        />
-      </uv-list>
+          <view class="arrow-icon">
+            <text class="arrow">›</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载更多 -->
+      <uv-load-more 
+        :status="loadStatus" 
+        @loadmore="onLoadMore"
+        loadmore-text="上拉或点击加载更多"
+        loading-text="正在加载..."
+        nomore-text="没有更多数据了"
+      />
     </view>
     
     <!-- 空状态 -->
@@ -78,7 +72,7 @@ export default {
     }
   },
   
-  mounted() {
+  onShow() {
     this.loadRecordList()
   },
   
@@ -156,10 +150,32 @@ export default {
     // 获取状态文本
     getStatusText(status) {
       const statusMap = {
+        // 审核中状态
+        'INVOICE_APPLYING': '审核中',
         'INVOICE_CHECK': '审核中',
+        'IN_INVOICE': '审核中',
+        'RED_APPLYING': '审核中',
+        'RED_CHECK': '审核中',
+        'IN_RED': '审核中',
+        'RED_INVOICE': '审核中',
+        // 开票相关状态
+        'INVOICE_FINISH': '已开票',
         'INVOICE_SUCCESS': '已开票',
         'INVOICE_FAIL': '开票失败',
+        'NO_INVOICE': '未开票',
+        // 退票相关状态
+        'CANCEL_INVOICE': '已退票',
+        'INVOICE_REJECT': '已退票',
+        'REDED': '已退票',
+        'RED_REJECT': '驳回冲红',
+        'RED_FAIL': '冲红失败',
+        // 作废相关状态
+        'VOIDED': '已作废',
         'INVOICE_VOID': '已作废',
+        'IN_THE_VOID': '作废中',
+        'VOID_APPLYING': '申请作废',
+        // 其他状态
+        'TO_PUSH': '重新推送',
         'INVOICE_PENDING': '待开票'
       }
       return statusMap[status] || '未知状态'
@@ -181,10 +197,6 @@ export default {
     onItemClick(item) {
       console.log('点击发票记录:', item)
       // 这里可以跳转到发票详情页面
-      uni.showToast({
-        title: '查看发票详情',
-        icon: 'none'
-      })
       uni.navigateTo({
         url: `/pages/invoice/invoiceDetail?id=${item.id}`
       })
@@ -201,72 +213,112 @@ export default {
 <style lang="scss" scoped>
 .invoice-record-container {
   height: 100%;
+  background-color: #f6f7f8;
+}
+
+.record-list {
+  padding: 0;
+}
+
+.record-card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1rpx 6rpx rgba(0, 0, 0, 0.12);
+  }
 }
 
 .record-item {
   display: flex;
   align-items: center;
-  cursor: pointer;
+  padding: 32rpx;
+  gap: 24rpx;
   
   .record-info {
     flex: 1;
     
-    .info-row {
+    .info-header {
       display: flex;
-      margin-bottom: 16rpx;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24rpx;
       
-      .label {
-        color: #666;
-        font-size: 28rpx;
-        min-width: 160rpx;
-      }
-      
-      .value {
-        color: #333;
-        font-size: 28rpx;
+      .company-name {
+        font-size: 32rpx;
+        font-weight: 700;
+        color: #333333;
         flex: 1;
       }
       
       .amount {
-        color: #ff6b35;
         font-size: 32rpx;
-        font-weight: 600;
-        flex: 1;
+        font-weight: 700;
+        color: #333333;
       }
+    }
+    
+    .info-details {
+      display: flex;
+      flex-direction: column;
+      gap: 12rpx;
       
-      .status {
-        flex: 1;
+      .detail-item {
         font-size: 28rpx;
-        
-        &.status-pending {
-          color: #f56c6c;
-        }
-        
-        &.status-checking {
-          color: #409eff;
-        }
-        
-        &.status-success {
-          color: #67c23a;
-        }
-        
-        &.status-failed {
-          color: #f56c6c;
-        }
-        
-        &.status-canceled {
-          color: #909399;
-        }
+        color: #999999;
+        line-height: 1.4;
       }
       
-      &:last-child {
-        margin-bottom: 0;
+      .status-row {
+        display: flex;
+        align-items: center;
+        gap: 8rpx;
+        
+        .status {
+          font-size: 28rpx;
+          font-weight: 500;
+          
+          &.status-pending {
+            color: #f56c6c;
+          }
+          
+          &.status-checking {
+            color: #409eff;
+          }
+          
+          &.status-success {
+            color: #67c23a;
+          }
+          
+          &.status-failed {
+            color: #f56c6c;
+          }
+          
+          &.status-canceled {
+            color: #909399;
+          }
+        }
       }
     }
   }
   
   .arrow-icon {
-    margin-left: 20rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48rpx;
+    height: 48rpx;
+    
+    .arrow {
+      font-size: 48rpx;
+      color: #ccc;
+      font-weight: 300;
+    }
   }
 }
 

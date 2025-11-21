@@ -1,12 +1,10 @@
 <template>
   <view class="details-page">
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 顶部卡片 -->
     <view class="top-card">
       <view class="card-header">
-        <view class="icon-container">
-          <text class="icon">[微信]</text>
-        </view>
-        <text class="title">微信</text>
+        <text class="title">原路退回-{{ formatRefundRoad(details.refundRoad) }}</text>
       </view>
       <view class="card-body">
         <text class="amount">{{ formatCurrency(details.balance) }}</text>
@@ -54,7 +52,7 @@ export default {
   data() {
     return {
       details: {},
-      refundInstruction: '充值赠券活动，优惠券抵扣后不接受退款。（注：1、若仍需退款将计算并扣除优惠券抵扣部分退回；2、仅支持一年内充值订单退款；3、充值优惠活动最终解释权归创烨公司所有）',
+      refundInstruction: '充值赠券活动，优惠券抵扣后不接受退款。（注：1、若仍需退款将计算并扣除优惠券抵扣部分退回；2、仅支持一年内充值订单退款；3、充值优惠活动最终解释权归节能公司所有）',
     };
   },
   async onLoad(options) {
@@ -80,16 +78,23 @@ export default {
     }
   },
   methods: {
+    formatRefundRoad(refundRoad) {
+      const refundRoadMap = {
+        'WeChatPay': '微信',
+        'Alipay': '支付宝'
+      };
+      return refundRoadMap[refundRoad] || '未知';
+    },
     formatCurrency(amount) {
       if (amount === null || amount === undefined) return '0.00';
       return (amount / 100).toFixed(2);
     },
     formatStatus(status) {
-      const statusMap = { 'Approve': '退款成功', 'Reject': '退款失败', 'Pending': '审核中' };
+      const statusMap = { 'Approve': '退款成功', 'Reject': '退款失败', 'AwaitingApproval': '审核中' };
       return statusMap[status] || '未知状态';
     },
     getStatusClass(status) {
-      const classMap = { 'Approve': 'success', 'Reject': 'fail', 'Pending': 'pending' };
+      const classMap = { 'Approve': 'success', 'Reject': 'fail', 'AwaitingApproval': 'pending' };
       return classMap[status] || '';
     },
     showRefundInstruction() {
@@ -191,7 +196,7 @@ export default {
 
 .value {
   color: #333;
-  max-width: 70%;
+  max-width: 75%;
   word-break: break-all;
   text-align: right;
 }

@@ -1,5 +1,6 @@
 <template>
   <view class="page-container">
+    <uv-navbar :border="false" title="搜索站点" autoBack placeholder safeAreaInsetTop></uv-navbar>
     <!-- 搜索头部 -->
     <view class="search-header">
       <view class="search-content">
@@ -25,63 +26,57 @@
       </view>
     </view>
 
-    <!-- 主内容区域 -->
-    <scroll-view 
-      class="content-container" 
-      scroll-y="true" 
-      @scrolltolower="loadMore"
-      :refresher-enabled="true"
-      :refresher-triggered="refreshing"
-      @refresherrefresh="onRefresh"
-    >
-      <!-- 历史搜索 -->
-      <view class="history-section">
-        <view class="section-title">
-          <text>历史搜索</text>
-          <text class="clear-history" v-if="searchHistory.length > 0" @click="clearHistory">清空</text>
-        </view>
-        <view class="history-tags" v-if="searchHistory.length > 0">
-          <view 
-            class="history-tag" 
-            v-for="(item, index) in searchHistory" 
-            :key="index"
-            @click="selectHistoryKeyword(item)"
-          >
-            <text>{{ item }}</text>
+    <view style="padding: 20rpx;">
+      <!-- 主内容区域 -->
+      <scroll-view 
+        class="content-container" 
+        scroll-y="true" 
+        @scrolltolower="loadMore"
+      >
+        <!-- 历史搜索 -->
+        <view class="history-section">
+          <view class="section-title">
+            <text>历史搜索</text>
+            <text class="clear-history" v-if="searchHistory.length > 0" @click="clearHistory">清空</text>
+          </view>
+          <view class="history-tags" v-if="searchHistory.length > 0">
+            <view 
+              class="history-tag" 
+              v-for="(item, index) in searchHistory" 
+              :key="index"
+              @click="selectHistoryKeyword(item)"
+            >
+              <text>{{ item }}</text>
+            </view>
+          </view>
+          <view class="empty-history" v-else>
+            <text class="empty-history-text">暂无搜索历史</text>
           </view>
         </view>
-        <view class="empty-history" v-else>
-          <text class="empty-history-text">暂无搜索历史</text>
-        </view>
-      </view>
 
-      <!-- 搜索结果 -->
-      <view class="search-results" v-if="stationList.length > 0">
-        <view class="section-title">
-          <text>搜索结果 ({{ totalCount }})</text>
+        <!-- 搜索结果 -->
+        <view class="search-results" v-if="stationList.length > 0">
+          <view class="section-title">
+            <text>搜索结果 ({{ totalCount }})</text>
+          </view>
+          <view class="station-list">
+            <StationListItem
+              v-for="(station, index) in stationList"
+              :key="station.id"
+              :stationData="formatStationData(station)"
+              @click="onStationClick"
+            />
+          </view>
         </view>
-        <view class="station-list">
-          <StationListItem
-            v-for="(station, index) in stationList"
-            :key="station.id"
-            :stationData="formatStationData(station)"
-            @click="onStationClick"
-          />
+
+        <!-- 空状态 -->
+        <view class="empty-state" v-if="showEmptyState">
+          <view class="empty-icon">🔍</view>
+          <text class="empty-text">{{ emptyText }}</text>
         </view>
-      </view>
 
-      <!-- 空状态 -->
-      <view class="empty-state" v-if="showEmptyState">
-        <view class="empty-icon">🔍</view>
-        <text class="empty-text">{{ emptyText }}</text>
-      </view>
-
-      <!-- 加载更多 -->
-      <view class="load-more" v-if="showLoadMore">
-        <uv-loading-icon v-if="loading" mode="circle"></uv-loading-icon>
-        <text class="load-text">{{ loadMoreText }}</text>
-      </view>
-    </scroll-view>
+      </scroll-view>
+    </view>
   </view>
 </template>
 
@@ -424,9 +419,6 @@ export default {
   background-color: #fff;
   padding: 20rpx;
   border-bottom: 1rpx solid #eee;
-  position: sticky;
-  top: 0;
-  z-index: 100;
 }
 
 .search-content {
@@ -459,7 +451,7 @@ export default {
 
 .content-container {
   flex: 1;
-  padding: 20rpx;
+  display: flex;
 }
 
 .history-section {

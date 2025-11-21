@@ -1,68 +1,90 @@
 <template>
+	<uv-navbar :border="false" autoBack="true" :title="gunDetails.gunName" placeholder safeAreaInsetTop></uv-navbar>
 	<view class="page-container" v-if="gunDetails">
 		<view class="content-wrapper">
-			<!-- 基础信息 -->
-			<view class="section-card">
-				<view class="card-title">基础信息</view>
-				<view class="info-row">
-					<text class="label">枪名称:</text>
-					<text class="value">{{ gunDetails.gunName }}</text>
+			<!-- 充电桩信息 -->
+			<view class="pile-card">
+				<view class="pile-row">
+					<view class="pile-item">
+						<view class="param-cell">
+							<view style="display: flex; align-items: center; gap: 8rpx;">
+								<text class="param-value">{{ gunDetails.maxPower }}</text>
+								<text class="param-unit">KW</text>
+							</view>
+							<text class="param-label">最大功率</text>
+						</view>
+					</view>
+					<view class="pile-divider"></view>
+					<view class="pile-item">
+						<view class="param-cell">
+							<view style="display: flex; align-items: center; gap: 8rpx;">
+								<text class="param-value">{{ gunDetails.current }}</text>
+								<text class="param-unit">A</text>
+							</view>
+							<text class="param-label">电流</text>
+						</view>
+					</view>
 				</view>
-				<view class="info-row">
-					<text class="label">枪类型:</text>
-					<text class="value">{{ gunTypeStr }} ({{ gunCurrentTypeStr }})</text>
+				<view class="pile-row">
+					<view class="pile-item-full">
+						<view class="param-cell">
+							<view style="display: flex; align-items: center; gap: 8rpx;">
+								<text class="param-value">{{ gunDetails.valleyVol }}-{{ gunDetails.peakVol }}</text>
+								<text class="param-unit">V</text>
+							</view>
+							<text class="param-label">电压范围</text>
+						</view>
+					</view>
 				</view>
-				<view class="info-row">
-					<text class="label">桩名称:</text>
-					<text class="value">{{ gunDetails.pileName }}</text>
-				</view>
-				<view class="info-row">
-					<text class="label">桩编号:</text>
-					<text class="value">{{ gunDetails.pileNum }}</text>
+				<!-- 底部信息栏 -->
+				<view class="pile-bottom-info">
+					<view class="gun-type-badge">
+						<text class="type-main">{{ gunTypeStr }}</text>
+						<text class="type-sub">{{ gunCurrentTypeStr }}</text>
+					</view>
+					<view class="pile-number">
+						<text class="pile-number-label">桩编号</text>
+						<text class="pile-number-value">{{ gunDetails.pileNum }}</text>
+					</view>
 				</view>
 			</view>
-
-			<!-- 功率信息 -->
-			<view class="section-card">
-				<view class="card-title">功率信息</view>
-				<view class="info-row">
-					<text class="label">最大功率:</text>
-					<text class="value">{{ gunDetails.maxPower }} KW</text>
+			<!-- 电价时段列表 -->
+			<view class="price-section">
+				<view class="section-header">
+					<text class="section-title">费用详情</text>
+					<view class="current-price-tag">
+						<text class="tag-label">当前</text>
+						<text class="tag-value">{{ currentPrice }} 元/度</text>
+					</view>
 				</view>
-				<view class="info-row">
-					<text class="label">电流:</text>
-					<text class="value">{{ gunDetails.current }} A</text>
-				</view>
-				<view class="info-row">
-					<text class="label">电压:</text>
-					<text class="value">{{ gunDetails.valleyVol }}V - {{ gunDetails.peakVol }}V</text>
-				</view>
-			</view>
-
-			<!-- 电价详情 -->
-			<view class="section-card">
-				<view class="card-title">电价收费详情</view>
 				<view class="price-header">
-					<text>收费时段</text>
-					<text>费用(元/度)</text>
+					<text>时段</text>
+					<text style="margin-left: 300rpx;">总费用</text>
+					<text style="margin-left: 40rpx;">电费</text>
+					<text style="margin-left: 40rpx;">服务费</text>
 				</view>
-				<view v-for="(price, index) in gunDetails.powerStageDetail" :key="index">
-					<stage-price-info :price-info="price" />
+				<view class="price-list">
+					<view v-for="(price, index) in gunDetails.powerStageDetail" :key="index">
+						<stage-price-info :price-info="price" :index="index" :price-list="gunDetails.powerStageDetail" />
+					</view>
 				</view>
 			</view>
 		</view>
 
-		<!-- 底部固定操作栏 -->
-		<view class="bottom-bar">
-			<view class="current-price-display">
-				<text class="price-label">当前电价:</text>
-				<text class="price-value">{{ currentPrice }} 元/度</text>
+		<!-- 底部操作栏 -->
+		<view class="action-bar">
+			<view class="price-info">
+				<text class="price-current">{{ currentPrice }}</text>
+				<text class="price-unit">元/度</text>
 			</view>
-			<button class="charge-button" @click="startCharging">前往充电</button>
+			<button class="start-button" @click="startCharging">
+				<text class="button-text">开始充电</text>
+			</button>
 		</view>
 	</view>
 	<view v-else class="loading-container">
-		<text>加载中...</text>
+		<view class="loading-spinner"></view>
+		<text class="loading-text">加载中...</text>
 	</view>
 </template>
 
@@ -167,7 +189,6 @@
 					return;
 				}
 				
-				// 构造要传递的枪信息参数
 				const gunParams = {
 					gunId: this.gunId,
 					gunNo: this.gunDetails.gunNo,
@@ -185,12 +206,10 @@
 					hulianinterfaceId: this.hulianinterfaceId || ''
 				};
 				
-				// 将参数编码为查询字符串
 				const queryString = Object.keys(gunParams)
 					.map(key => `${key}=${encodeURIComponent(gunParams[key] || '')}`)
 					.join('&');
 				
-				// 跳转到充电启动页面，携带枪信息
 				uni.navigateTo({
 					url: `/pages/charge/gunStartingCharge?${queryString}`
 				});
@@ -202,101 +221,298 @@
 </script>
 
 <style scoped>
+	.price-header {
+		display: flex;
+		align-items: center;
+		margin-bottom: 16rpx;
+		font-weight: normal;
+		color: #666;
+		font-size: 24rpx;
+	}
 	.page-container {
-		background-color: #f5f5f5;
+		background-color: #f8f9fa;
 		min-height: 100vh;
-		/* 为底部栏预留安全区域 */
-		padding-bottom: 160rpx;
+		padding-bottom: 180rpx;
 	}
 
 	.content-wrapper {
-		padding: 20rpx;
+		padding: 30rpx 24rpx;
 	}
 
-	.section-card {
-		background-color: #ffffff;
-		border-radius: 16rpx;
-		padding: 24rpx;
+	/* 顶部英雄卡片 */
+	.hero-card {
+		background: #ffffff;
+		border-radius: 24rpx;
+		padding: 50rpx 40rpx;
 		margin-bottom: 24rpx;
+		text-align: center;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+		position: relative;
 	}
 
-	.card-title {
-		font-size: 32rpx;
-		font-weight: bold;
+	.gun-icon {
+		font-size: 80rpx;
 		margin-bottom: 20rpx;
 	}
 
-	.info-row {
+	.gun-name {
+		font-size: 40rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+		margin-bottom: 24rpx;
+	}
+
+	.gun-type-badge {
+		display: inline-flex;
+		align-items: center;
+		background: #007aff;
+		color: #ffffff;
+		padding: 8rpx 20rpx;
+		border-radius: 50rpx;
+		gap: 8rpx;
+	}
+
+	.type-main {
+		font-size: 28rpx;
+		font-weight: 600;
+	}
+
+	.type-sub {
+		font-size: 24rpx;
+		opacity: 0.85;
+	}
+
+	/* 桩编号样式 */
+	.pile-number {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		gap: 4rpx;
+	}
+
+	.pile-number-label {
+		font-size: 20rpx;
+		color: #999999;
+	}
+
+	.pile-number-value {
+		font-size: 24rpx;
+		color: #1a1a1a;
+		font-weight: 500;
+	}
+
+	/* 充电桩信息卡片 */
+	.pile-card {
+		background: #ffffff;
+		border-radius: 20rpx;
+		padding: 32rpx;
+		margin-bottom: 24rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+		position: relative;
+	}
+
+	/* 底部信息栏 */
+	.pile-bottom-info {
 		display: flex;
 		justify-content: space-between;
-		font-size: 28rpx;
-		padding: 10rpx 0;
+		align-items: flex-end;
+		margin-top: 24rpx;
+		padding-top: 20rpx;
+		border-top: 1rpx solid #f0f0f0;
 	}
 
-	.label {
-		color: #666;
+	.pile-row {
+		display: flex;
+		align-items: center;
 	}
 
-	.value {
-		color: #333;
+	.pile-row:not(:last-child) {
+		margin-bottom: 24rpx;
 	}
 
-	.price-header {
+	.pile-item {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 20rpx;
+	}
+
+	.pile-item-full {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.pile-divider {
+		width: 2rpx;
+		height: 80rpx;
+		background: #e8e8e8;
+		margin: 0 24rpx;
+		flex-shrink: 0;
+	}
+
+
+	/* 参数单元格 */
+	.param-cell {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.param-value {
+		font-size: 48rpx;
+		font-weight: 700;
+		color: #007aff;
+		line-height: 1.2;
+	}
+
+	.param-unit {
+		font-size: 24rpx;
+		color: #666666;
+		margin-top: 4rpx;
+		margin-bottom: 12rpx;
+	}
+
+	.param-label {
+		font-size: 26rpx;
+		color: #999999;
+	}
+
+	/* 电价时段区域 */
+	.price-section {
+		background: #ffffff;
+		border-radius: 20rpx;
+		padding: 32rpx;
+		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+	}
+
+	.section-header {
 		display: flex;
 		justify-content: space-between;
-		font-size: 28rpx;
-		color: #999;
-		margin-bottom: 10rpx;
-		padding: 0 20rpx;
+		align-items: center;
+		margin-bottom: 24rpx;
 	}
 
-	.bottom-bar {
+	.section-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #1a1a1a;
+	}
+
+	.current-price-tag {
+		background: #fff3e6;
+		padding: 10rpx 20rpx;
+		border-radius: 30rpx;
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+	}
+
+	.tag-label {
+		font-size: 22rpx;
+		color: #ff9500;
+	}
+
+	.tag-value {
+		font-size: 24rpx;
+		color: #ff9500;
+		font-weight: 600;
+	}
+
+	.price-list {
+		display: flex;
+		flex-direction: column;
+		gap: 16rpx;
+	}
+
+	/* 底部操作栏 */
+	.action-bar {
 		position: fixed;
 		bottom: 0;
 		left: 0;
 		right: 0;
-		height: 140rpx;
-		background-color: #ffffff;
-		border-top: 1rpx solid #e0e0e0;
+		background: #ffffff;
+		padding: 24rpx 30rpx;
+		padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+		border-top: 1rpx solid #e8e8e8;
 		display: flex;
-		justify-content: space-between;
 		align-items: center;
-		padding: 0 30rpx;
-		box-sizing: border-box;
+		gap: 30rpx;
+		box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.04);
 	}
 
-	.current-price-display {
+	.price-info {
 		display: flex;
 		align-items: baseline;
+		gap: 8rpx;
 	}
 
-	.price-label {
-		font-size: 28rpx;
-		color: #666;
+	.price-current {
+		font-size: 44rpx;
+		font-weight: 700;
+		color: #ff9500;
 	}
 
-	.price-value {
-		font-size: 36rpx;
-		font-weight: bold;
-		color: #007AFF;
-		margin-left: 10rpx;
+	.price-unit {
+		font-size: 24rpx;
+		color: #666666;
 	}
 
-	.charge-button {
-		background-color: #007aff;
+	.start-button {
+		flex: 1;
+		background: #007aff;
 		color: #ffffff;
 		border: none;
-		border-radius: 40rpx;
-		padding: 0 50rpx;
-		height: 80rpx;
-		line-height: 80rpx;
-		font-size: 30rpx;
+		border-radius: 50rpx;
+		height: 88rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12rpx;
+		box-shadow: 0 8rpx 24rpx rgba(0, 122, 255, 0.25);
 	}
 
+	.button-text {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #ffffff;
+	}
+
+	.button-icon {
+		font-size: 36rpx;
+		color: #ffffff;
+	}
+
+	/* 加载状态 */
 	.loading-container {
 		display: flex;
+		flex-direction: column;
 		justify-content: center;
 		align-items: center;
 		height: 100vh;
+		gap: 30rpx;
+	}
+
+	.loading-spinner {
+		width: 80rpx;
+		height: 80rpx;
+		border: 6rpx solid #e8e8e8;
+		border-top-color: #007aff;
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.loading-text {
+		font-size: 28rpx;
+		color: #999999;
 	}
 </style>

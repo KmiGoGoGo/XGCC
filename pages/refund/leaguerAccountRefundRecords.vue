@@ -1,27 +1,24 @@
 <template>
   <view class="records-page">
-    <view class="list-container">
-      <view class="record-item" v-for="item in records" :key="item.id" @click="goToDetails(item.id)">
-        <view class="icon-container">
-            <text class="icon">{{ formatRefundRoad(item.refundRoad) }}</text>
-        </view>
-        <view class="details-container">
-          <view class="details-main">
-            <text class="title">原路退回{{ formatRefundRoad(item.refundRoad) }}</text>
-            <text class="amount">{{ formatCurrency(item.balance) }}</text>
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <view class="main-content">
+      <view class="records-list">
+        <view class="record-card" v-for="item in records" :key="item.id" @click="goToDetails(item.id)">
+          <view class="card-content">
+            <view class="left-section">
+              <text class="refund-title">原路退回-{{ formatRefundRoad(item.refundRoad) }}</text>
+              <text class="refund-time">退款时间 {{ item.createTime }}</text>
+            </view>
+            <view class="right-section">
+              <text class="refund-amount">¥{{ formatCurrency(item.balance) }}</text>
+              <text class="refund-status" :class="getStatusClass(item.checkStatus)">{{ formatStatus(item.checkStatus) }}</text>
+            </view>
           </view>
-          <view class="details-sub">
-            <text class="time">{{ item.createTime }}</text>
-            <text class="status" :class="getStatusClass(item.checkStatus)">{{ formatStatus(item.checkStatus) }}</text>
-          </view>
-        </view>
-        <view class="arrow-container">
-          <text class="arrow">></text>
         </view>
       </view>
-    </view>
-    <view class="footer-notice">
-      <text>全部加载完成</text>
+      <view class="footer-notice">
+        <text>全部加载完成</text>
+      </view>
     </view>
   </view>
 </template>
@@ -63,7 +60,7 @@ export default {
       const statusMap = {
         'Approve': '退款成功',
         'Reject': '退款失败',
-        'AwatingApproval': '审核中'
+        'AwaitingApproval': '审核中'
       };
       return statusMap[status] || '未知状态';
     },
@@ -78,7 +75,7 @@ export default {
       const classMap = {
         'Approve': 'success',
         'Reject': 'fail',
-        'AwatingApproval': 'AwatingApproval'
+        'AwaitingApproval': 'AwaitingApproval'
       };
       return classMap[status] || '';
     },
@@ -93,89 +90,121 @@ export default {
 
 <style lang="scss" scoped>
 .records-page {
-  background-color: #f5f5f5;
+  background-color: #f6f7f8;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
 }
 
-.list-container {
-  background-color: white;
-  margin: 24rpx;
-  border-radius: 16rpx;
-  padding: 0 32rpx;
-}
-
-.record-item {
-  display: flex;
-  align-items: center;
-  padding: 24rpx 0;
-  border-bottom: 1rpx dashed #e0e0e0;
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.icon-container {
-  .icon {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-    background-color: #e8f5e9;
-    color: #67c23a;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-.details-container {
+.main-content {
   flex: 1;
-  margin: 0 24rpx;
+  padding: 32rpx;
 }
 
-.details-main {
+.records-list {
   display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.record-card {
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
+  }
+}
+
+.card-content {
+  padding: 32rpx;
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  align-items: center;
 }
 
-.title {
-  font-size: 30rpx;
-  font-weight: bold;
-  color: #333;
+.left-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
 }
 
-.amount {
+.refund-title {
   font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
+  font-weight: 600;
+  color: #333333;
+  line-height: 1.4;
 }
 
-.details-sub {
+.refund-time {
+  font-size: 28rpx;
+  color: #8E8E93;
+  line-height: 1.3;
+}
+
+.right-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 8rpx;
-  font-size: 24rpx;
-  color: #999;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+  margin-left: 24rpx;
 }
 
-.status {
-  &.success { color: #67c23a; }
-  &.fail { color: #fa5151; }
-  &.AwatingApproval { color: #f9ae3d; }
+.refund-amount {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #333333;
+  line-height: 1.2;
 }
 
-.arrow-container {
-  .arrow {
-    color: #ccc;
-    font-size: 32rpx;
+.refund-status {
+  font-size: 28rpx;
+  font-weight: 500;
+  line-height: 1.3;
+  
+  &.success {
+    color: #13a4ec;
+  }
+  
+  &.fail {
+    color: #ff4757;
+  }
+  
+  &.AwaitingApproval {
+    color: #ff9500;
   }
 }
 
 .footer-notice {
   text-align: center;
-  color: #999;
-  font-size: 24rpx;
-  padding: 40rpx 0;
+  color: #8E8E93;
+  font-size: 28rpx;
+  padding: 80rpx 0 40rpx;
+  margin-top: 32rpx;
+}
+
+/* 暗色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .records-page {
+    background-color: #101c22;
+  }
+  
+  .record-card {
+    background-color: rgba(16, 28, 34, 0.5);
+  }
+  
+  .refund-title,
+  .refund-amount {
+    color: #ffffff;
+  }
+  
+  .refund-time,
+  .footer-notice {
+    color: #8E8E93;
+  }
 }
 </style>

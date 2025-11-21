@@ -6,7 +6,7 @@
 			:fixed="true"
 			:safeAreaInsetTop="true"
 			:placeholder="true"
-			bgColor="#F3F3F3"
+			bgColor="transparent"
 			:border="false"
 			:autoBack="false"
 			@leftClick="onNavbarLeftClick"
@@ -14,8 +14,8 @@
 		>
 			<template v-slot:left>
 				<view class="navbar-left" @click="goToCityPicker">
-					<text class="city-text">{{ currentCityName }}</text>
-					<uv-icon name="arrow-down" color="#fff" size="14"></uv-icon>
+					<text class="city-text">{{ getCityName() }}</text>
+					<uv-icon name="arrow-down" color="#0F172A" size="16"></uv-icon>
 				</view>
 			</template>
 			
@@ -25,14 +25,12 @@
 						:showAction="false" 
 						placeholder="请输入站点名称" 
 						disabled 
+						bgColor="#FFFFFF"
 						@click="goToSearch" 
-						:actionStyle="{
-							backgroundColor: '#007AFF',
-							color: '#fff',
-							borderRadius: '20rpx'
-						}"
 						:boxStyle="{
-							borderRadius: '20rpx'
+							borderRadius: '40rpx',
+							height: '50rpx',
+							width: '20%',
 						}"
 					></uv-search>
 				</view>
@@ -50,35 +48,48 @@
 				<view class="swiper-view-item">
 					<!-- banner -->
 					<view v-if="lunbao.length">
-						<image class="header-image2" src="https://oos-cn.ctyunapi.cn/front-end/static/cartoon/home_bgB.png">
-						</image>
-						<swiper class="swiper-banner" :indicator-dots="indicatorDots" :autoplay="autoplay"
-							:circular="circular" :vertical="vertical" :interval="interval" :duration="duration"
-							indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#fff">
-							<swiper-item v-for="(item, index) in lunbao" :key="index" @tap="advertisingLink"
-								:data-title="item.title" :data-status="item.status" :data-time="item.timeS"
-								:data-link="item.advertisingLink" :data-type="item.connectionType"
-								:data-path="item.mobilePath" :data-details="item.details" :data-id="item.id"
-								:data-mid="item.marketingId">
-								<image :src="item.image" mode="aspectFill" class="swiper-item-images" />
-							</swiper-item>
-						</swiper>
+					<swiper class="swiper-banner" :indicator-dots="indicatorDots" :autoplay="autoplay"
+						:circular="circular" :vertical="vertical" :interval="interval" :duration="duration"
+						indicator-color="rgba(255, 255, 255, 0.4)" indicator-active-color="#fff">
+						<!-- <view > -->
+						<swiper-item v-for="(item, index) in lunbao" :key="index" @tap="advertisingLink"
+							:data-title="item.title" :data-status="item.status" :data-time="item.timeS"
+							:data-link="item.advertisingLink" :data-type="item.connectionType"
+							:data-path="item.mobilePath" :data-details="item.details" :data-id="item.id"
+							:data-mid="item.marketingId">
+							<image :src="item.image" mode="aspectFill" class="swiper-item-images" />
+						</swiper-item>
+						<!-- </view> -->
+					</swiper>
+					</view>
+					<view v-else>
+						<view class="charge-card">
+							<view class="card-content">
+								<text class="title">星光超充</text>
+								<text class="sub-title">加盟热线 400-633-1838</text>
+							</view>
+							<view style="display: flex; justify-content: flex-start;">
+								<button class="check-btn" @click="callPhone">拨打电话</button>
+							</view>
+						</view>
 					</view>
 				</view>
 			</view>
 			<view class="head-nav">
 					<view class='nav'>
-						<uv-tabs :list="tabMenu" :current="tabIndex" @change="ontabtap"
-						:activeStyle="{
-							color: '#007AFF',
-							fontWeight: 'bold',
-							transform: 'scale(1.05)'
-						}"
-						:inactiveStyle="{
-							color: '#6A6266',
-							transform: 'scale(1)'
-						}"
-						></uv-tabs>
+						<uv-subsection 
+							:list="tabMenu" 
+							:current="tabIndex" 
+							@change="ontabtap"
+							activeColor="#fff"
+							inactiveColor="#6A6266"
+							mode="button"
+							:bold="true"
+							bgColor="transparent"
+							:fontSize="14"
+							custom-style="height: 75rpx;border-radius: 40rpx;" 
+							custom-item-style="border-radius: 40rpx; background-color: #3B82F6;" 
+						></uv-subsection>
 					</view>
 					<view class="filter" @click="openFilterPopup">
 						<image class="filter-img" src="https://oos-cn.ctyunapi.cn/front-end/static/static/screening.png"></image>
@@ -86,9 +97,8 @@
 					</view>
 				</view>
 			<view class="list-container">
-				<uv-list :customStyle="{'background': '#F3F3F3'}">
-					<!-- <uv-loading-icon text="加载中" textSize="30rpx" v-if="isTabTapLoading"></uv-loading-icon> -->
-					<uv-list-item  :customStyle="{'background': 'linear-gradient(180deg, #F3F3F3 0%, #F3F3F3 30%)', 'padding': '0'}" v-for="(item, index) in stationList" :key="index">
+				<uv-list :customStyle="{'backgroundColor': 'transparent'}">
+					<uv-list-item  :customStyle="{'backgroundColor': 'transparent', 'padding': '0', 'borderRadius': '16rpx'}" v-for="(item, index) in stationList" :key="index">
 						<StationListItem 
 							:stationData="item"
 							@click="onStationClick"
@@ -189,7 +199,6 @@
 
 <script>
 	import Tabbar from '@/components/tabbar/tabbar';
-	import loginPopup from '@/components/login-popup/login.vue';
 	import StationListItem from '@/components/station/StationListItem.vue';
 	import { getStationArea, getIndexStationNew, getIndexStationNoAuth } from '@/api/station.js';
 	import FilterOptions from '@/components/FilterOptions/FilterOptions.vue';
@@ -203,7 +212,6 @@
 	export default {
 		components: {
 			Tabbar,
-			loginPopup,
 			StationListItem,
 			FilterOptions,
 			FloatingBillReminder,
@@ -232,8 +240,8 @@
 					name: '精选站点',
 					value: 1
 				}],
-				navIndex: 1,
-				tabIndex: 1,
+				navIndex: 2,
+				tabIndex: 0,
 				scrollInto: "",
 				// 轮播图数据
 				lunbao: [],
@@ -266,6 +274,7 @@
 				
 				// 城市信息
 				currentCityName: '东莞市', // 默认城市
+				cityName: '东莞市', // 默认城市
 				
 				// 距离筛选数据
 				distanceList: {
@@ -407,14 +416,32 @@
 			}
 		},
 		onLoad() {
-			this.initCityInfo();
-			this.getLocation();
-			this.queryDynamicsActivity();
+			// this.initCityInfo();
+			// this.getLocation();
+			// this.queryDynamicsActivity();
 			uni.hideTabBar();
 		},
-		onShow() {
-			this.initCityInfo();
-			this.fetchStationList();
+		async onShow() {
+			uni.showLoading({
+				title: '定位中...',
+				mask: true
+			});
+			try {
+				if (!uni.getStorageSync('cityName')) {
+					uni.setStorageSync('cityName', this.cityName);
+				}
+				await this.checkLocationPermission();
+				uni.hideLoading();
+				this.initCityInfo();
+				// 确保定位完成后再调用 fetchStationList
+				await this.fetchStationList();
+			} catch (error) {
+				console.error('定位失败:', error);
+				uni.hideLoading();
+				this.initCityInfo();
+				// 即使定位失败，也尝试获取站点列表（使用默认位置）
+				await this.fetchStationList();
+			}
 			this.checkUnpaidBills();
 			this.checkOccupyBills();
 			this.checkChargeServiceMonitor();
@@ -498,6 +525,15 @@
 			this.clearChargeMonitorTimer();
 		},
 		methods: {    // 定义命名方法
+			goToTestPage() {
+				uni.navigateTo({
+					url: `/pages/coupon/useCoupon?billId=${12244308}`
+				});
+			},
+
+			getCityName() {
+				return uni.getStorageSync('cityName') || this.cityName;
+			},
 			
 			// 获取轮播图数据
 			async queryDynamicsActivity() {
@@ -508,7 +544,7 @@
 					const res = await queryDynamicsActivity(cityName);
 					
 					console.log('queryDynamicsActivity111111', res)
-					if (res.code == 0) {
+					if (res.statusCode == 200) {
 						var swiperItem = res.data.data.indexAdvertising;
 
 						if (swiperItem && swiperItem.length > 0) {
@@ -519,7 +555,7 @@
 							});
 						}
 
-						that.lunbao = swiperItem || [];
+						that.lunbao = swiperItem
 						console.log(that.lunbao, 'that.lunbao')
 					}
 				} catch (error) {
@@ -528,50 +564,218 @@
 				}
 			},
 			
-			// 轮播跳转详情
-			advertisingLink: function(e) {
-				// app.globalData.CHECK_LOGIN(function() {
-				var types = e.currentTarget.dataset.type //1跳转 2是详情
-				var link = e.currentTarget.dataset.link
-				var path = e.currentTarget.dataset.path
-				var details = e.currentTarget.dataset.details
-				var title = e.currentTarget.dataset.title
-				var timeS = e.currentTarget.dataset.time
-				var status = e.currentTarget.dataset.status
-
-				const marketingId = e.currentTarget.dataset.mid;
-				var id = e.currentTarget.dataset.id
-				console.log(e)
-				return
-				if (types == 1) {
-					app.globalData.CHECK_LOGIN(() => {
-						util_1.LinkType(link);
-					})
-				} else if (types == 2) {
-					// app.globalData.richText = details;
-					// uni.navigateTo({
-					// 	url: `../../homeSub/pages/advertisDetails/advertisDetails?title=` + title + '&time=' + timeS + '&status=' + status
-					// });
-					//为解决跳转后分享问题使用新的页面方法;
+	// 轮播跳转详情
+	advertisingLink: function(e) {
+		console.log('轮播图点击事件:', e);
+		
+		var connectionType = e.currentTarget.dataset.type; // connectionType: 1:外链跳转 2:详情页 4:营销活动 5:小程序路径
+		var advertisingLink = e.currentTarget.dataset.link; // advertisingLink: 广告链接
+		var path = e.currentTarget.dataset.path;
+		var details = e.currentTarget.dataset.details;
+		var title = e.currentTarget.dataset.title;
+		var timeS = e.currentTarget.dataset.time;
+		var status = e.currentTarget.dataset.status;
+		var id = e.currentTarget.dataset.id;
+		const marketingId = e.currentTarget.dataset.mid;
+		
+		// 从 lunbao 数组中获取完整的轮播图数据
+		const itemData = this.lunbao.find(item => item.id === id) || {};
+		const activityType = itemData.activityType || null;
+		
+		console.log('轮播图参数:', {
+			connectionType,
+			advertisingLink,
+			activityType,
+			marketingId,
+			itemData
+		});
+		
+		// 业务逻辑判断
+		// 规则1: advertisingLink 不为 1，使用路由跳转到 advertisingLink
+		if (advertisingLink && advertisingLink != '1' && advertisingLink != 1) {
+			console.log('规则1: 跳转到 advertisingLink:', advertisingLink);
+			
+			// 判断是否是外部链接
+			if (/^https?:\/\//.test(advertisingLink)) {
+				// 外部链接
+				// #ifdef APP-PLUS
+				plus.runtime.openURL(advertisingLink);
+				// #endif
+				
+				// #ifdef H5
+				window.open(advertisingLink);
+				// #endif
+				
+				// #ifdef MP-WEIXIN
+				uni.navigateTo({
+					url: '/components/webView/webView?link=' + encodeURIComponent(advertisingLink)
+				});
+				// #endif
+			} else {
+				// 内部路由
+				uni.navigateTo({
+					url: advertisingLink
+				});
+			}
+			return;
+		}
+		
+		// 规则2: advertisingLink = 1 且 activityType = null 且 connectionType = 1，不执行任何动作
+		if ((advertisingLink == '1' || advertisingLink == 1) && 
+		    !activityType && 
+		    (connectionType == 1 || connectionType == '1')) {
+			console.log('规则2: 不执行任何动作');
+			return;
+		}
+		
+		// 规则3: activityType = null 且 (advertisingLink = null 或 = 1) 且 connectionType = 2，跳转到 advertisDetail.vue
+		if (!activityType && 
+		    (!advertisingLink || advertisingLink == '1' || advertisingLink == 1) && 
+		    (connectionType == 2 || connectionType == '2')) {
+			console.log('规则3: 跳转到详情页');
+			
+			const params = {
+				id: id || '',
+				title: encodeURIComponent(title || itemData.title || '活动详情'),
+				time: timeS || itemData.timeS || '',
+				status: status || itemData.status || '',
+				details: details ? encodeURIComponent(details) : '',
+				image: itemData.image ? encodeURIComponent(itemData.image) : '',
+				link: advertisingLink ? encodeURIComponent(advertisingLink) : ''
+			};
+			
+			// 构建URL参数
+			const queryString = Object.keys(params)
+				.filter(key => params[key])
+				.map(key => `${key}=${params[key]}`)
+				.join('&');
+			
+			uni.navigateTo({
+				url: `/pages/advertisDetail/advertisDetail?${queryString}`
+			});
+			return;
+		}
+		
+		// 其他情况：按照原有的 connectionType 逻辑处理
+		if (connectionType == 1) {
+			// 外链跳转
+			if (advertisingLink) {
+				// #ifdef APP-PLUS
+				plus.runtime.openURL(advertisingLink);
+				// #endif
+				
+				// #ifdef H5
+				window.open(advertisingLink);
+				// #endif
+				
+				// #ifdef MP-WEIXIN
+				uni.navigateTo({
+					url: '/components/webView/webView?link=' + encodeURIComponent(advertisingLink)
+				});
+				// #endif
+			}
+		} else if (connectionType == 2) {
+			// 跳转到详情页
+			const params = {
+				id: id || '',
+				title: encodeURIComponent(title || itemData.title || '活动详情'),
+				time: timeS || itemData.timeS || '',
+				status: status || itemData.status || '',
+				details: details ? encodeURIComponent(details) : '',
+				image: itemData.image ? encodeURIComponent(itemData.image) : '',
+				link: advertisingLink ? encodeURIComponent(advertisingLink) : ''
+			};
+			
+			// 构建URL参数
+			const queryString = Object.keys(params)
+				.filter(key => params[key])
+				.map(key => `${key}=${params[key]}`)
+				.join('&');
+			
+			uni.navigateTo({
+				url: `/pages/advertisDetail/advertisDetail?${queryString}`
+			});
+		} else if (connectionType == 4) {
+			// 处理营销获客逻辑
+			if (activityType && marketingId) {
+				this.disposeMarketingActivity(activityType, marketingId);
+			} else {
+				console.log('营销活动缺少必要参数:', { activityType, marketingId });
+			}
+		} else if (connectionType == 5) {
+			// 小程序内路径跳转
+			if (path) {
+				uni.navigateTo({
+					url: path
+				});
+			}
+		} else {
+			console.log('未知的跳转类型:', connectionType);
+		}
+	},
+		
+		// 处理营销活动
+		disposeMarketingActivity(activityType, marketingId) {
+			console.log('营销活动类型:', activityType, '活动ID:', marketingId);
+			
+			switch (activityType) {
+				// activityType:  1 => 充值奖励活动, 2 => 累计消费活动, 3 => 单笔折扣活动, 4 => 站点优惠活动,
+				// 5 => 邀请奖励, 6 => 新客有礼, 7=> 多人拼团 8=>付费会员 9=>推广员
+				// marketingId: 活动id
+				case 1:
 					uni.navigateTo({
-						url: `/homeSub/pages/advertisDetails/advertisDetailsNew?id=${id}`
+						url: '/marketing_page/pages/pay/payAward/payAward?HD=' + marketingId
 					});
-				} else if (types == 4) {
-					// 处理营销获客逻辑
-					this.disposeMarketingActivity(types, marketingId);
-				} else if (types == 5) {
-					app.globalData.CHECK_LOGIN(() => {
-						uni.navigateTo({
-							url: path
-						});
-					})
-				} else {
-					app.globalData.CHECK_LOGIN(() => {
-						return false;
-					})
-				}
-				// })
-			},
+					break;
+				case 2:
+					uni.navigateTo({
+						url: '/homeSub/pages/discount/cumulativeMoney/cumulativeMoney?HD=' + marketingId
+					});
+					break;
+				case 3:
+					uni.navigateTo({
+						url: '/homeSub/pages/discount/singleMoney/singleMoney?HD=' + marketingId
+					});
+					break;
+				case 4:
+					uni.navigateTo({
+						url: '/homeSub/pages/discount/siteOffers/siteOffers?HD=' + marketingId
+					});
+					break;
+				case 5:
+					uni.navigateTo({
+						url: '/marketing_page/pages/invite/invitation/invitation?HD=' + marketingId
+					});
+					break;
+				case 6:
+					console.log('弹出新客有礼弹窗');
+					uni.navigateTo({
+						url: '/pages/index/index'
+					});
+					break;
+				case 7:
+					uni.navigateTo({
+						url: '/marketing_page/pages/group/list/index'
+					});
+					break;
+				case 8:
+					uni.navigateTo({
+						url: '/marketing_page/pages/member/index/index'
+					});
+					break;
+				case 9:
+					const url = this.getPromoterDetailFun?.spreadStatus == 1 
+						? '/marketing_page/pages/promotion/index/index' 
+						: '/marketing_page/pages/promotion/recruit_plan/recruit_plan';
+					uni.navigateTo({
+						url
+					});
+					break;
+				default:
+					console.log('未知的营销活动类型:', activityType);
+					break;
+			}
+		},
 			
 			// 检查充电服务监控
 			async checkChargeServiceMonitor() {
@@ -815,93 +1019,173 @@
 					url: '/pages/common/cityPicker'
 				});
 			},
-			getLocation() {
-				const that = this;
-				uni.getLocation({
-					isHighAccuracy: true,
-					type: 'gcj02', // 使用国测局坐标系
-					success: function (res) {
-						console.log('纬度：' + res.latitude);
-						console.log('经度：' + res.longitude);
-						console.log('速度：' + res.speed);
-						console.log('精度：' + res.accuracy);
-						
-						const longitude = res.longitude;
-						const latitude = res.latitude;
-						
-						// 先保存基础位置信息
-						uni.setStorageSync('location', {
-							latitude: latitude,
-							longitude: longitude
-						});
-						uni.setStorageSync('latitude', latitude);
-						uni.setStorageSync('longitude', longitude);
-						
-						// 构建天地图逆地址解析请求参数
-						const obj = {
-							postStr: JSON.stringify({
-								'lon': longitude,
-								'lat': latitude,
-								'ver': 1
-							}),
-							type: 'geocode',
-							tk: 'abbe3251071d6b4efb714dbdb6c5417e'
-						};
-						
-						// 调用天地图逆地址解析API获取城市名称
-						uni.request({
-							url: `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`,
-							method: "post",
-							data: obj,
-							header: {
-								Accept: "application/json"
-							},
-							success: function (res2) {
-								console.log('逆地址解析结果:', res2);
-								if (res2.data.status === '0') {
-									const data = res2.data.result;
-									const cityName = data.addressComponent.city;
-									console.log('解析到的城市名称:', cityName);
-
-									
-									
-									// 保存城市信息到storage
-									uni.setStorageSync('currentCityName', cityName);
-									// 请求stationArea
-									getStationArea().then(res => {
-										console.log('stationArea11', res);
-										const area = res.data.find(item => item.cityName === cityName);
-										uni.setStorageSync('currentCity', {
-											cityId: area.cityId,
-											cityName: cityName,
-											latitude: latitude,
-											longitude: longitude
+			checkLocationPermission() {
+				return new Promise((resolve, reject) => {
+					const that = this;
+					uni.getSetting({
+						success: (res) => {
+							// 检查是否有位置权限
+							if (!res.authSetting['scope.userLocation']) {
+								// 未授权，发起授权请求
+								uni.authorize({
+									scope: 'scope.userLocation',
+									success: () => {
+										console.log("用户位置权限授权成功");
+										// 授权成功后再调用获取位置
+										that.getLocation().then(resolve).catch(reject);
+									},
+									fail: () => {
+										// 用户拒绝授权，引导到设置页开启
+										uni.showModal({
+											title: '权限提示',
+											content: '需要获取您的位置信息，请在设置中开启',
+											success: (modalRes) => {
+												if (modalRes.confirm) {
+													// 打开小程序设置页
+													uni.openSetting({
+														success: (settingRes) => {
+															if (settingRes.authSetting['scope.userLocation']) {
+																that.getLocation().then(resolve).catch(reject);
+															} else {
+																// 用户仍然拒绝，使用默认城市
+																that.setDefaultCity();
+																resolve();
+															}
+														},
+														fail: () => {
+															that.setDefaultCity();
+															resolve();
+														}
+													});
+												} else {
+													// 用户拒绝，使用默认城市
+													that.setDefaultCity();
+													resolve();
+												}
+											}
 										});
-									});
-									
-									
-									// 更新页面显示的城市名称
-									that.currentCityName = cityName;
-									
-									console.log('城市名称已保存到storage:', cityName);
-								} else {
-									console.error('逆地址解析失败:', res2.data);
-									// 解析失败时使用默认城市
-									that.setDefaultCity(latitude, longitude);
-								}
-							},
-							fail: function (err) {
-								console.error('逆地址解析请求失败:', err);
-								// 请求失败时使用默认城市
-								that.setDefaultCity(latitude, longitude);
+									}
+								});
+							} else {
+								// 已授权，直接调用
+								console.log("用户位置权限已授权");
+								that.getLocation().then(resolve).catch(reject);
 							}
-						});
-					},
-					fail: function (err) {
-						console.error('获取位置失败', err);
-						// 位置获取失败时使用默认城市和位置
-						that.setDefaultCity();
-					}
+						},
+						fail: function (err) {
+							console.error('获取位置权限失败', err);
+							// 位置获取失败时使用默认城市和位置
+							that.setDefaultCity();
+							resolve(); // 即使失败也resolve，使用默认位置
+						}
+					});
+				});
+			},
+			getLocation() {
+				return new Promise((resolve, reject) => {
+					const that = this;
+					uni.getLocation({
+						isHighAccuracy: true,
+						type: 'gcj02', // 使用国测局坐标系
+						success: function (res) {
+							console.log('纬度：' + res.latitude);
+							console.log('经度：' + res.longitude);
+							console.log('速度：' + res.speed);
+							console.log('精度：' + res.accuracy);
+							
+							const longitude = res.longitude;
+							const latitude = res.latitude;
+							
+							// 先保存基础位置信息
+							uni.setStorageSync('location', {
+								latitude: latitude,
+								longitude: longitude
+							});
+							uni.setStorageSync('latitude', latitude);
+							uni.setStorageSync('longitude', longitude);
+							
+							// 构建天地图逆地址解析请求参数
+							const obj = {
+								postStr: JSON.stringify({
+									'lon': longitude,
+									'lat': latitude,
+									'ver': 1
+								}),
+								type: 'geocode',
+								tk: 'abbe3251071d6b4efb714dbdb6c5417e'
+							};
+							console.log("url", `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`)
+							
+							// 调用天地图逆地址解析API获取城市名称
+							uni.request({
+								url: `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`,
+								method: "post",
+								data: obj,
+								header: {
+									Accept: "application/json"
+								},
+								success: function (res2) {
+									console.log('逆地址解析结果:', res2);
+									if (res2.data.status === '0') {
+										const data = res2.data.result;
+										const cityName = data.addressComponent.city;
+										console.log('解析到的城市名称:', cityName);
+										
+										// 保存城市信息到storage
+										uni.setStorageSync('currentCityName', cityName);
+
+										if (!uni.getStorageSync('cityName')) {
+											uni.setStorageSync('cityName', cityName);
+										}
+										// 请求stationArea
+										getStationArea().then(areaRes => {
+											console.log('stationArea11', areaRes);
+											const area = areaRes.data.find(item => item.cityName === cityName);
+											if (area) {
+												uni.setStorageSync('currentCity', {
+													cityId: area.cityId,
+													cityName: cityName,
+													latitude: latitude,
+													longitude: longitude
+												});
+											}
+											// 更新页面显示的城市名称
+											// that.currentCityName = cityName;
+											// 定位和解析都完成，resolve Promise
+											resolve();
+										}).catch(err => {
+											console.error('获取stationArea失败:', err);
+											// 即使获取area失败，也resolve，因为位置信息已经保存
+											that.cityName = cityName;
+											resolve();
+										});
+									} else {
+										console.error('逆地址解析失败:', res2.data);
+										// 解析失败时使用默认城市
+										that.setDefaultCity(latitude, longitude);
+										resolve(); // 即使解析失败也resolve，使用默认位置
+									}
+								},
+								fail: function (err) {
+									console.error('逆地址解析请求失败:', err);
+									// 请求失败时使用默认城市
+									that.setDefaultCity(latitude, longitude);
+									resolve(); // 即使请求失败也resolve，使用默认位置
+								}
+							});
+						},
+						fail: function (err) {
+							console.error('获取位置失败', err);
+							// 位置获取失败时使用默认城市和位置
+							// 判断storage中是否存在currentCityName，如果存在，则不使用默认城市
+							if (uni.getStorageSync('currentCityName')) {
+								resolve(); // 如果已有城市信息，直接resolve
+								return;
+							}
+							that.setDefaultCity();
+							resolve(); // 即使失败也resolve，使用默认位置
+						}
+					});
 				});
 			},
 			
@@ -924,7 +1208,12 @@
 				});
 				
 				// 更新页面显示的城市名称
-				this.currentCityName = defaultCityName;
+				this.cityName = defaultCityName;
+			},
+			callPhone() {
+				uni.makePhoneCall({
+					phoneNumber: '400-633-1838'
+				});
 			},
 			async fetchStationList(isLoadMore = false) {
 				// 如果是加载更多且没有更多数据，直接返回
@@ -958,8 +1247,9 @@
 				// 请求stationArea
 				const stationArea = await getStationArea();
 				console.log('stationArea2222', stationArea);
-				const area = stationArea.data.find(item => item.cityName === this.currentCityName);
-				
+				const area = stationArea.data.find(item => item.cityName === uni.getStorageSync('cityName'));
+
+				console.log('area5555', area);
 				if (!area) {
 					uni.showToast({
 						title: '当前城市暂无站点，请选择其他城市',
@@ -967,18 +1257,18 @@
 					});
 					return
 				}
-				uni.setStorageSync('currentCity', {
-					cityId: area.cityId,
-					cityName: area.cityName,
-					latitude: uni.getStorageSync('location').latitude,
-					longitude: uni.getStorageSync('location').longitude
-				});
+				// uni.setStorageSync('currentCity', {
+				// 	cityId: area.cityId,
+				// 	cityName: area.cityName,
+				// 	latitude: uni.getStorageSync('location').latitude,
+				// 	longitude: uni.getStorageSync('location').longitude
+				// });
 				console.log('currentCity22', uni.getStorageSync('currentCity'));
 				const payload = {
 					"areaId": area.cityId,
 					"areaName": area.cityName,
-					"latitude": uni.getStorageSync('location').latitude,
-					"longitude": uni.getStorageSync('location').longitude,
+					"latitude": uni.getStorageSync('location').latitude, // 用户当前位置的纬度
+					"longitude": uni.getStorageSync('location').longitude, // 用户当前位置的经度
 					"sellerNo": globalData.sellerNo,
 					"type": this.navIndex,
 					"memberQueryPreferenceDto": memberQueryPreferenceDto,
@@ -1182,11 +1472,11 @@
 					});
 				}
 			},
-			ontabtap(e) {
-				console.log(e)
-				let index = e.index
+			ontabtap(index) {
+				console.log('选中的索引:', index)
 				this.tabIndex = index;
-				this.navIndex = e.value;
+				// 根据索引获取对应的value值
+				this.navIndex = this.tabMenu[index].value;
 				// 切换tab时重新获取数据，会根据token自动选择合适的API
 				// 清除stationList
 				this.stationList = [];
@@ -1194,7 +1484,15 @@
 				this.fetchStationList();
 				this.isTabTapLoading = false;
 			},
-			// 处理加载更多事件
+			// 处理滚动到底部加载更多
+			loadMore() {
+				console.log('滚动到底部，触发加载更多');
+				if (this.loadStatus === 'loadmore' && this.hasMore && !this.isLoadingMore) {
+					this.isLoadingMore = true;
+					this.fetchStationList(true);
+				}
+			},
+			// 处理点击加载更多事件
 			onLoadMore() {
 				console.log('点击加载更多');
 				if (this.loadStatus === 'loadmore' && this.hasMore && !this.isLoadingMore) {
@@ -1230,6 +1528,9 @@
 			onStationClick(stationData) {
 				// TODO 测试: 跳转到充电站详情页
 				// 将stationData中的tagList使用map取出tagName
+				if (!stationData.id) {
+					return;
+				}
 				let tagList = '';
 				if (stationData.tagList) {
 					tagList = stationData.tagList.map(item => item.tagName).join(',');
@@ -1296,7 +1597,7 @@
 	}
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 	page {
 		height: 100%;
 		/* 从白色到 #F3F3F3 的快速渐变背景 */
@@ -1311,7 +1612,7 @@
 		padding-right: 20rpx;
 		// background: linear-gradient(90deg, #FFF9FB 0%, #F8F9FA 100%);
 				/* 从白色到 #F3F3F3 的快速渐变背景 */
-		background: #F3F3F3;
+		background: linear-gradient(to bottom, #E5F6FF 30%, #F3F3F3 50%);
 	}
 
 	/* 自定义导航栏样式 */
@@ -1323,19 +1624,18 @@
 		gap: 5rpx;
 		padding: 8rpx 12rpx;
 		border-radius: 20rpx;
-		background-color: rgba(255, 255, 255, 0.2);
+	}
+
+	.navbar-center {
+		width: 51%;
 	}
 	
 	.city-text {
-		color: #fff;
+		color: #0F172A;
 		font-size: 28rpx;
-		font-weight: 500;
+		font-weight: bold;
 	}
 	
-	.navbar-center {
-		flex: 1;
-		margin: 0 20rpx;
-	}
 	
 	.navbar-right {
 		display: flex;
@@ -1369,7 +1669,7 @@
 
 	.swiper-banner {
 		width: 100%;
-		height: 200rpx;
+		height: 300rpx;
 		position: relative;
 		z-index: 2;
 		border-radius: 20rpx;
@@ -1436,14 +1736,15 @@
 	}
 
 .head-nav {
+	flex: 1;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	// padding: 0 20rpx;
-	// margin-top: 10rpx;
+	margin-top: 10rpx;
 	// 设置底部圆角
 	// border-radius: 20rpx;
-	background-color: #F3F3F3;
+	background-color: transparent;
     // font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;  /* 字体 */
     // font-weight: 500;  /* 字体粗细 */
     // color: #606266;  /* 字体颜色 */
@@ -1479,6 +1780,7 @@
 		display: flex;  /* 弹性布局 */
 		align-items: center;  /* 垂直居中 */
 		font-size: 13px;  /* 字号 */
+		width: 55%;
 
 		/* 导航项 */
 		.nav-item {
@@ -1566,4 +1868,47 @@
 	color: #fff;
 }
 
+.charge-card {
+  background: linear-gradient(to bottom right, #66A8FA, #e8f4fd);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  height: 120px; /* 可根据实际需求调整高度 */
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.sub-title {
+  font-size: 14px;
+  color: #ffffff;
+  opacity: 0.8;
+}
+
+.check-btn {
+  background-color: #cbe2ff;
+  color: #fff;
+  border-radius: 30px;
+  padding: 0px 10px;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.filter {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 </style>

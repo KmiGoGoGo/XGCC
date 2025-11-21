@@ -1,8 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uv-tags": "../../uni_modules/uv-tags/components/uv-tags/uv-tags",
-    "uv-loading-icon": "../../uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon",
-    "uv-divider": "../../uni_modules/uv-divider/components/uv-divider/uv-divider"
-  }
-}

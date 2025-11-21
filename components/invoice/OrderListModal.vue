@@ -10,31 +10,33 @@
       </view>
       
       <!-- 订单列表 -->
-      <scroll-view class="order-list" scroll-y>
-        <view v-if="loading" class="loading-container">
-          <uv-loading-icon text="加载中..." textSize="28rpx"></uv-loading-icon>
-        </view>
-        
-        <view v-else-if="orderList.length === 0" class="empty-container">
-          <text class="empty-text">暂无订单数据</text>
-        </view>
-        
-        <view v-else class="order-item" v-for="(item, index) in orderList" :key="index">
-          <view class="order-info">
-            <view class="order-row">
-              <text class="label">订单号：</text>
-              <text class="value">{{ item.busId }}</text>
+      <view class="order-list">
+        <scroll-view scroll-y>
+          <view v-if="loading" class="loading-container">
+            <uv-loading-icon text="加载中..." textSize="28rpx"></uv-loading-icon>
+          </view>
+          
+          <view v-else-if="orderList.length === 0" class="empty-container">
+            <text class="empty-text">暂无订单数据</text>
+          </view>
+          
+          <view v-else class="order-item" v-for="(item, index) in orderList" :key="index">
+            <view class="order-info">
+              <view class="order-row">
+                <text class="label">订单号：</text>
+                <text class="value">{{ item.busId }}</text>
+              </view>
+              <view class="order-row">
+                <text class="label">下单时间：</text>
+                <text class="value">{{ formatTime(item.createTime) }}</text>
+              </view>
             </view>
-            <view class="order-row">
-              <text class="label">下单时间：</text>
-              <text class="value">{{ formatTime(item.createTime) }}</text>
+            <view class="order-amount">
+              <text class="amount">¥{{ (item.actualBalance / 100).toFixed(2) }}</text>
             </view>
           </view>
-          <view class="order-amount">
-            <text class="amount">¥{{ (item.actualBalance / 100).toFixed(2) }}</text>
-          </view>
-        </view>
-      </scroll-view>
+        </scroll-view>
+      </view>
     </view>
   </view>
 </template>
@@ -156,7 +158,9 @@ export default {
 }
 
 .order-list {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
   padding: 0 30rpx;
 }
 

@@ -1,85 +1,112 @@
 <template>
     <view class="recharge-container">
-        <!-- 充值优惠横幅 -->
-        <view class="promo-banner">
-            <view class="promo-content">
-                <view class="promo-tag">充值优惠</view>
-                <text class="promo-text">{{ promoText || '充值赠券活动赠送优惠券为充电服务...' }}</text>
-            </view>
-            <view class="promo-action" @click="showPromoDetail">
-                <text class="promo-link">查看详情</text>
-                <text class="chevron-right">›</text>
-            </view>
-        </view>
+        
+        <uv-navbar :border="false" title="余额充值" autoBack placeholder safeAreaInsetTop></uv-navbar>
 
-        <!-- 充值金额标题 -->
-        <view class="section-title">
-            <text class="title">充值金额</text>
-            <text class="subtitle">充值金额可能出现延迟到账情况，请稍作等待</text>
-        </view>
+        <view class="content-wrapper">
+            <!-- 充值优惠横幅 -->
+            <view class="promo-banner">
+                <view class="promo-content">
+                    <text class="promo-title">充值优惠</text>
+                    <text class="promo-text">{{ promoText || '当前充值享多重好礼' }}</text>
+                </view>
+                <view class="promo-action" @click="showPromoDetail">
+                    <text class="promo-link">查看详情</text>
+                    <text class="chevron-right">›</text>
+                </view>
+            </view>
 
-        <!-- 金额输入框 -->
-        <view class="amount-input-section">
-            <uv-input 
-                v-model="rechargeAmount"
-                placeholder="请输入充值金额"
-                type="digit"
-                :disabled="isPaymentProcessing"
-                border="none"
-                fontSize="36rpx"
-                color="#1A202C"
-                :customStyle="inputCustomStyle"
-                @input="onAmountChange"
-            >
-                <template v-slot:prefix>
+            <!-- 金额输入框 -->
+            <view class="amount-input-section">
+                <view class="amount-input-header">
+                    <view class="amount-label">充值金额</view>
+                    <view class="navbar-action" @click="goToRecords">
+                        <text class="action-text">充值记录</text>
+                    </view>
+                </view>
+                <view class="amount-input-wrapper">
                     <text class="currency-symbol">¥</text>
-                </template>
-            </uv-input>
-        </view>
-
-        <!-- 快捷金额选择 -->
-        <view class="amount-grid">
-            <view 
-                v-for="(amount, index) in quickAmounts" 
-                :key="index"
-                :class="['amount-card', { 'selected': numericRechargeAmount === amount.value, 'special': amount.special }]"
-                @click="selectAmount(amount.value)"
-            >
-                <view v-if="amount.special" class="special-tag">充值特惠</view>
-                <view class="amount-display">
-                    <text class="amount-value">{{ amount.value }}</text>
-                    <text class="amount-unit">元</text>
-                </view>
-                <view v-if="numericRechargeAmount === amount.value" class="selected-check">
-                    <text class="check-icon">✓</text>
+                    <uv-input 
+                        v-model="rechargeAmount"
+                        placeholder="请输入充值金额"
+                        placeholderStyle="font-size: 40rpx;"
+                        type="digit"
+                        :disabled="isPaymentProcessing"
+                        border="none"
+                        fontSize="48rpx"
+                        color="#0d171b"
+                        :customStyle="inputCustomStyle"
+                        @input="onAmountChange"
+                    />
                 </view>
             </view>
-        </view>
 
-        <!-- 充值奖励 -->
-        <view class="reward-section" v-if="hasReward">
-            <text class="section-header">充值奖励</text>
-            <view class="reward-card">
-                <view class="reward-title">
-                    <text class="gift-icon">🎁</text>
-                    <text class="reward-text">{{ currentReward.title }}</text>
-                </view>
-                <text class="reward-desc">
-                    {{ currentReward.description }}
-                </text>
-                <view class="expand-details" @click="toggleStationList">
-                    <text class="expand-text">{{ showStationList ? '收起适用站点详情' : '展开适用站点详情' }}</text>
-                    <text class="expand-icon">{{ showStationList ? '⌃' : '⌄' }}</text>
-                </view>
-                
-                <!-- 适用站点列表 -->
-                <view v-if="showStationList" class="station-list">
-                    <text v-for="(station, index) in stationList" :key="index" class="station-item">
-                        {{ station }}
-                    </text>
+            <!-- 快捷金额选择 -->
+            <view class="amount-grid">
+                <view 
+                    v-for="(amount, index) in quickAmounts" 
+                    :key="index"
+                    :class="['amount-card', { 'selected': numericRechargeAmount === amount.value, 'special': amount.special }]"
+                    @click="selectAmount(amount.value)"
+                >
+                    <view v-if="amount.special" class="special-offer">特惠</view>
+                    <text class="amount-text">{{ amount.value }}元</text>
                 </view>
             </view>
-        </view>
+
+            <!-- 支付方式选择（可选） -->
+            <view class="payment-method-section" v-if="false">
+                <view class="payment-method-label">支付方式</view>
+                <view class="payment-method-options">
+                    <view 
+                        :class="['payment-method-item', { 'active': payType === 'wechat' }]"
+                        @click="switchPayType('wechat')"
+                    >
+                        <text class="method-icon">💳</text>
+                        <text class="method-name">微信支付</text>
+                    </view>
+                    <view 
+                        :class="['payment-method-item', { 'active': payType === 'alipay' }]"
+                        @click="switchPayType('alipay')"
+                    >
+                        <text class="method-icon">💵</text>
+                        <text class="method-name">支付宝</text>
+                    </view>
+                </view>
+            </view>
+
+            <!-- 充值奖励 -->
+            <view class="reward-section" v-if="hasReward">
+                <view class="reward-card">
+                    <!-- <text class="reward-title">{{ currentReward.title || '充值奖励' }}</text> -->
+                    <view style="margin-bottom: 16rpx;">
+                        <StatusTag
+                            :text="currentReward.title || '充值奖励'"
+                            backgroundColor="#FDEEEE"
+                            textColor="#E53E3E"
+                            fontSize="24rpx"
+                            padding="8rpx 12rpx"
+                            borderRadius="12rpx"
+                            fontWeight="bold"
+                        ></StatusTag>
+                    </view>
+                    <view class="reward-content" v-if="currentReward.description">
+                        <rich-text :nodes="currentReward.description"></rich-text>
+                    </view>
+                    <view class="expand-details" @click="toggleStationList" v-if="currentReward.stationList && currentReward.stationList.length > 0">
+                        <text class="expand-text">{{ showStationList ? '收起适用站点详情' : '展开适用站点详情' }}</text>
+                        <uv-icon v-if="showStationList" name="arrow-down" size="16" color="#007AFF"></uv-icon>
+                        <uv-icon v-else name="arrow-up" size="16" color="#007AFF"></uv-icon>
+                    </view>
+                    
+                    <!-- 适用站点列表 -->
+                    <view v-if="showStationList && currentReward.stationList && currentReward.stationList.length > 0" class="station-list">
+                        <text v-for="(station, index) in currentReward.stationList" :key="index" class="station-item">
+                            {{ station }}
+                        </text>
+                    </view>
+                </view>
+            </view>
 
         <!-- 支付方式 -->
         <!-- <view class="payment-section">
@@ -98,22 +125,21 @@
             </view>
         </view> -->
 
-        <!-- 支付状态提示 -->
-        <view v-if="paymentStatus" class="payment-status">
-            <text :class="['status-text', paymentStatus.type]">{{ paymentStatus.message }}</text>
+            <!-- 支付状态提示 -->
+            <view v-if="paymentStatus" class="payment-status">
+                <text :class="['status-text', paymentStatus.type]">{{ paymentStatus.message }}</text>
+            </view>
         </view>
 
         <!-- 底部支付按钮 -->
         <view class="bottom-payment">
-            <uv-button 
-                :text="isPaymentProcessing ? '支付处理中...' : '立即充值'"
-                type="primary"
-                size="large"
-                :disabled="isPaymentProcessing || numericRechargeAmount <= 0"
-                :loading="isPaymentProcessing"
-                :customStyle="buttonCustomStyle"
+            <view 
+                class="payment-button"
+                :class="{ 'disabled': isPaymentProcessing || numericRechargeAmount <= 0 }"
                 @click="recharge"
-            />
+            >
+                <text class="button-text">{{ isPaymentProcessing ? '支付处理中...' : '立即充值' }}</text>
+            </view>
         </view>
 
         <!-- 详情弹窗 -->
@@ -123,22 +149,28 @@
                     <text class="modal-title">充值优惠详情</text>
                     <text class="modal-close" @click="hidePromoDetail">✕</text>
                 </view>
-                <scroll-view class="modal-body" scroll-y>
+                <view class="modal-body">
                     <text class="detail-content">{{ promoDetailContent }}</text>
-                </scroll-view>
+                </view>
             </view>
         </view>
     </view>
 </template>
 
 <script>
-import { alipayUnifiedOrder, alipayOrderResultQuery } from '../../api/pay';
+import { alipayUnifiedOrder, alipayOrderResultQuery, wechatUnifiedOrder, wechatOrderResultQuery } from '../../api/pay';
 import { getStyleContent } from '../../api/style';
+import { getRechargeDiscounts, getRechargeAwardExplain } from '../../api/member';
+import StatusTag from '../../components/common/StatusTag.vue';
 
 export default {
+    components: {
+        StatusTag
+    },
     data() {
         return {
             rechargeAmount: "200", // 默认金额改为字符串200
+            payType: 'wechat', // 支付方式：'alipay' 支付宝, 'wechat' 微信支付
             pollingTimer: null, // 轮询定时器
             isPaymentProcessing: false, // 防止重复支付
             currentTradeNo: null, // 当前订单号
@@ -147,17 +179,18 @@ export default {
             quickAmounts: [ // 快捷金额选项
                 { value: 50, special: false },
                 { value: 100, special: false },
-                { value: 200, special: true },
-                { value: 300, special: true },
-                { value: 600, special: true },
-                { value: 1000, special: true }
+                { value: 200, special: false },
+                { value: 300, special: false },
+                { value: 600, special: false },
+                { value: 1000, special: false }
             ],
             inputCustomStyle: { // uv-input自定义样式
-                padding: '32rpx 96rpx 32rpx 96rpx',
-                fontSize: '36rpx',
-                fontWeight: '500',
+                padding: '0',
+                fontSize: '48rpx',
+                fontWeight: 'bold',
                 backgroundColor: 'transparent',
-                height: '150rpx'
+                height: 'auto',
+                flex: '1'
             },
             buttonCustomStyle: { // uv-button自定义样式
                 width: '100%',
@@ -171,54 +204,13 @@ export default {
             promoDetailContent: '', // 优惠活动详细内容
             showDetailModal: false, // 是否显示详情弹窗
             showStationList: false, // 是否展开站点列表
-            stationList: [ // 适用站点列表
-                '超易充石龙祥龙路充电站',
-                '超易充石龙广源路公共充电站',
-                '超易充石龙莞惠枢纽充电站', 
-                '超易充高埗政府广场充电站',
-                '超易充高埗文化广场充电站',
-                '超易充高埗江滨广场充电站',
-                '超易充石龙西湖客运站充电站',
-                '超易充望牛墩望洪酒店充电站',
-                '超易充企石公交枢纽站',
-                '超易充常平镇常黄路充电站',
-                '超易充万江牌楼基充电站',
-                '超易充东城温塘光烨充电站',
-                '超易充常平东莞东火车站光烨充电站',
-                '超易充高埗汽车北站光烨充电站',
-                '超易充黄江实验小学光烨充电站',
-                '超易充南城宏图路福地光烨超充站',
-                '超易充南城宏图路福地光烨充电站',
-                '超易充中堂坤鑫光烨充电站',
-                '超易充企石滨江公园光烨充电站',
-                '超易充企石森林公园光烨充电站',
-                '超易充清溪大利光烨充电站',
-                '超易充清溪大绿地光烨充电站',
-                '超易充清溪金龙阳光城光烨充电站',
-                '超易充塘厦华维大厦光烨充电站',
-                '超易充东能横沥职教城充电站',
-                '超易充道滘燿盈广场超充站',
-                '超易充厚街环冈奥通充电站'
-            ],
-            // 充值奖励映射
-            rewardMapping: {
-                200: {
-                    title: '价值20元券包',
-                    description: '(10元券*1张+5元券*2张，券有效期30天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                300: {
-                    title: '价值25元券包',
-                    description: '(10元券*1张+5元券*3张，券有效期45天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                600: {
-                    title: '价值55元券包',
-                    description: '(10元券*3张+5元券*5张，券有效期60天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                1000: {
-                    title: '价值120元券包',
-                    description: '(10元券*6张+5元券*12张，券有效期90天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                }
-            }
+            stationList: [], // 适用站点列表（从接口动态获取）
+            // 充值奖励映射（动态获取）
+            rewardMapping: {},
+            // 当前加载中的金额（防止重复请求）
+            loadingAmount: null,
+            // 输入金额的防抖定时器
+            amountInputTimer: null
         }
     },
     computed: {
@@ -230,22 +222,58 @@ export default {
         currentReward() {
             const amount = this.numericRechargeAmount;
             return this.rewardMapping[amount] || {
-                title: '价值20元券包',
-                description: '(10元券*1张+5元券*2张，券有效期30天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
+                title: null,
+                description: null,
+                stationList: []
             };
         },
         // 是否有奖励（只有特定金额才有奖励）
         hasReward() {
-            return this.rewardMapping.hasOwnProperty(this.numericRechargeAmount);
+            const amount = this.numericRechargeAmount;
+            const reward = this.rewardMapping[amount];
+            return reward && reward.title && reward.stationList && reward.stationList.length > 0;
+        }
+    },
+    watch: {
+        // 监听充值金额变化，限制小数位
+        rechargeAmount(newVal) {
+            if (newVal && typeof newVal === 'string') {
+                // 如果包含小数点，检查小数位数
+                if (newVal.includes('.')) {
+                    const parts = newVal.split('.');
+                    // 如果小数点后超过两位，截取前两位
+                    if (parts[1] && parts[1].length > 2) {
+                        const limitedValue = parts[0] + '.' + parts[1].substring(0, 2);
+                        // 使用 $nextTick 确保在下一个 tick 更新，避免循环更新
+                        this.$nextTick(() => {
+                            if (this.rechargeAmount !== limitedValue) {
+                                this.rechargeAmount = limitedValue;
+                            }
+                        });
+                    }
+                }
+            }
         }
     },
     onLoad() {
         // 页面加载时获取优惠活动内容
         this.loadPromoContent();
+        // 获取充值优惠金额列表
+        this.loadRechargeDiscounts();
+        // 加载默认金额的奖励说明
+        const defaultAmount = Number(this.rechargeAmount) || 0;
+        if (defaultAmount > 0) {
+            this.loadRechargeAwardExplain(defaultAmount);
+        }
     },
     beforeDestroy() {
         // 页面销毁时清除定时器
         this.clearPollingTimer();
+        // 清除输入防抖定时器
+        if (this.amountInputTimer) {
+            clearTimeout(this.amountInputTimer);
+            this.amountInputTimer = null;
+        }
     },
     methods: {
         /**
@@ -254,6 +282,7 @@ export default {
         async recharge() {
             // 输入验证
             const amount = Number(this.rechargeAmount);
+            
             if (amount <= 0) {
                 uni.showToast({
                     title: '请输入有效的充值金额',
@@ -280,15 +309,38 @@ export default {
                 this.paymentStatus = null; // 清除之前的状态
                 uni.showLoading({ title: '正在创建订单...' });
 
-                console.log('发起充值，金额：', amount);
+                console.log('发起充值，金额：', amount)
+                if (isNaN(amount)) {
+                    uni.showToast({
+                        title: '充值金额非法',
+                        icon: 'none'
+                    });
+                    this.isPaymentProcessing = false;
+                    return;
+                }
                 
-                // 调用后端统一下单接口
-                const orderRes = await alipayUnifiedOrder({
-                    totalFee: (Number(amount) * 100).toFixed(0).toString(),
-                    openId: uni.getStorageSync('openId'),
-                    subject: '账户充值', // 订单标题
-                    body: `充值金额：${amount}元` // 订单描述
-                });
+                // 根据支付方式调用不同的统一下单接口
+                let orderRes;
+                if (this.payType === 'wechat') {
+                    // 微信支付
+                    orderRes = await this.callWechatUnifiedOrder(amount);
+                } else {
+                    // 支付宝
+                    // #ifdef MP-ALIPAY
+                    // 支付宝小程序使用 alipayUnifiedOrder
+                    orderRes = await alipayUnifiedOrder({
+                        totalFee: Math.round(Number(amount) * 100).toString(),
+                        openId: uni.getStorageSync('openId'),
+                        subject: '账户充值', // 订单标题
+                        body: `充值金额：${amount}元` // 订单描述
+                    });
+                    // #endif
+                    
+                    // #ifndef MP-ALIPAY
+                    // 非支付宝小程序平台暂不支持支付宝支付
+                    throw new Error('当前平台不支持支付宝支付');
+                    // #endif
+                }
 
                 console.log('统一下单结果：', orderRes);
                 uni.hideLoading();
@@ -296,10 +348,17 @@ export default {
                 if (orderRes.code === 0 && orderRes.data) {
                     // 保存订单号用于后续查询
                     this.currentTradeNo = orderRes.data.tradeNo;
-                    this.currentOutTradeNo = orderRes.data.outTradeNo;
+                    this.currentOutTradeNo = orderRes.data.outTradeNo || orderRes.data.orderNo;
                     
-                    // 调用支付宝支付接口
-                    await this.callAlipayPayment(orderRes.data);
+                    // 调用支付接口
+                    if (this.payType === 'wechat') {
+                        this.currentTradeNo = orderRes.data.orderNo;
+                        await this.callWechatPayment(orderRes.data);
+                    } else {
+                        // #ifdef MP-ALIPAY
+                        await this.callAlipayPayment(orderRes.data);
+                        // #endif
+                    }
                 } else {
                     throw new Error(orderRes.msg || '创建订单失败');
                 }
@@ -419,13 +478,142 @@ export default {
         },
 
         /**
+         * 调用微信统一下单接口
+         */
+        async callWechatUnifiedOrder(amount) {
+            // 获取 openId
+            let openId = uni.getStorageSync('openId');
+            
+            // 根据平台确定交易类型
+            let tradeType = 'JSAPI';
+            // #ifdef APP-PLUS
+            tradeType = 'APP';
+            // #endif
+            
+            // #ifdef H5
+            tradeType = 'MWEB';
+            // #endif
+            
+            return await wechatUnifiedOrder({
+                openId: openId,
+                totalFee: Math.round(Number(amount) * 100).toString(),
+                tradeType: tradeType
+            });
+        },
+
+        /**
+         * 调用微信支付接口
+         * 根据不同的平台使用条件编译实现不同的支付方式
+         * 支持平台：
+         * - MP-WEIXIN: 微信小程序支付
+         * - APP-PLUS: APP微信支付
+         * 
+         * @param {Object} orderData 订单数据，包含以下字段：
+         *   - timeStamp: 时间戳
+         *   - nonceStr: 随机字符串
+         *   - package: 包含prepay_id的包
+         *   - sign: 签名
+         *   - signType: 签名类型（RSA或MD5）
+         *   - appId: 小程序/公众号ID
+         */
+        callWechatPayment(orderData) {
+            return new Promise((resolve, reject) => {
+                console.log('微信支付参数：', orderData);
+                
+                // #ifdef MP-WEIXIN
+                // 微信小程序
+                let paymentParams = {
+                    timeStamp: orderData.timeStamp + '',
+                    nonceStr: orderData.nonceStr,
+                    package: orderData.package || orderData.packageStr,
+                    signType: orderData.signType || 'MD5',
+                    paySign: orderData.sign || orderData.paySign,
+                    success: (res) => {
+                        console.log('微信小程序支付调起成功：', res);
+                        // 调起支付成功不代表支付成功，需要轮询查询结果
+                        this.startPaymentPolling();
+                        resolve(res);
+                    },
+                    fail: (err) => {
+                        console.error('微信小程序支付失败：', err);
+                        uni.hideLoading();
+                        if (err.errMsg && err.errMsg.includes('cancel')) {
+                            // 用户取消支付
+                            this.onPaymentCancelled(err);
+                        } else {
+                            this.showPaymentStatus('error', '支付失败，请重试');
+                        }
+                        this.isPaymentProcessing = false;
+                        reject(err);
+                    }
+                };
+                
+                console.log('发起微信小程序支付，参数：', paymentParams);
+                uni.requestPayment(paymentParams);
+                // #endif
+
+                // #ifdef APP-PLUS
+                // APP 微信支付
+                let appPaymentParams = {
+                    provider: 'wxpay',
+                    orderInfo: {
+                        appid: orderData.appId || orderData.appid,
+                        noncestr: orderData.nonceStr,
+                        package: orderData.package || 'Sign=WXPay',
+                        partnerid: orderData.partnerId || orderData.partnerid,
+                        prepayid: orderData.prepayId || orderData.prepayid,
+                        timestamp: orderData.timeStamp + '',
+                        sign: orderData.sign,
+                        signType: orderData.signType || 'MD5'
+                    },
+                    success: (res) => {
+                        console.log('APP微信支付调起成功：', res);
+                        this.startPaymentPolling();
+                        resolve(res);
+                    },
+                    fail: (err) => {
+                        console.error('APP微信支付失败：', err);
+                        uni.hideLoading();
+                        this.isPaymentProcessing = false;
+                        this.showPaymentStatus('error', '支付失败，请重试');
+                        reject(err);
+                    }
+                };
+                
+                console.log('发起APP微信支付，参数：', appPaymentParams);
+                uni.requestPayment(appPaymentParams);
+                // #endif
+
+                // #ifndef MP-WEIXIN || APP-PLUS
+                // 其他平台不支持微信支付
+                console.error('当前平台不支持微信支付');
+                uni.showToast({
+                    title: '当前平台暂不支持微信支付',
+                    icon: 'none'
+                });
+                this.isPaymentProcessing = false;
+                reject(new Error('当前平台不支持微信支付'));
+                // #endif
+            });
+        },
+
+        /**
          * 查询支付结果
          */
         async queryPaymentResult() {
             try {
-                const queryRes = await alipayOrderResultQuery({
-                    orderNo: this.currentOutTradeNo
-                });
+                let queryRes;
+                if (this.payType === 'wechat') {
+                    // 查询微信支付结果
+                    queryRes = await wechatOrderResultQuery({
+                        orderNo: this.currentOutTradeNo
+                    });
+                } else {
+                    // 查询支付宝支付结果
+                    queryRes = await alipayOrderResultQuery({
+                        orderNo: this.currentOutTradeNo
+                    });
+                }
 
                 console.log('支付结果查询：', queryRes);
 
@@ -562,9 +750,11 @@ export default {
          * 选择快捷金额
          * @param {Number} amount 金额
          */
-        selectAmount(amount) {
+        async selectAmount(amount) {
             if (!this.isPaymentProcessing) {
                 this.rechargeAmount = String(amount);
+                // 请求该金额对应的奖励说明
+                await this.loadRechargeAwardExplain(amount);
             }
         },
 
@@ -582,9 +772,37 @@ export default {
          * @param {String|Number} value 输入的值
          */
         onAmountChange(value) {
-            // 可以转成数字
-            this.rechargeAmount = Number(value);
-            // this.rechargeAmount = value;
+            // 将值转为字符串处理
+            let inputValue = String(value || '');
+            
+            // 限制最多两位小数
+            if (inputValue) {
+                // 如果包含小数点，检查小数位数
+                if (inputValue.includes('.')) {
+                    const parts = inputValue.split('.');
+                    // 如果小数点后超过两位，截取前两位
+                    if (parts[1] && parts[1].length > 2) {
+                        inputValue = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                }
+            }
+            
+            // 更新 rechargeAmount，确保输入框显示的是限制后的值
+            this.rechargeAmount = inputValue;
+            
+            // 清除之前的定时器
+            if (this.amountInputTimer) {
+                clearTimeout(this.amountInputTimer);
+            }
+            
+            // 防抖：用户停止输入500ms后，如果是整数金额，则加载奖励说明
+            this.amountInputTimer = setTimeout(() => {
+                const amount = Number(inputValue);
+                // 如果是整数且大于0，加载对应的奖励说明
+                if (amount > 0 && amount % 1 === 0) {
+                    this.loadRechargeAwardExplain(amount);
+                }
+            }, 500);
         },
 
         /**
@@ -611,6 +829,76 @@ export default {
         },
 
         /**
+         * 加载充值优惠金额列表
+         */
+        async loadRechargeDiscounts() {
+            try {
+                const response = await getRechargeDiscounts(100000);
+                if (response.code === 0 && response.data && Array.isArray(response.data)) {
+                    // 将返回的金额数组（单位：分）转换为元，并更新 quickAmounts 的 special 属性
+                    const discountAmounts = response.data.map(amount => amount / 100); // 将分转换为元
+                    
+                    // 更新 quickAmounts，如果金额在优惠列表中，则设置 special 为 true
+                    this.quickAmounts = this.quickAmounts.map(item => {
+                        return {
+                            ...item,
+                            special: discountAmounts.includes(item.value)
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('加载充值优惠金额列表失败：', error);
+            }
+        },
+
+        /**
+         * 加载充值奖励说明
+         * @param {Number} amount 金额（单位：元）
+         */
+        async loadRechargeAwardExplain(amount) {
+            // 防止重复请求
+            if (this.loadingAmount === amount) {
+                return;
+            }
+
+            // 如果已经加载过该金额的奖励说明，直接返回
+            if (this.rewardMapping[amount]) {
+                return;
+            }
+
+            try {
+                this.loadingAmount = amount;
+                const price = amount * 100; // 转换为分
+                const response = await getRechargeAwardExplain(price);
+                
+                if (response.code === 0 && response.data && Array.isArray(response.data)) {
+                    const [title, descriptionHtml, stationArray] = response.data;
+                    console.log('descriptionHtml', descriptionHtml);
+                    console.log('stationArray', stationArray);
+                    
+                    // 提取站点名称列表
+                    const stationList = Array.isArray(stationArray) 
+                        ? stationArray.map(item => item.name || item).filter(Boolean)
+                        : [];
+                    
+                    // 更新 rewardMapping - 使用展开运算符创建新对象，确保响应式更新
+                    this.rewardMapping = {
+                        ...this.rewardMapping,
+                        [amount]: {
+                            title: title || '充值奖励',
+                            description: descriptionHtml || '',
+                            stationList: stationList
+                        }
+                    };
+                }
+            } catch (error) {
+                console.error('加载充值奖励说明失败：', error);
+            } finally {
+                this.loadingAmount = null;
+            }
+        },
+
+        /**
          * 显示优惠详情弹窗
          */
         showPromoDetail() {
@@ -629,112 +917,189 @@ export default {
          */
         toggleStationList() {
             this.showStationList = !this.showStationList;
+        },
+
+        /**
+         * 返回上一页
+         */
+        goBack() {
+            uni.navigateBack();
+        },
+
+        /**
+         * 跳转到充值记录页面
+         */
+        goToRecords() {
+            uni.navigateTo({
+                url: '/pages/account/records'
+            });
+        },
+
+        /**
+         * 切换支付方式（如果需要UI选择）
+         */
+        switchPayType(type) {
+            this.payType = type;
+            console.log('切换支付方式：', type);
         }
     }
 }
 </script>
 
 <style scoped>
+.amount-input-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16rpx;
+}
 .recharge-container {
-    padding: 32rpx;
-    background-color: #E9F5FF;
+    background-color: #f6f7f8;
     min-height: 100vh;
-    font-family: 'PingFang SC', sans-serif;
-    padding-bottom: 120rpx; /* 为底部按钮留空间 */
+    font-family: 'Inter', 'PingFang SC', sans-serif;
+    position: relative;
+}
+
+/* 顶部导航栏 */
+.top-navbar {
+    position: sticky;
+    top: 0;
+    background-color: rgba(246, 247, 248, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    padding: 32rpx 32rpx 16rpx;
+}
+
+.navbar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.back-btn {
+    width: 80rpx;
+    height: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.back-icon {
+    font-size: 48rpx;
+    color: #0d171b;
+    font-weight: bold;
+}
+
+.navbar-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #0d171b;
+    flex: 1;
+    text-align: center;
+    padding-right: 80rpx;
+}
+
+.navbar-action {
+    flex-shrink: 0;
+}
+
+.action-text {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #007AFF;
+}
+
+/* 内容包装器 */
+.content-wrapper {
+    padding: 0 32rpx 128rpx;
 }
 
 /* 充值优惠横幅 */
 .promo-banner {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
+    background: #FFFFFF;
     border-radius: 24rpx;
-    padding: 24rpx;
+    padding: 32rpx;
     margin-bottom: 48rpx;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
 .promo-content {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 8rpx;
     flex: 1;
-    min-width: 0; /* 允许flex项目收缩 */
 }
 
-.promo-tag {
-    background: rgba(0, 122, 255, 0.1);
-    color: #007AFF;
-    font-size: 24rpx;
+.promo-title {
+    font-size: 32rpx;
     font-weight: bold;
-    padding: 8rpx 16rpx;
-    border-radius: 20rpx;
-    margin-right: 16rpx;
-    flex-shrink: 0; /* 防止标签收缩 */
+    color: #007AFF;
+    line-height: 1.2;
 }
 
 .promo-text {
-    color: #1A202C;
     font-size: 28rpx;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
+    color: #64748b;
+    line-height: 1.4;
 }
 
 .promo-action {
     display: flex;
     align-items: center;
+    gap: 8rpx;
     flex-shrink: 0;
 }
 
 .promo-link {
-    color: #007AFF;
-    font-weight: 600;
     font-size: 28rpx;
-    margin-right: 8rpx;
+    font-weight: 500;
+    color: #007AFF;
 }
 
 .chevron-right {
+    font-size: 32rpx;
     color: #007AFF;
-    font-size: 36rpx;
     font-weight: bold;
-}
-
-/* 标题区域 */
-.section-title {
-    margin-bottom: 32rpx;
-}
-
-.title {
-    font-size: 36rpx;
-    font-weight: 600;
-    color: #1A202C;
-    display: block;
-    margin-bottom: 16rpx;
-}
-
-.subtitle {
-    font-size: 28rpx;
-    color: #4A5568;
-    display: block;
 }
 
 /* 金额输入框 */
 .amount-input-section {
+    margin-bottom: 48rpx;
+}
+
+.amount-label {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #334155;
+    display: block;
+}
+
+.amount-input-wrapper {
+    position: relative;
     background: #FFFFFF;
     border-radius: 24rpx;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
-    margin-bottom: 48rpx;
-    padding: 0;
+    border: 2rpx solid #e2e8f0;
+    height: 128rpx;
+    display: flex;
+    align-items: center;
+    padding: 0 32rpx;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.amount-input-wrapper:focus-within {
+    border-color: #007AFF;
+    box-shadow: 0 0 0 4rpx rgba(0, 122, 255, 0.1);
 }
 
 .currency-symbol {
     font-size: 48rpx;
-    font-weight: 500;
-    color: #1A202C;
+    font-weight: bold;
+    color: #334155;
     margin-right: 16rpx;
 }
 
@@ -742,209 +1107,192 @@ export default {
 .amount-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 32rpx;
-    margin-bottom: 64rpx;
+    gap: 24rpx;
+    margin-bottom: 48rpx;
+}
+
+/* 支付方式选择 */
+.payment-method-section {
+    margin-bottom: 48rpx;
+}
+
+.payment-method-label {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 16rpx;
+    display: block;
+}
+
+.payment-method-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24rpx;
+}
+
+.payment-method-item {
+    background: #FFFFFF;
+    border-radius: 24rpx;
+    border: 2rpx solid #e2e8f0;
+    height: 120rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12rpx;
+    transition: all 0.2s ease;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+}
+
+.payment-method-item:active {
+    background-color: rgba(0, 122, 255, 0.05);
+    border-color: #007AFF;
+}
+
+.payment-method-item.active {
+    border-color: #007AFF;
+    background-color: rgba(0, 122, 255, 0.1);
+}
+
+.method-icon {
+    font-size: 32rpx;
+}
+
+.method-name {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #334155;
+}
+
+.payment-method-item.active .method-name {
+    color: #007AFF;
 }
 
 .amount-card {
     position: relative;
     background: #FFFFFF;
     border-radius: 24rpx;
-    padding: 32rpx;
-    text-align: center;
-    cursor: pointer;
-    border: 2rpx solid transparent;
+    height: 128rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2rpx solid #e2e8f0;
     transition: all 0.2s ease;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.amount-card:hover {
+.amount-card:active {
+    background-color: rgba(0, 122, 255, 0.1);
     border-color: #007AFF;
 }
 
 .amount-card.selected {
     border-color: #007AFF;
-    box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.2);
+    background-color: rgba(0, 122, 255, 0.1);
 }
 
-.amount-card.special {
-    position: relative;
-}
-
-.special-tag {
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 122, 255, 0.1);
-    color: #007AFF;
-    font-size: 24rpx;
-    font-weight: 600;
-    padding: 8rpx 16rpx;
-    border-top-left-radius: 24rpx;
-    border-bottom-right-radius: 24rpx;
-}
-
-.amount-display {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-.amount-value {
-    font-size: 48rpx;
-    font-weight: bold;
-    color: #1A202C;
-}
-
-.amount-card.selected .amount-value {
-    color: #007AFF;
-}
-
-.amount-unit {
+.amount-text {
     font-size: 32rpx;
-    font-weight: normal;
-    color: inherit;
-    margin-left: 4rpx;
+    font-weight: 500;
+    color: #334155;
 }
 
-.selected-check {
+.amount-card.selected .amount-text {
+    color: #007AFF;
+}
+
+.special-offer {
     position: absolute;
-    top: -16rpx;
-    right: -16rpx;
-    background: #007AFF;
-    border-radius: 50%;
-    width: 48rpx;
-    height: 48rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.check-icon {
+    top: -10rpx;
+    right: -10rpx;
+    background-color: #FFA500;
     color: white;
-    font-size: 32rpx;
-    font-weight: bold;
+    padding: 4rpx 12rpx;
+    font-size: 20rpx;
+    font-weight: 500;
+    border-radius: 12rpx;
+    transform: rotate(15deg);
 }
 
 /* 充值奖励 */
 .reward-section {
-    margin-bottom: 64rpx;
-}
-
-.section-header {
-    font-size: 36rpx;
-    font-weight: 600;
-    color: #1A202C;
-    display: block;
-    margin-bottom: 16rpx;
+    margin-bottom: 48rpx;
 }
 
 .reward-card {
-    background: rgba(0, 122, 255, 0.1);
-    border-radius: 24rpx;
-    padding: 32rpx;
-    font-size: 28rpx;
-}
-
-.reward-title {
-    display: flex;
-    align-items: center;
-    font-weight: 600;
-    color: #007AFF;
-    margin-bottom: 16rpx;
-}
-
-.gift-icon {
-    margin-right: 16rpx;
-    font-size: 32rpx;
-}
-
-.reward-text {
-    font-size: 32rpx;
-}
-
-.reward-desc {
-    color: #4A5568;
-    line-height: 1.6;
-    display: block;
-    margin-bottom: 24rpx;
-}
-
-.expand-details {
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.expand-text {
-    color: #007AFF;
-    font-weight: 500;
-    margin-right: 8rpx;
-}
-
-.expand-icon {
-    color: #007AFF;
-    font-size: 36rpx;
-}
-
-/* 支付方式 */
-.payment-section {
-    margin-bottom: 64rpx;
-}
-
-.payment-method {
     background: #FFFFFF;
     border-radius: 24rpx;
     padding: 32rpx;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
 }
 
-.payment-info {
-    display: flex;
-    align-items: center;
+.reward-title {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #0d171b;
+    line-height: 1.2;
+    margin-bottom: 24rpx;
+    display: block;
 }
 
-.payment-logo {
-    width: 80rpx;
-    height: 80rpx;
-    margin-right: 32rpx;
+.reward-content {
+    border-top: 2rpx solid #e2e8f0;
+    padding-top: 24rpx;
+    margin-bottom: 24rpx;
 }
 
-.payment-details {
-    display: flex;
-    flex-direction: column;
-}
-
-.payment-name {
-    font-weight: 600;
-    color: #1A202C;
+.reward-item {
     font-size: 32rpx;
+    color: #64748b;
+    line-height: 1.4;
+    display: block;
     margin-bottom: 8rpx;
 }
 
-.payment-desc {
-    font-size: 28rpx;
-    color: #4A5568;
+.reward-item:last-child {
+    margin-bottom: 0;
 }
 
-.help-btn {
-    width: 80rpx;
-    height: 80rpx;
-    border-radius: 50%;
-    background: #f5f5f5;
+.expand-details {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
+    border-top: 2rpx solid #e2e8f0;
+    padding-top: 24rpx;
 }
 
-.help-icon {
-    color: #4A5568;
-    font-size: 32rpx;
+.expand-text {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #007AFF;
+}
+
+.expand-icon {
+    font-size: 36rpx;
+    color: #007AFF;
+}
+
+/* 站点列表 */
+.station-list {
+    margin-top: 24rpx;
+    padding: 16rpx;
+    background: rgba(0, 122, 255, 0.05);
+    border-radius: 12rpx;
+    border: 1rpx solid rgba(0, 122, 255, 0.1);
+}
+
+.station-item {
+    display: block;
+    font-size: 26rpx;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 8rpx;
+    padding: 8rpx 0;
+    border-bottom: 1rpx solid rgba(0, 122, 255, 0.1);
+}
+
+.station-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
 }
 
 /* 支付状态提示 */
@@ -958,54 +1306,27 @@ export default {
 .status-text {
     font-size: 28rpx;
     font-weight: 500;
-}
-
-.status-text.success {
-    color: #52c41a;
-    background-color: #f6ffed;
-    border: 1px solid #b7eb8f;
-}
-
-.status-text.error {
-    color: #ff4d4f;
-    background-color: #fff2f0;
-    border: 1px solid #ffccc7;
-}
-
-.status-text.warning {
-    color: #faad14;
-    background-color: #fffbe6;
-    border: 1px solid #ffe58f;
-}
-
-.payment-status .status-text {
     display: block;
     padding: 20rpx;
     border-radius: 12rpx;
 }
 
-/* 站点列表 */
-.station-list {
-    margin-top: 24rpx;
-    padding: 16rpx;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12rpx;
-    border: 1rpx solid rgba(0, 122, 255, 0.2);
+.status-text.success {
+    color: #16a34a;
+    background-color: #f0fdf4;
+    border: 1rpx solid #bbf7d0;
 }
 
-.station-item {
-    display: block;
-    font-size: 26rpx;
-    color: #4A5568;
-    line-height: 1.5;
-    margin-bottom: 8rpx;
-    padding: 8rpx 0;
-    border-bottom: 1rpx solid rgba(0, 122, 255, 0.1);
+.status-text.error {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border: 1rpx solid #fecaca;
 }
 
-.station-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
+.status-text.warning {
+    color: #d97706;
+    background-color: #fffbeb;
+    border: 1rpx solid #fed7aa;
 }
 
 /* 详情弹窗 */
@@ -1077,8 +1398,40 @@ export default {
     left: 0;
     right: 0;
     padding: 32rpx;
-    background: rgba(233, 245, 255, 0.8);
+    background: linear-gradient(to top, #f6f7f8, transparent);
     backdrop-filter: blur(10px);
-    border-top: 1rpx solid #E2E8F0;
+}
+
+.payment-button {
+    width: 100%;
+    height: 112rpx;
+    background: linear-gradient(to right, #007AFF, #60a5fa);
+    border-radius: 24rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.3);
+    transition: all 0.2s ease;
+}
+
+.payment-button:active {
+    transform: translateY(2rpx);
+    box-shadow: 0 4rpx 16rpx rgba(0, 122, 255, 0.4);
+}
+
+.payment-button.disabled {
+    background: #e2e8f0;
+    box-shadow: none;
+    transform: none;
+}
+
+.button-text {
+    font-size: 36rpx;
+    font-weight: bold;
+    color: #FFFFFF;
+}
+
+.payment-button.disabled .button-text {
+    color: #94a3b8;
 }
 </style>

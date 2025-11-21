@@ -1,4 +1,5 @@
 export default {
+  miniProgramVersion: "2.0.0",
   requestTasks: [],
   session_key: "",
   openId: "",
@@ -48,9 +49,10 @@ export default {
     latitude: "23.848884",
     longitude: "113.768234"
   },
-  sellerNo: "cy",
-  sellerId: 399,
-  URL: "http://1.12.53.66/api",
+  sellerNo: "shicheng",
+  sellerId: 401,
+  // URL: "https://cy.gy-ev.com/api",
+  URL: "https://xgcc.cc/api",
   // URL: "http://127.0.0.1:7100",
   imgUrl: "https://1.12.53.66",
   uploadUrl: "https://1.12.53.66/api/member-service/common/upload",

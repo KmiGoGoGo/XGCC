@@ -6,6 +6,7 @@
     :height="520" 
     :round="20" 
     :maskCloseAble="false"
+    :safeAreaInsetBottom="false"
     @close="handleClose"
   >
     <view class="popup-container">
@@ -20,32 +21,32 @@
         <view class="title">
           你有{{ totalCount }}笔超时占位订单待支付
         </view>
-        
-        <!-- 站点信息 -->
-        <view class="station-info">
-          <text class="station-name">{{ billData?.stationName || '节能测试站' }}</text>
-        </view>
-        
         <!-- 时间信息 -->
         <view class="time-info">
           <text class="time-text">{{ formattedTime }}</text>
         </view>
         
+        <!-- 站点信息 -->
+        <view class="station-info">
+          <text class="station-name">{{ billData?.stationName || '节能测试站' }}</text>
+        </view>
         <!-- 费用信息 -->
         <view class="fee-info">
           <text class="fee-label">超时占位时长：</text>
           <text class="fee-duration">{{ occupyDuration }}分钟</text>
         </view>
         
+        
         <view class="fee-info">
           <text class="fee-label">应付费用：</text>
           <text class="fee-amount">￥ {{ formattedFee }}</text>
         </view>
         
+        
         <!-- 操作按钮 -->
         <view class="button-group">
-          <button class="later-btn" @click="handleLater">稍后再说</button>
           <button class="pay-btn" @click="handlePay">立即支付</button>
+          <button class="later-btn" @click="handleLater">稍后再说</button>
         </view>
       </view>
     </view>
@@ -217,7 +218,7 @@ export default {
 .pay-btn {
   flex: 1;
   height: 80rpx;
-  border-radius: 40rpx;
+  border-radius: 20rpx;
   border: none;
   font-size: 28rpx;
   line-height: 80rpx;
@@ -229,7 +230,7 @@ export default {
 }
 
 .pay-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #1F67FD 0%, #60A5FA 100%);
   color: #fff;
 }
 </style>

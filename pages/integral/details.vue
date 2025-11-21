@@ -1,5 +1,6 @@
 <template>
   <view class="details-container">
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 筛选区域 -->
     <view class="filter-section">
       <view class="tabs">

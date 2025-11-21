@@ -1,5 +1,6 @@
 <template>
     <view class="city-picker-container">
+        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         <!-- 加载状态 -->
         <view class="loading-container" v-if="loading">
             <view class="loading-text">正在加载城市数据...</view>
@@ -143,8 +144,8 @@ export default {
                 // #endif
                 mask: true
             });
-            uni.setStorageSync('currentCity', item);
-            uni.setStorageSync('currentCityName', item.cityName);
+            uni.setStorageSync('city', item);
+            uni.setStorageSync('cityName', item.cityName);
             uni.navigateBack();
         }
     }

@@ -7,47 +7,41 @@
       :show-scrollbar="false"
       @scrolltolower="onLoadMore"
     >
-      <view>
-        <uv-list>
+      <view style="padding-bottom: 350rpx;">
+        <view class="invoice-list">
           <uv-checkbox-group v-model="checkboxModel">
-            <uv-list-item 
+            <view 
               v-for="(item, index) in invoiceList" 
               :key="item.id"
-              :customStyle="{ padding: '20rpx 30rpx' }"
+              class="invoice-card"
             >
-              <view class="invoice-item">
-                <!-- 左侧复选框 -->
-                <view class="checkbox-wrapper">
-                  
-                    <uv-checkbox
-                      :name="item.id"
-                      :checked="selectedItems.includes(item.id)"
-                      @change="onItemCheck(item, $event)"
-                      activeColor="#007AFF"
-                    ></uv-checkbox>
+              <view class="invoice-item" @tap="onItemCheck(item, $event)">
+                <!-- 顶部信息行 -->
+                <view class="top-row">
+                  <text class="company-name">{{ item.unitName }}</text>
+                  <text class="amount">¥{{ (item.actualBalance / 100).toFixed(2) }}</text>
                 </view>
                 
-                <!-- 发票信息 -->
-                <view class="invoice-info">
-                  <view class="info-row">
-                    <text class="label">订单号：</text>
-                    <text class="value">{{ item.busId }}</text>
+                <!-- 底部信息行 -->
+                <view class="bottom-row">
+                  <!-- 复选框 -->
+                  <view class="checkbox-wrapper">
+                    <uv-checkbox
+                      :name="item.id"
+                      :checked="isItemSelected(item)"
+                      @change="onItemCheck(item, $event)"
+                      activeColor="#13a4ec"
+                    ></uv-checkbox>
                   </view>
-                  <view class="info-row">
-                    <text class="label">运营单位：</text>
-                    <text class="value">{{ item.unitName }}</text>
-                  </view>
-                  <view class="info-row">
-                    <text class="label">下单时间：</text>
-                    <text class="value">{{ formatTime(item.createTime) }}</text>
-                  </view>
-                  <view class="info-row amount-row">
-                    <text class="label">总金额：</text>
-                    <text class="amount">¥{{ (item.actualBalance / 100).toFixed(2) }}</text>
+                  
+                  <!-- 订单信息 -->
+                  <view class="order-info">
+                    <text class="order-number">订单号：{{ item.busId }}</text>
+                    <text class="order-time">下单时间：{{ formatTime(item.createTime) }}</text>
                   </view>
                 </view>
               </view>
-            </uv-list-item>
+            </view>
           </uv-checkbox-group>
           
           <!-- 加载更多 -->
@@ -58,7 +52,7 @@
             loading-text="正在加载..."
             nomore-text="没有更多数据了"
           />
-        </uv-list>
+        </view>
       </view>
       
       <!-- 空状态 -->
@@ -74,25 +68,23 @@
             name="selectAll"
             :checked="isAllSelected"
             @change="onSelectAllChange"
-            activeColor="#007AFF"
-            label="本页全选"
+            activeColor="#13a4ec"
+            :customStyle="{ transform: 'scale(1.2)' }"
           ></uv-checkbox>
         </uv-checkbox-group>
+        <text class="select-all-text">本页全选</text>
+        <view class="total-info">
+          已选金额：<text class="total-amount">¥{{ totalSelectedAmount.toFixed(2) }}</text>
+        </view>
       </view>
       <view class="summary-right">
-        <view class="selected-info">
-          <text class="selected-text">已选择 {{ selectedItems.length }} 单</text>
-          <text class="total-amount">合计：¥{{ totalSelectedAmount.toFixed(2) }}</text>
-        </view>
-        <uv-button 
-          type="primary" 
-          size="default"
+        <button 
+          class="next-button"
           :disabled="selectedItems.length === 0"
           @click="goToNext"
-          customStyle="border-radius: 40rpx; padding: 0 40rpx;"
         >
           下一步
-        </uv-button>
+        </button>
       </view>
     </view>
   </view>
@@ -131,14 +123,14 @@ export default {
     // 是否全选当前页
     isAllSelected() {
       if (this.invoiceList.length === 0) return false
-      return this.invoiceList.every(item => this.selectedItems.includes(item.id))
+      return this.invoiceList.every(item => this.isItemSelected(item))
     },
     
     // 已选择的总金额
     totalSelectedAmount() {
       let total = 0
       this.invoiceList.forEach(item => {
-        if (this.selectedItems.includes(item.id)) {
+        if (this.isItemSelected(item)) {
           total += item.actualBalance / 100
         }
       })
@@ -230,24 +222,31 @@ export default {
       }
     },
     
+    // 检查项目是否被选中
+    isItemSelected(item) {
+      return this.selectedItems.some(selected => selected.id === item.id)
+    },
+    
     // 单项选择
     onItemCheck(item, name) {
-      const itemId = item.id
-      const isChecked = this.selectedItems.includes(itemId)
+      const isChecked = this.isItemSelected(item)
       
       if (!isChecked) {
         // 添加到选中列表
-        this.selectedItems.push(itemId)
-        if (!this.checkboxModel.includes(itemId)) {
-          this.checkboxModel.push(itemId)
+        this.selectedItems.push({
+          id: item.id,
+          unitId: item.unitId
+        })
+        if (!this.checkboxModel.includes(item.id)) {
+          this.checkboxModel.push(item.id)
         }
       } else {
         // 从选中列表中移除
-        const index = this.selectedItems.indexOf(itemId)
+        const index = this.selectedItems.findIndex(selected => selected.id === item.id)
         if (index > -1) {
           this.selectedItems.splice(index, 1)
         }
-        const modelIndex = this.checkboxModel.indexOf(itemId)
+        const modelIndex = this.checkboxModel.indexOf(item.id)
         if (modelIndex > -1) {
           this.checkboxModel.splice(modelIndex, 1)
         }
@@ -268,8 +267,11 @@ export default {
       if (!isCurrentlyAllSelected) {
         // 全选当前页
         this.invoiceList.forEach(item => {
-          if (!this.selectedItems.includes(item.id)) {
-            this.selectedItems.push(item.id)
+          if (!this.isItemSelected(item)) {
+            this.selectedItems.push({
+              id: item.id,
+              unitId: item.unitId
+            })
           }
           if (!this.checkboxModel.includes(item.id)) {
             this.checkboxModel.push(item.id)
@@ -281,7 +283,7 @@ export default {
       } else {
         // 取消当前页的选择
         this.invoiceList.forEach(item => {
-          const index = this.selectedItems.indexOf(item.id)
+          const index = this.selectedItems.findIndex(selected => selected.id === item.id)
           if (index > -1) {
             this.selectedItems.splice(index, 1)
           }
@@ -320,15 +322,26 @@ export default {
         })
         return
       }
+
+      // 判断选中的item中是否有unitId == 26的订单，如果有，则提示不能开票
+      console.log('选中的订单:', this.selectedItems)
+      const hasUnitId26 = this.selectedItems.some(item => item.unitId === 26)
+      if (hasUnitId26) {
+        uni.showToast({
+          title: '小桔订单暂时无法开票，请取消选择小桔订单后再次提交',
+          icon: 'none'
+        })
+        return
+      }
       
       // 这里可以跳转到下一步页面，传递选中的订单ID
       console.log('选中的订单:', this.selectedItems)
       console.log('总金额:', this.totalSelectedAmount)
       
-
-      const selectedItems = this.selectedItems.join(',')
+      // 将对象数组转换为 JSON 字符串传递
+      const selectedItemsStr = encodeURIComponent(JSON.stringify(this.selectedItems))
       uni.navigateTo({
-        url: `/pages/invoice/invoiceForm?selectedItems=${selectedItems}&totalSelectedAmount=${this.totalSelectedAmount.toFixed(2)}`
+        url: `/pages/invoice/invoiceForm?selectedItems=${selectedItemsStr}&totalSelectedAmount=${this.totalSelectedAmount.toFixed(2)}`
       })
     },
     
@@ -345,50 +358,77 @@ export default {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #f6f7f8;
 }
 
 .list-scroll-view {
   flex: 1;
-  height: 0; /* 确保 scroll-view 能正确计算高度 */
-  padding-bottom: 140rpx; /* 为底部汇总栏留出空间 */
+  height: 0;
+  width: 100%;
+  padding-bottom: 360rpx;
+}
+
+.invoice-list {
+  padding: 0;
+  width: 100%;
+}
+
+.invoice-card {
+  background: #fff;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 1rpx 3rpx rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
 }
 
 .invoice-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 20rpx;
+  padding: 24rpx;
   
-  .checkbox-wrapper {
-    padding-top: 10rpx;
+  .top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20rpx;
+    
+    .company-name {
+      font-size: 30rpx;
+      font-weight: 700;
+      color: #333333;
+    }
+    
+    .amount {
+      font-size: 30rpx;
+      font-weight: 700;
+      color: #333333;
+    }
   }
   
-  .invoice-info {
-    flex: 1;
+  .bottom-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20rpx;
     
-    .info-row {
+    .checkbox-wrapper {
+      padding-top: 2rpx;
+    }
+    
+    .order-info {
+      flex: 1;
       display: flex;
-      margin-bottom: 16rpx;
+      flex-direction: column;
+      gap: 6rpx;
       
-      .label {
-        color: #666;
-        font-size: 28rpx;
-        min-width: 160rpx;
+      .order-number {
+        font-size: 26rpx;
+        color: #999999;
+        line-height: 1.3;
       }
       
-      .value {
-        color: #333;
-        font-size: 28rpx;
-        flex: 1;
-      }
-      
-      &.amount-row {
-        margin-bottom: 0;
-        
-        .amount {
-          color: #ff6b35;
-          font-size: 32rpx;
-          font-weight: 600;
-        }
+      .order-time {
+        font-size: 26rpx;
+        color: #999999;
+        line-height: 1.3;
       }
     }
   }
@@ -406,39 +446,59 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-  background: #fff;
-  border-top: 1rpx solid #eee;
-  padding: 20rpx 30rpx;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20rpx);
+  border-top: 1rpx solid #e5e7eb;
+  padding: 24rpx 32rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 -2rpx 10rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
   
   .summary-left {
     display: flex;
     align-items: center;
+    gap: 32rpx;
+    
+    .select-all-text {
+      font-size: 24rpx;
+      color: #666666;
+      font-weight: 500;
+    }
+    
+    .total-info {
+      font-size: 24rpx;
+      color: #333333;
+      
+      .total-amount {
+        color: #13a4ec;
+        font-weight: 700;
+      }
+    }
   }
   
   .summary-right {
-    display: flex;
-    align-items: center;
-    gap: 30rpx;
-    
-    .selected-info {
-      text-align: right;
+    .next-button {
+      background: linear-gradient(135deg, #55C9FF 0%, #13a4ec 100%);
+      color: #fff;
+      font-size: 32rpx;
+      font-weight: 700;
+      padding: 6rpx 64rpx;
+      border-radius: 50rpx;
+      border: none;
+      box-shadow: 0 4rpx 16rpx rgba(19, 164, 236, 0.3);
+      transition: all 0.3s ease;
       
-      .selected-text {
-        display: block;
-        font-size: 24rpx;
-        color: #666;
-        margin-bottom: 4rpx;
+      &:active {
+        transform: scale(0.95);
+        box-shadow: 0 2rpx 8rpx rgba(19, 164, 236, 0.4);
       }
       
-      .total-amount {
-        display: block;
-        font-size: 32rpx;
-        color: #ff6b35;
-        font-weight: 600;
+      &:disabled {
+        background: #e5e7eb;
+        color: #9ca3af;
+        box-shadow: none;
+        transform: none;
       }
     }
   }

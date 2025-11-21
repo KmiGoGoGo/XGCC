@@ -1,6 +1,7 @@
 <template>
   <view class="invoice-detail-container">
     <!-- 状态头部 -->
+    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
     <view class="status-header">
       <view class="status-info">
         <uv-icon name="clock" color="#409eff" size="32rpx"></uv-icon>
@@ -54,8 +55,8 @@
       <view class="section-title">收件方式</view>
       
       <view class="detail-row">
-        <text class="label">短信接收</text>
-        <text class="value">{{ detailData.phone || '-' }}</text>
+        <text class="label">{{ detailData.acceptInvoiceType == 1 ? '邮箱' : '手机号' }}</text>
+        <text class="value">{{ detailData.acceptInvoiceType == 1 ? detailData.email : detailData.phone }}</text>
       </view>
     </view>
     
@@ -141,10 +142,32 @@ export default {
     // 获取状态文本
     getStatusText(status) {
       const statusMap = {
+        // 审核中状态
+        'INVOICE_APPLYING': '审核中',
         'INVOICE_CHECK': '审核中',
+        'IN_INVOICE': '审核中',
+        'RED_APPLYING': '审核中',
+        'RED_CHECK': '审核中',
+        'IN_RED': '审核中',
+        'RED_INVOICE': '审核中',
+        // 开票相关状态
+        'INVOICE_FINISH': '已开票',
         'INVOICE_SUCCESS': '已开票',
         'INVOICE_FAIL': '开票失败',
+        'NO_INVOICE': '未开票',
+        // 退票相关状态
+        'CANCEL_INVOICE': '已退票',
+        'INVOICE_REJECT': '已退票',
+        'REDED': '已退票',
+        'RED_REJECT': '驳回冲红',
+        'RED_FAIL': '冲红失败',
+        // 作废相关状态
+        'VOIDED': '已作废',
         'INVOICE_VOID': '已作废',
+        'IN_THE_VOID': '作废中',
+        'VOID_APPLYING': '申请作废',
+        // 其他状态
+        'TO_PUSH': '重新推送',
         'INVOICE_PENDING': '待开票'
       }
       return statusMap[status] || '未知状态'

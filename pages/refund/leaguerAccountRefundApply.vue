@@ -1,41 +1,52 @@
 <template>
     <view class="refund-apply-container">
+        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         
         <!-- 主要内容区域 -->
         <view class="main-content">
+            <view class="tip-text">请选择需要退款的订单</view>
+            
             <!-- 充值记录列表 -->
             <uv-radio-group 
                 v-model="selectedRechargeId" 
                 @change="onRechargeSelect"
                 shape="circle"
             >
-                <view 
-                    v-for="(record, index) in rechargeRecords" 
-                    :key="record.id"
-                    class="record-item"
-                    :class="{ 'selected': selectedRechargeId === record.id }"
-                    @click="selectRecord(record.id)"
-                >
-                    <view class="record-content">
-                        <view class="record-info">
-                            <text class="amount-text">充值金额: {{ formatCurrency(record.balance) }}</text>
-                            <text class="time-text">{{ record.createTime }}</text>
-                            <text class="order-text">订单号: {{ record.auditOpinion }}</text>
+                <view class="records-container">
+                    <view 
+                        v-for="(record, index) in rechargeRecords" 
+                        :key="record.id"
+                        class="record-item-wrapper"
+                    >
+                        <view 
+                            class="record-item"
+                            :class="{ 'selected': selectedRechargeId === record.id }"
+                            @click="selectRecord(record.id)"
+                        >
+                            <view class="icon-container">
+                                <text class="wallet-icon">💳</text>
+                            </view>
+                            <view class="record-info-container">
+                                <text class="amount-text">充值金额：¥{{ formatCurrency(record.balance) }}</text>
+                                <text class="time-text">{{ record.createTime }}</text>
+                                <text class="order-text">订单号：{{ record.auditOpinion }}</text>
+                            </view>
+                            <view class="radio-container">
+                                <uv-radio 
+                                    :name="record.id" 
+                                    :activeColor="'#007AFF'"
+                                    :size="20"
+                                />
+                            </view>
                         </view>
-                        <view class="radio-container">
-                            <uv-radio 
-                                :name="record.id" 
-                                :activeColor="'#e1f5fe'"
-                                :size="20"
-                            />
-                        </view>
+                        <view v-if="index < rechargeRecords.length - 1" class="divider"></view>
                     </view>
                 </view>
             </uv-radio-group>
             
             <!-- 加载更多状态 -->
             <view v-if="isLoadingMore" class="loading-more">
-                <uv-loading-icon :show="true" color="#1890ff" />
+                <uv-loading-icon :show="true" color="#007AFF" />
                 <text class="loading-text">加载更多...</text>
             </view>
             
@@ -45,12 +56,11 @@
             </view>
             
             <!-- 空状态 -->
-            <uv-empty 
-                v-if="rechargeRecords.length === 0 && !isLoading" 
-                text="暂无充值记录"
-                mode="data"
-                :show="true"
-            />
+            <view v-if="rechargeRecords.length === 0 && !isLoading" class="empty-state">
+                <view class="empty-icon">📋</view>
+                <text class="empty-title">暂无待退款的订单</text>
+                <text class="empty-desc">所有可退款的订单将显示在这里。</text>
+            </view>
         </view>
         
         <!-- 底部提交按钮 -->
@@ -86,8 +96,8 @@ export default {
                 hasMore: true
             },
             buttonStyle: {
-                backgroundColor: '#e1f5fe',
-                color: '#1f2937',
+                backgroundColor: '#007AFF',
+                color: '#ffffff',
                 fontWeight: 'bold',
                 height: '48px',
                 borderRadius: '8px'
@@ -276,6 +286,8 @@ export default {
                         title: '退款申请已提交',
                         icon: 'success'
                     });
+                    // 刷新页面
+                    this.refreshData();
                 } else {
                     throw new Error(response.msg || '提交失败');
                 }
@@ -319,7 +331,7 @@ export default {
 <style scoped>
 .refund-apply-container {
     min-height: 100vh;
-    background-color: #f5f7f8;
+    background-color: #f7f8fc;
     display: flex;
     flex-direction: column;
 }
@@ -327,70 +339,99 @@ export default {
 .main-content {
     flex: 1;
     padding: 16px;
-    padding-bottom: calc(100px + env(safe-area-inset-bottom)); /* 为底部按钮和安全区域留出空间 */
+    padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
+
+.tip-text {
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #8A8A8E;
+}
+
+.records-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 4px;
+}
+
+.record-item-wrapper {
+    width: 100%;
 }
 
 .record-item {
-    margin-bottom: 16px;
-    background-color: #ffffff;
-    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
     padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
+    border-radius: 8px;
     cursor: pointer;
-    width: 100%;
+    transition: background-color 0.2s ease;
+    background-color: #ffffff;
 }
 
-.record-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.record-item:active {
+    background-color: #f5f5f5;
 }
 
 .record-item.selected {
-    background-color: rgba(225, 245, 254, 0.5);
-    border: 1px solid #e1f5fe;
+    background-color: rgba(19, 164, 236, 0.1);
 }
 
-.record-content {
+.icon-container {
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    background-color: rgba(19, 164, 236, 0.1);
+    flex-shrink: 0;
 }
 
-.record-info {
-    display: flex;
-    flex-direction: column;
-    min-width: 95%;
-    gap: 6px;
+.wallet-icon {
+    font-size: 24px;
+}
+
+.record-info-container {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .amount-text {
     font-size: 16px;
-    font-weight: 600;
-    color: #1f2937;
+    font-weight: 500;
+    color: #1C1C1E;
+    line-height: 1.4;
 }
 
 .time-text {
     font-size: 14px;
-    color: #6b7280;
+    font-weight: 400;
+    color: #8A8A8E;
+    line-height: 1.4;
 }
 
 .order-text {
     font-size: 13px;
-    color: #9ca3af;
-}
-
-.status-text {
-    font-size: 13px;
-    color: #059669;
-    font-weight: 500;
+    font-weight: 400;
+    color: #8A8A8E;
+    line-height: 1.4;
 }
 
 .radio-container {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+    flex-shrink: 0;
+}
+
+.divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 0 16px;
 }
 
 .footer-container {
@@ -398,14 +439,14 @@ export default {
     bottom: 0;
     left: 0;
     right: 0;
-    background-color: #f5f7f8;
-    padding: 16px;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom)); /* 添加安全区域适配 */
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    background-color: rgba(247, 248, 252, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
     z-index: 100;
 }
 
-/* 加载更多状态样式 */
 .loading-more {
     display: flex;
     align-items: center;
@@ -416,10 +457,9 @@ export default {
 
 .loading-text {
     font-size: 14px;
-    color: #666666;
+    color: #8A8A8E;
 }
 
-/* 没有更多数据样式 */
 .no-more {
     display: flex;
     align-items: center;
@@ -429,9 +469,41 @@ export default {
 
 .no-more-text {
     font-size: 14px;
-    color: #999999;
+    color: #8A8A8E;
 }
 
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: rgba(19, 164, 236, 0.1);
+    font-size: 48px;
+    margin-bottom: 24px;
+}
+
+.empty-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1C1C1E;
+    margin-bottom: 8px;
+}
+
+.empty-desc {
+    font-size: 16px;
+    color: #8A8A8E;
+}
 
 /* 响应式设计 */
 @media screen and (max-width: 375px) {
@@ -441,15 +513,20 @@ export default {
     
     .record-item {
         padding: 12px;
-        margin-bottom: 12px;
+        gap: 12px;
+    }
+    
+    .icon-container {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .wallet-icon {
+        font-size: 22px;
     }
     
     .amount-text {
         font-size: 15px;
-    }
-    
-    .time-text {
-        font-size: 13px;
     }
 }
 </style>

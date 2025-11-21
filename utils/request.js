@@ -32,7 +32,7 @@ function toLogin(msg = '请登录') {
     success: function (res) {
       isShowingLoginModal = false // 弹窗关闭后重置状态
       if (res.confirm) {
-        uni.redirectTo({ url: '/pages/login/login' })
+        uni.navigateTo({ url: '/pages/login/login' })
       }
     },
     fail: function() {
@@ -75,7 +75,7 @@ function request({ url, method = 'GET', data = {}, header = {}, showLoading = fa
           } else if (data.code === 2) {
             // code为2时，清除本地token并跳转到登录页
             uni.removeStorageSync('token')
-            toLogin('登录已过期，请重新登录')
+            toLogin()
             reject(data)
           } else if (data.code === -1) {
             toLogin(data.msg || '请重新登录')
@@ -87,6 +87,10 @@ function request({ url, method = 'GET', data = {}, header = {}, showLoading = fa
           } else if (data.code === 3) {
             resolve(data)
           } else if (data.code === 40624) {
+            resolve(data)
+          } else if (data.code === 4) {
+            resolve(data)
+          } else if (data.code === 204) {
             resolve(data)
           }
           else {

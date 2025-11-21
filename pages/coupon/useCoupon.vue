@@ -1,5 +1,6 @@
 <template>
   <view class="page-container">
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 可滚动的主内容区域 -->
     <scroll-view 
       class="scroll-content" 
@@ -12,44 +13,15 @@
           <text class="header-text">单笔订单可使用<text class="highlight-text">1</text>张券</text>
         </header>
         <main class="coupon-list">
-          <view 
-            class="coupon-card" 
-            :class="item.status === 0 ? 'selected' : 'unselected'"
-            v-for="(item, index) in couponList" 
+          <CouponCard
+            v-for="(item, index) in couponList"
             :key="index"
-          >
-            <view class="coupon-left" :class="item.status !== 0 ? 'unselected-left' : ''">
-              <view class="circle-decoration top"></view>
-              <view class="circle-decoration bottom"></view>
-              <text class="coupon-amount" :class="item.status !== 0 ? 'unselected-amount' : ''">
-                <text class="currency-symbol">¥</text>{{ item.couponBalance / 100 }}
-              </text>
-              <text class="coupon-type" :class="item.status !== 0 ? 'unselected-type' : ''">
-                {{ item.useType == 'QuanChang' ? '全场通用' : '指定站点' }}
-              </text>
-            </view>
-            <view class="coupon-right">
-              <view class="coupon-info">
-                <text class="coupon-title" :class="item.status > 1 ? 'txt1_no' : 'txt1'">
-                  <view v-if="item.couponType == 'FuWuFei'">服务费券</view>
-                  <view v-if="item.couponType == 'DianFei'">电费券</view>
-                  <view v-if="item.couponType == 'XianJin'">现金券</view>
-                </text>
-                <text class="coupon-condition" :class="item.status > 1 ? 'txt2_no' : 'txt2'">
-                  满{{ item.limiBalance / 100 }}可用
-                </text>
-                <view class="coupon-dates">
-                  <text>{{ item.startTime }}</text>
-                  <text>{{ item.endTime }}</text>
-                </view>
-              </view>
-              <view class="check-icon" v-if="item.status === 0">
-                <text class="check-mark">✓</text>
-              </view>
-              <view class="empty-circle" v-else-if="item.status <= 1" @tap="checkCoupon" :data-item="item"></view>
-              <view class="disabled-circle" v-else></view>
-            </view>
-          </view>
+            :coupon="transformCouponData(item)"
+            :selectable="true"
+            :selected="item.status === 0"
+            :disabled="item.status > 1"
+            @select="handleSelectCoupon(item)"
+          />
 
           <!-- 不可用原因提示 -->
           <template v-for="(item, index) in couponList" :key="'desc-' + index">
@@ -62,7 +34,7 @@
           </template>
           
           <!-- 底部安全区域占位 -->
-          <view class="bottom-safe-area"></view>
+          <view class="bottom-safe-area" :style="'height: ' + footerHeight + 'px;'"></view>
         </main>
       </view>
 
@@ -96,9 +68,13 @@
 
 <script>
 import { getCouponRecodeByBill } from '../../api/coupon.js'
+import CouponCard from '@/components/coupon/CouponCard.vue'
 
 export default {
   name: 'UseCoupon',
+  components: {
+    CouponCard
+  },
   data() {
     return {
       billId: 0,
@@ -141,8 +117,9 @@ export default {
     getSystemInfo() {
       const systemInfo = uni.getSystemInfoSync()
       const safeAreaBottom = systemInfo.safeArea ? systemInfo.screenHeight - systemInfo.safeArea.bottom : 0
-      // 底部内容高度 + 安全区域高度
-      this.footerHeight = 140 + safeAreaBottom
+      // 底部内容高度 + 安全区域高度（根据实际footer高度调整）
+      // footer-content约160rpx（转px约107px）+ 安全区域 + 额外边距
+      this.footerHeight = 120 + safeAreaBottom + 20
     },
     
     // 滚动到底部（分页加载）
@@ -205,13 +182,48 @@ export default {
       })
     },
 
-    // 选择优惠券
-    checkCoupon: function (e) {
-      const id = e.currentTarget.dataset.item.id
+    /**
+     * @description 转换优惠券数据格式以适配 CouponCard 组件
+     * @param {Object} item 原始优惠券数据
+     * @returns {Object} 转换后的数据
+     */
+    transformCouponData(item) {
+      // 转换券类型名称
+      let couponTypeStr = ''
+      if (item.couponType === 'FuWuFei') {
+        couponTypeStr = '服务费券'
+      } else if (item.couponType === 'DianFei') {
+        couponTypeStr = '电费券'
+      } else if (item.couponType === 'XianJin') {
+        couponTypeStr = '现金券'
+      }
+      
+      return {
+        id: item.id,
+        couponBalance: (item.couponBalance / 100).toFixed(2),
+        limitBalance: item.limiBalance,
+        couponTypeStr: couponTypeStr,
+        activityName: item.useType === 'QuanChang' ? '全场通用' : '指定站点',
+        startDate: item.startTime,
+        endDate: item.endTime,
+        status: item.status,
+        statusDesc: item.statusDesc
+      }
+    },
+
+    /**
+     * @description 处理选择优惠券
+     * @param {Object} item 优惠券对象
+     */
+    handleSelectCoupon(item) {
+      if (item.status > 1) {
+        return
+      }
+      
       const list = this.couponList
       
       list.forEach(element => {
-        if (element.id == id) {
+        if (element.id == item.id) {
           element.status = 0
         } else {
           if (element.status <= 1) {
@@ -335,139 +347,9 @@ export default {
 .coupon-list {
   padding: 20rpx;
   padding-bottom: 0;
-}
-
-/* 优惠券卡片基础样式 */
-.coupon-card {
-  display: flex;
-  border-radius: 24rpx;
-  overflow: hidden;
-  background: #fff;
-  margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-}
-
-/* 已选中样式 */
-.selected {
-  border: 2rpx solid #1a73e8;
-}
-
-/* 未选中样式 */
-.unselected {
-  opacity: 0.6;
-}
-
-/* 左侧金额区 */
-.coupon-left {
-  position: relative;
-  width: 200rpx;
-  background: #e6f0ff;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #1a73e8;
-  font-weight: bold;
-}
-
-.unselected-left {
-  background: #f1f3f6;
-  color: #9ea7b5;
-}
-
-/* 金额符号和数字 */
-.currency-symbol {
-  font-size: 32rpx;
-  vertical-align: top;
-}
-.coupon-amount {
-  font-size: 64rpx;
-  line-height: 1;
-}
-.coupon-type {
-  margin-top: 6rpx;
-  font-size: 26rpx;
-}
-
-/* 装饰圆角切割 */
-.circle-decoration {
-  position: absolute;
-  left: -12rpx;
-  width: 24rpx;
-  height: 24rpx;
-  background: #f5f9ff;
-  border-radius: 50%;
-  z-index: 2;
-}
-.circle-decoration.top {
-  top: 10rpx;
-}
-.circle-decoration.bottom {
-  bottom: 10rpx;
-}
-
-/* 右侧信息区 */
-.coupon-right {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx 30rpx;
-  background: #fff;
-}
-
-/* 文本信息 */
-.coupon-info {
-  flex: 1;
-}
-.coupon-title {
-  font-size: 32rpx;
-  color: #222;
-  font-weight: bold;
-}
-.coupon-condition {
-  font-size: 24rpx;
-  color: #666;
-  margin-top: 4rpx;
-}
-.coupon-dates {
-  font-size: 22rpx;
-  color: #999;
-  margin-top: 6rpx;
-  display: flex;
-  flex-direction: column;
-}
-
-/* 选中圆圈 */
-.check-icon {
-  width: 48rpx;
-  height: 48rpx;
-  background: #1a73e8;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.check-mark {
-  color: #fff;
-  font-size: 28rpx;
-  font-weight: bold;
-}
-
-/* 空圆圈（未选） */
-.empty-circle {
-  width: 46rpx;
-  height: 46rpx;
-  border-radius: 50%;
-  border: 2rpx solid #ccc;
-}
-
-/* 禁用状态圆圈 */
-.disabled-circle {
-  width: 46rpx;
-  height: 46rpx;
-  border-radius: 50%;
-  background: #e0e0e0;
+  gap: 24rpx;
 }
 
 /* 不可用提示 */

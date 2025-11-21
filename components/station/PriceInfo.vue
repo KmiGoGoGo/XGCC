@@ -1,55 +1,34 @@
 <template>
-  <view class="price-info-container">
-    <!-- 头部：充电类型和时间 -->
-    <view class="price-header">
-      <view style="display: flex; justify-content: center; align-items: center;">
-        <uv-tags :text="chargeType" :type="chargeType === '快' ? 'error' : chargeType === '超' ? 'primary' : 'success'"></uv-tags>
-        <view class="gun-count-container">
-            <text class="free-gun-count" :class="freeGunColorClass">闲{{ freeGunCount }}</text>
-            <text class="gun-count">/共{{ gunCount }}</text>
+  <view class="price-card" :class="{ 'unavailable-card': freeGunCount === 0 }">
+    <view class="price-card-content">
+      <view class="price-left">
+        <view class="price-icon" :class="[iconClass, { 'unavailable-icon': freeGunCount === 0 }]">
+          <text class="icon-text" :class="{ 'unavailable-text': freeGunCount === 0 }">{{ chargeTypeDisplay }}</text>
+        </view>
+        <view class="price-info">
+          <text class="charge-type" :class="{ 'unavailable-text': freeGunCount === 0 }">{{ timeRange }}</text>
+          <text class="price-details" :class="{ 'unavailable-text': freeGunCount === 0 }">电费 {{ electricPrice }} 服务费 {{ servicePrice }}</text>
         </view>
       </view>
-      <view class="time-range">
-        <text class="time-text">{{ timeRange }}</text>
+      <view class="price-right">
+        <view class="price-container">
+          <text v-if="hasDiscountPrice" class="original-price">¥{{ currentPrice }}</text>
+          <text class="total-price" :class="{ unavailable: freeGunCount === 0 }">{{ totalPrice }}<text class="price-unit">/度</text></text>
+        </view>
+        <text class="availability" :class="{ 'unavailable-text': freeGunCount === 0 }">{{ availabilityText }}</text>
       </view>
-    </view>
-
-    <!-- 当前价格 -->
-    <view class="current-price-section">
-      <text class="current-price-label">当前价格</text>
-      <view class="price-display">
-        <!-- 有折扣价格时显示折扣价 -->
-        <template v-if="hasDiscountPrice">
-          <text class="price-symbol">¥</text>
-          <text class="price-value">{{ discountPriceStr }}</text>
-          <text class="price-unit">起</text>
-          <!-- 原价显示为划线样式 -->
-          <view class="original-price">
-            <text class="original-price-symbol">¥</text>
-            <text class="original-price-value">{{ currentPrice }}起</text>
-          </view>
-        </template>
-        <!-- 无折扣价格时显示原价 -->
-        <template v-else>
-          <text class="price-symbol">¥</text>
-          <text class="price-value">{{ currentPrice }}</text>
-          <text class="price-unit">起</text>
-        </template>
-      </view>
-    </view>
-
-    <!-- 费用明细 -->
-    <view class="price-detail">
-      <text class="detail-text">
-        电费{{ electricPrice }}元/度 | 服务费{{ servicePrice }}元/度
-      </text>
     </view>
   </view>
 </template>
 
 <script>
+import StatusTag from '../common/StatusTag.vue'
+
 export default {
   name: 'PriceInfo',
+  components: {
+    StatusTag
+  },
   props: {
     // 充电类型
     chargeType: {
@@ -97,151 +76,187 @@ export default {
              this.discountPriceStr !== '' && 
              this.discountPriceStr !== '0.00';
     },
-    // 根据空闲枪数量计算颜色
-    freeGunColorClass() {
-      const freeCount = this.freeGunCount || 0;
-      const totalCount = this.gunCount || 1;
-      
-      // 空闲枪数量等于0，显示红色
-      if (freeCount === 0) {
-        return 'gun-count-red';
+    // 充电类型显示文本
+    chargeTypeDisplay() {
+      return this.chargeType;
+    },
+    // 图标类名
+    iconClass() {
+      switch (this.chargeType) {
+        case '超':
+          return 'super-charge';
+        case '快':
+          return 'fast-charge';
+        case '慢':
+          return 'slow-charge';
+        default:
+          return 'fast-charge';
       }
-      
-      // 空闲枪数量大于等于5或者大于等于总枪数量一半，显示绿色
-      if (freeCount >= 5 || freeCount >= Math.ceil(totalCount / 2)) {
-        return 'gun-count-green';
+    },
+    // 图标名称
+    iconName() {
+      switch (this.chargeType) {
+        case '超':
+          return 'electric_bolt';
+        case '快':
+          return 'bolt';
+        case '慢':
+          return 'speed';
+        default:
+          return 'bolt';
       }
-      
-      // 其他情况显示黄色
-      return 'gun-count-yellow';
+    },
+    // 总价格
+    totalPrice() {
+      if (this.hasDiscountPrice) {
+        return '¥' + this.discountPriceStr;
+      }
+      return '¥' + this.currentPrice;
+    },
+    // 可用性文本
+    availabilityText() {
+      if (this.freeGunCount === 0) {
+        return '全部占用';
+      }
+      return '空闲 ' + this.freeGunCount;
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-.price-info-container {
-  background: #F2F8FF;
-  border-radius: 12rpx;
-  padding: 24rpx;
-  margin: 16rpx 0;
+<style scoped>
+.price-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
 }
 
-/* 头部：充电类型和时间 */
-.price-header {
+.price-card-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16rpx;
 }
 
-.charge-type-tag {
-  background: #ff6b00;
-  color: #ffffff;
-  border-radius: 8rpx;
-  padding: 6rpx 12rpx;
-  min-width: 48rpx;
-  text-align: center;
-
-  .charge-type-text {
-    font-size: 22rpx;
-    font-weight: bold;
-    color: #ffffff;
-  }
+.price-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
-.time-range {
-  .time-text {
-    font-size: 22rpx;
-    color: #3C9CFF;
-  }
+.price-icon {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
 }
 
-/* 当前价格区域 */
-.current-price-section {
-  margin-bottom: 12rpx;
+.fast-charge {
+  background-color: #FFF4E6;
 }
 
-.current-price-label {
+.slow-charge {
+  background-color: #E8F5E8;
+}
+
+.super-charge {
+  background-color: #E5F6FF;
+}
+
+.icon-text {
+  font-size: 32rpx;
+  font-weight: bold;
+  font-family: 'Material Symbols Outlined';
+}
+
+.fast-charge .icon-text {
+  color: #FF9500;
+}
+
+.slow-charge .icon-text {
+  color: #34C759;
+}
+
+.super-charge .icon-text {
+  color: #00A9FF;
+}
+
+.price-info {
+  flex: 1;
+}
+
+.charge-type {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #1A1A1A;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.price-details {
   font-size: 24rpx;
-  color: #666666;
-  margin-right: 16rpx;
+  color: #8A8A8E;
+  display: block;
 }
 
-.price-display {
-  display: inline-flex;
-  align-items: baseline;
-
-  .price-symbol {
-    font-size: 28rpx;
-    color: #5AAAFF;
-    font-weight: bold;
-  }
-
-  .price-value {
-    font-size: 36rpx;
-    color: #5AAAFF;
-    font-weight: bold;
-    margin: 0 4rpx;
-  }
-
-  .price-unit {
-    font-size: 24rpx;
-    color: #5AAAFF;
-    font-weight: 500;
-  }
-  
-  // 原价显示样式（划线效果）
-  .original-price {
-    display: flex;
-    align-items: baseline;
-    margin-left: 16rpx;
-    
-    .original-price-symbol,
-    .original-price-value {
-      font-size: 20rpx;
-      color: #999;
-      text-decoration: line-through;
-    }
-    
-    .original-price-symbol {
-      margin-right: 2rpx;
-    }
-  }
+.price-right {
+  text-align: right;
 }
 
-/* 费用明细 */
-.price-detail {
-  .detail-text {
-    font-size: 22rpx;
-    color: #999999;
-    line-height: 1.4;
-  }
+.price-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12rpx;
+  margin-bottom: 8rpx;
 }
 
-.gun-count-container {
-    margin-left: 10rpx;
-    .free-gun-count {
-        font-size: 24rpx;
-        font-weight: 500;
-        transition: color 0.3s ease;
-    }
-    .gun-count {
-        font-size: 22rpx;
-        color: #999999;
-    }
+.original-price {
+  font-size: 28rpx;
+  color: #999999;
+  text-decoration: line-through;
+  font-weight: 400;
 }
 
-/* 空闲枪数量颜色状态 */
-.gun-count-red {
-    color: #f56c6c !important; /* 红色：空闲枪数量为0 */
+.total-price {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #00A9FF;
 }
 
-.gun-count-yellow {
-    color: #e6a23c !important; /* 黄色：其他情况 */
+.total-price.unavailable {
+  color: #8A8A8E;
 }
 
-.gun-count-green {
-    color: #67c23a !important; /* 绿色：空闲枪数量>=5或>=总数一半 */
+.price-unit {
+  font-size: 28rpx;
+  font-weight: 400;
+  color: #04AAFF;
+}
+
+.availability {
+  font-size: 24rpx;
+  color: #34C759;
+  display: block;
+}
+
+/* 不可用状态的灰色样式 */
+.unavailable-card {
+  opacity: 0.6;
+}
+
+.unavailable-icon {
+  background-color: #F0F0F0 !important;
+}
+
+.unavailable-text {
+  color: #8A8A8E !important;
+}
+
+.unavailable .price-unit {
+  color: #8A8A8E !important;
 }
 </style>

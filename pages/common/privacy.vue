@@ -1,5 +1,6 @@
 <template>
     <view class="privacy-page">
+        <uv-navbar :border="false" title="隐私政策" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         <view class="content">
             <view class="title">{{ appName }}隐私政策</view>
             
@@ -297,7 +298,7 @@ export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            appName: '超易充',  // 应用名称
+            appName: '星光超充',  // 应用名称
             companyName: '光烨科技',  // 公司名称
             customerServicePhone: '020-32163681',  // 客服电话
             companyAddress: '广东省广州市番禺区南村镇德道产业园一号楼3楼'  // 公司地址
@@ -308,7 +309,6 @@ export default {
 
 <style scoped>
 .privacy-page {
-    width: 100%;
     min-height: 100vh;
     background-color: #f5f7fa;
     padding: 20px;

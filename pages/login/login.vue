@@ -1,66 +1,58 @@
 <template>
     <view class="login-container">
+        <uv-navbar :border="false" title="登录" bgColor="transparent" @leftClick="back" placeholder safeAreaInsetTop></uv-navbar>
         <!-- 主要内容区域 -->
         <view class="main-content">
             <!-- 标题区域 -->
             <view class="title-section">
-                <text class="title">欢迎使用</text>
-                <text class="subtitle">超易充</text>
-            </view>
-
-            <!-- 表单区域 -->
-            <view class="form-section">
-                <!-- 手机号输入框 -->
-                <!-- <view class="input-group">
-                    <view class="input-container">
-                        <text class="input-icon">📱</text>
-                        <input 
-                            class="input-field" 
-                            placeholder="请输入手机号" 
-                            type="tel"
-                            v-model="phoneNumber"
-                        />
+                <!-- Logo 动画区域 -->
+                <view class="logo-animation-container">
+                    <view class="logo-wrapper" :class="{ 'logo-shift-left': logoShiftLeft }">
+                        <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
                     </view>
-                </view> -->
-
-                <!-- 密码输入框 -->
-                <!-- <view class="input-group">
-                    <view class="input-container">
-                        <text class="input-icon">🔓</text>
-                        <input 
-                            class="input-field" 
-                            placeholder="请输入密码" 
-                            type="password"
-                            v-model="password"
-                        />
-                    </view>
-                </view> -->
-
-                <!-- 登录按钮 -->
-                <view
-                    v-if="!isNewMember && openId"
-                    class="login-button" @click="handlePhoneLogin">
-                    <text class="login-button-text">手机号快捷登录</text>
+                    <text class="brand-text" :class="{ 'text-visible': textVisible }">星光超充</text>
                 </view>
-
-                <button v-if="isNewMember && openId"
-                    class="login-button"
-                    open-type="getPhoneNumber"
-                    @getphonenumber="getPhoneNumberAndLogin"
-                    >
-                    <text class="login-button-text">手机号快捷登录</text>
-                </button>
-
-
-                <!-- 注册链接 -->
-                <!-- <view class="register-link" @click="handleRegister">
-                    <text class="register-text">手机号码登录/注册</text>
-                </view> -->
+                <view class="title-section-text">
+                    <text class="title">欢迎使用</text>
+                    <text class="subtitle">请登录/注册</text>
+                </view>
             </view>
         </view>
 
         <!-- 底部协议区域 -->
         <view class="agreement-section">
+            <!-- 表单区域 -->
+            <view class="form-section">
+                <!-- 登录按钮 - 老用户 -->
+                <button
+                    v-if="!isNewMember && openId"
+                    class="login-button" 
+                    @click="handlePhoneLogin">
+                    <text class="login-button-text">手机号快捷登录</text>
+                </button>
+
+                <!-- 登录按钮 - 新用户 微信小程序 -->
+                <!-- #ifdef MP-WEIXIN -->
+                <button 
+                    v-if="isNewMember && openId"
+                    class="login-button"
+                    open-type="getPhoneNumber"
+                    @getphonenumber="getPhoneNumberWx">
+                    <text class="login-button-text">手机号快捷登录</text>
+                </button>
+                <!-- #endif -->
+
+                <!-- 登录按钮 - 新用户 支付宝小程序 -->
+                <!-- #ifdef MP-ALIPAY -->
+                <button 
+                    v-if="isNewMember && openId"
+                    class="login-button"
+                    open-type="getPhoneNumber"
+                    @getphonenumber="getPhoneNumberAlipay">
+                    <text class="login-button-text">手机号快捷登录</text>
+                </button>
+                <!-- #endif -->
+            </view>
             <view class="agreement-container">
                 <view class="checkbox-container" @click="toggleAgreement">
                     <view class="checkbox" :class="{ 'checked': isAgreed }">
@@ -78,8 +70,7 @@
 </template>
 
 <script>
-import { loginOther } from '@/api/member';
-import { loginBeforeCheck, alipayLoginBeforeCheck, alipayLoginAndRegister, getMemberInfo, changeUser } from '@/api/member';
+import { loginBeforeCheck, alipayLoginBeforeCheck, getMemberInfo, changeUser, loginOther } from '@/api/member';
 import globalData from '@/globalData';
 
 export default {
@@ -89,40 +80,151 @@ export default {
             password: '',
             isAgreed: false,
             isNewMember: true,
-            openId: null
+            openId: null,
+            authCode: '',
+            logoShiftLeft: false, // logo 是否向左移动
+            textVisible: false // 文字是否可见
         }
     },
     onLoad() {
-        // this.getJsCode()
+        // 页面加载时调用
+    },
+    onReady() {
+        // 页面渲染完成后启动logo动画
+        this.startLogoAnimation();
     },
     created() {
         uni.showLoading({
             title: '加载中...'
         })
-        this.getJsCode()
+        this.initAuth()
     },
     methods: {
-        getJsCode() {
-            var that = this
+        back() {
+            // 判断是否有上一页
+            const pages = getCurrentPages()
+            if (pages.length > 1) {
+                uni.navigateBack()
+            } else {
+                uni.switchTab({
+                    url: '/pages/index/index'
+                })
+            }
+        },
+        // 启动 logo 动画
+        startLogoAnimation() {
+            // 延迟500ms后开始动画
+            setTimeout(() => {
+                // 1. logo 向左移动
+                this.logoShiftLeft = true;
+                
+                // 2. 延迟 300ms 后文字渐显
+                setTimeout(() => {
+                    this.textVisible = true;
+                }, 300);
+            }, 500);
+        },
+        
+        // 初始化授权 - 根据平台调用不同方法
+        initAuth() {
+            // #ifdef MP-WEIXIN
+            this.getWxCode()
+            // #endif
+            
+            // #ifdef MP-ALIPAY
+            this.getAlipayAuthCode()
+            // #endif
+        },
+
+        // 微信小程序 - 获取登录凭证
+        // #ifdef MP-WEIXIN
+        getWxCode() {
+            const that = this
+            uni.login({
+                provider: 'weixin',
+                success: (loginRes) => {
+                    console.log('微信登录code:', loginRes.code)
+                    that.authCode = loginRes.code
+                    
+                    // 调用后端接口获取openId
+                    uni.request({
+                        url: globalData.URL + '/api-service/api/getJsCode2session',
+                        data: {
+                            jsCode: that.authCode,
+                            sellerId: globalData.sellerId
+                        },
+                        method: 'POST',
+                        success: (tokenRes) => {
+                            console.log('微信获取token结果:', tokenRes.data.data)
+                            if (!tokenRes.data.data.openid) {
+                                uni.showToast({
+                                    title: '系统异常，请联系客服',
+                                    icon: 'none'
+                                });
+                                return;
+                            }
+                            uni.setStorageSync('accessToken', tokenRes.data.data.accessToken)
+                            uni.setStorageSync('openId', tokenRes.data.data.openid)
+                            uni.setStorageSync('newMember', tokenRes.data.data.newMember)
+                            
+                            uni.setStorageSync('session_key', tokenRes.data.data.session_key)
+                            uni.setStorageSync('unionId', tokenRes.data.data.unionid)
+
+                            that.openId = tokenRes.data.data.openid
+                            that.isNewMember = tokenRes.data.data.newMember
+                        },
+                        fail: (e) => {
+                            uni.hideLoading()
+                            console.log('微信获取token失败', e)
+                            uni.showModal({
+                                title: '提示',
+                                content: '页面数据加载失败，请稍后重试',
+                                showCancel: false,
+                                confirmText: '确定',
+                                success: () => {
+                                    uni.reLaunch({
+                                        url: '/pages/login/login'
+                                    })
+                                }
+                            })
+                        },
+                        complete: () => {
+                            uni.hideLoading()
+                        }
+                    })
+                },
+                fail: (err) => {
+                    uni.hideLoading()
+                    console.log('微信登录失败:', err)
+                    uni.showToast({
+                        title: '登录失败，请重试',
+                        icon: 'none'
+                    })
+                }
+            })
+        },
+        // #endif
+
+        // 支付宝小程序 - 获取授权码
+        // #ifdef MP-ALIPAY
+        getAlipayAuthCode() {
+            const that = this
             my.getAuthCode({
                 scopes: ['auth_base'],
-                // 主动授权：auth_user，静默授权：auth_base或者其它scope。如需同时获取用户多项授权，可在 scopes 中传入多个 scope 值。
                 success: (authCodeRes) => {
                     if (authCodeRes.authCode) {
-                        // 认证成功
-                        // 调用自己的服务端接口，让服务端进行后端的授权认证，并且利用session，需要解决跨域问题
                         that.authCode = authCodeRes.authCode
-                        console.log("授权码",that.authCode)
+                        console.log('支付宝授权码:', that.authCode)
+                        
                         my.request({
-                            url: globalData.URL + '/api-service/zfbapi/getJsCode2session', // 该url是开发者的服务地址，实现的功能是服务端拿到authcode去开放平台进行token验证
+                            url: globalData.URL + '/api-service/zfbapi/getJsCode2session',
                             data: {
                                 jsCode: that.authCode,
                                 sellerId: globalData.sellerId
                             },
-                            method: "POST",
-                            success: async (tokenRes) => {
-                                // 授权成功并且服务器端登录成功
-                                console.log("调用后端获取token接口得到参数，",tokenRes.data.data)
+                            method: 'POST',
+                            success: (tokenRes) => {
+                                console.log('支付宝获取token结果:', tokenRes.data.data)
                                 if (!tokenRes.data.data.openId) {
                                     uni.showToast({
                                         title: '系统异常，请联系客服',
@@ -134,112 +236,158 @@ export default {
                                 uni.setStorageSync('openId', tokenRes.data.data.openId)
                                 uni.setStorageSync('newMember', tokenRes.data.data.newMember)
 
-                                this.openId = tokenRes.data.data.openId
-                                this.isNewMember = tokenRes.data.data.newMember
+                                that.openId = tokenRes.data.data.openId
+                                that.isNewMember = tokenRes.data.data.newMember
                             },
                             fail: (e) => {
-                                // 根据自己的业务场景来进行错误处理
                                 uni.hideLoading()
-                                console.log("调用后端获取token接口失败",e)
+                                console.log('支付宝获取token失败', e)
                                 uni.showModal({
                                     title: '提示',
                                     content: '页面数据加载失败，请稍后重试',
                                     showCancel: false,
                                     confirmText: '确定',
                                     success: () => {
-                                        // 刷新页面
-                                        uni.reload()
+                                        uni.reLaunch({
+                                            url: '/pages/login/login'
+                                        })
                                     }
                                 })
                             },
-                        });
-                    }
-                    uni.hideLoading()
-                },
-            });
-        },
-
-        // 手机号快捷登录
-        async handlePhoneLogin() {
-
-            console.log('手机号快捷登录');
-            if (uni.getStorageSync('openId')) {
-                const b = await this.invokeLoginBeforeCheck()
-                if (b) {
-                    uni.showToast({
-                        title: '登录成功',
-                        icon: 'success'
-                    });
-                    const memberInfoRes = await getMemberInfo()
-                    if (memberInfoRes.code === 0) {
-                        changeUser(0).then(res => {
-                            if (res.code === 0) {
-                                uni.setStorageSync('token', res.data);
-                                // 回到上一个页面
-                                uni.navigateBack();
+                            complete: () => {
+                                uni.hideLoading()
                             }
                         });
                     }
-                    return;
+                },
+                fail: (err) => {
+                    uni.hideLoading()
+                    console.log('支付宝授权失败:', err)
                 }
-            }
-            
-            
-            
-            // 跳转到主页面或其他页面
-            // uni.switchTab({
-            //     url: '/pages/index/index'
-            // });
-        },
-
-        async invokeLoginBeforeCheck() {
-            // 调用loginBeforeCheck接口
-            console.log('调用loginBeforeCheck接口')
-            // #ifdef MP-WEIXIN
-            const loginBeforeCheckRes = await loginBeforeCheck({
-                openId: uni.getStorageSync('openId'),
-                sellerNo: globalData.sellerNo,
-                type: "3"
             });
-            
-            if (loginBeforeCheckRes.code === 0) {
-                console.log('调用loginBeforeCheck接口得到参数',loginBeforeCheckRes.data)
-                uni.setStorageSync('token', loginBeforeCheckRes.data.data.Authorization)
-                uni.setStorageSync('phoneNo', loginBeforeCheckRes.data.data.phoneNo)
-                return true;
-            } else {
-                return false;
-            }
-            // #endif
-
-            // #ifdef MP-ALIPAY
-            
-            const loginBeforeCheckRes = await alipayLoginBeforeCheck({
-                openId: uni.getStorageSync('openId'),
-                sellerNo: globalData.sellerNo,
-                type: "3"
-            });
-            
-            console.log('支付宝调用loginBeforeCheck接口得到参数',loginBeforeCheckRes.data)
-            if (loginBeforeCheckRes.code === 0) {
-                console.log('支付宝调用loginBeforeCheck接口得到参数',loginBeforeCheckRes.data)
-                uni.setStorageSync('token', loginBeforeCheckRes.data.Authorization)
-                uni.setStorageSync('phoneNo', loginBeforeCheckRes.data.phoneNo)
-                return true;
-            } else {
-                return false;
-            }
-            // #endif
         },
+        // #endif
 
-         //  获取用户手机号
-        getPhoneNumberAndLogin() {
+        // 微信小程序 - 获取手机号
+        // #ifdef MP-WEIXIN
+        getPhoneNumberWx(e) {
+            console.log('微信获取手机号回调:', e)
+            
+            if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+                console.log('用户取消授权或授权失败')
+                return;
+            }
+
+            if (!e.detail.code) {
+                uni.showToast({
+                    title: '获取手机号失败',
+                    icon: 'none'
+                });
+                return;
+            }
+
+            // 调用后端接口，使用code换取手机号
+            uni.request({
+                url: globalData.URL + '/api-service/api/loginAndRegister',
+                data: {
+                    code: e.detail.code,
+                    type: 3,
+                    sellerNo: globalData.sellerNo,
+                    openId: uni.getStorageSync('openId'),
+                    iv: e.detail.iv,
+                    phoneKey: uni.getStorageSync('session_key'),
+                    encryptedData: e.detail.encryptedData
+                },
+                method: 'POST',
+                success: (res) => {
+                    console.log('微信登录注册结果:', res.data)
+                    if (res.data.code === 0) {
+                        uni.setStorageSync('token', res.data.data.Authorization)
+                        uni.setStorageSync('phoneNo', res.data.data.phoneNo)
+                        uni.showToast({
+                            title: '登录成功',
+                            icon: 'success'
+                        });
+                        
+                        // 登录成功后返回上一页或跳转首页
+                        setTimeout(() => {
+                            uni.navigateBack({
+                                fail: () => {
+                                    uni.switchTab({
+                                        url: '/pages/index/index'
+                                    });
+                                }
+                            });
+                        }, 1500);
+                    } else if (res.data.code === 6000) {
+                        uni.showModal({
+                            title: '提示',
+                            content: res.data.msg,
+                            showCancel: true,
+                            confirmText: '确定',
+                            success: () => {
+                                loginOther({
+                                    encryptedData: e.detail.encryptedData,
+                                    iv: e.detail.iv,
+                                    sellerNo: globalData.sellerNo,
+                                    phoneKey: uni.getStorageSync('session_key'),
+                                    type: "3"
+                                }).then(res => {
+                                    console.log('微信登录注册结果:', res.data)
+                                    if (res.code === 0) {
+                                        uni.setStorageSync('token', res.data.Authorization)
+                                        uni.setStorageSync('phoneNo', res.data.phoneNo)
+                                        uni.showToast({
+                                            title: '登录成功',
+                                            icon: 'success'
+                                        });
+                                        setTimeout(() => {
+                                            uni.navigateBack({
+                                                fail: () => {
+                                                    uni.switchTab({
+                                                        url: '/pages/index/index'
+                                                    });
+                                                }
+                                            });
+                                        }, 1500);
+                                    } else {
+                                        uni.showToast({
+                                            title: res.msg || '登录失败',
+                                            icon: 'none'
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    
+                    else {
+                        uni.showToast({
+                            title: res.data.msg || '登录失败',
+                            icon: 'none'
+                        });
+                    }
+                },
+                fail: (err) => {
+                    console.log('微信登录注册失败:', err)
+                    uni.showToast({
+                        title: '系统异常，请联系客服',
+                        icon: 'none'
+                    });
+                }
+            });
+        },
+        // #endif
+
+        // 支付宝小程序 - 获取手机号
+        // #ifdef MP-ALIPAY
+        getPhoneNumberAlipay() {
             my.getPhoneNumber({
                 success: (res) => {
                     let encryptedDataResponse = res.response;
-                    console.log("后端执行解密手机号",encryptedDataResponse)
+                    console.log('支付宝加密手机号数据:', encryptedDataResponse)
+                    
                     my.request({
-                        //你的服务器地址
                         url: globalData.URL + '/api-service/zfbapi/loginAndRegister',
                         data: {
                             encryptedData: encryptedDataResponse,
@@ -247,9 +395,9 @@ export default {
                             sellerNo: globalData.sellerNo,
                             openId: uni.getStorageSync('openId'),
                         },
-                        method: "POST",
+                        method: 'POST',
                         success: (res) => {
-                            console.log("调用loginAndRegister接口得到参数",res.data.data)
+                            console.log('支付宝登录注册结果:', res.data.data)
                             if (res.data.code === 0) {
                                 uni.setStorageSync('token', res.data.data.Authorization)
                                 uni.setStorageSync('phoneNo', res.data.data.phoneNo)
@@ -257,26 +405,133 @@ export default {
                                     title: '登录成功',
                                     icon: 'success'
                                 });
-                                // uni.switchTab({
-                                //     url: '/pages/index/index'
-                                // });
+                                
+                                // 登录成功后返回上一页或跳转首页
+                                setTimeout(() => {
+                                    uni.navigateBack({
+                                        fail: () => {
+                                            uni.switchTab({
+                                                url: '/pages/index/index'
+                                            });
+                                        }
+                                    });
+                                }, 1500);
                             } else {
                                 uni.showToast({
-                                    title: '系统异常，请联系客服',
+                                    title: res.data.msg || '登录失败',
                                     icon: 'none'
                                 });
                             }
                         },
                         fail: (err) => {
-                            console.log("2222",err)
+                            console.log('支付宝登录注册失败:', err)
+                            uni.showToast({
+                                title: '系统异常，请联系客服',
+                                icon: 'none'
+                            });
                         }
                     });
                 },
                 fail: (res) => {
-                    console.log("授权手机号接口调用失败，哇哈哈哈哈",res);
+                    console.log('支付宝授权手机号失败:', res);
                 },
             });
+        },
+        // #endif
+        
+        // 手机号快捷登录 - 老用户直接登录
+        async handlePhoneLogin() {
+            console.log('老用户手机号快捷登录');
             
+            if (!this.isAgreed) {
+                uni.showToast({
+                    title: '请先同意服务协议和隐私政策',
+                    icon: 'none'
+                });
+                return;
+            }
+            
+            if (uni.getStorageSync('openId')) {
+                const loginSuccess = await this.invokeLoginBeforeCheck()
+                if (loginSuccess) {
+                    uni.showToast({
+                        title: '登录成功',
+                        icon: 'success'
+                    });
+                    
+                    const memberInfoRes = await getMemberInfo()
+                    if (memberInfoRes.code === 0) {
+                        changeUser(0).then(res => {
+                            if (res.code === 0) {
+                                uni.setStorageSync('token', res.data);
+                                // 返回上一页或跳转首页
+                                setTimeout(() => {
+                                    uni.navigateBack({
+                                        fail: () => {
+                                            uni.switchTab({
+                                                url: '/pages/index/index'
+                                            });
+                                        }
+                                    });
+                                }, 1500);
+                            }
+                        });
+                    }
+                    return;
+                }
+            }
+        },
+
+        // 登录前检查
+        async invokeLoginBeforeCheck() {
+            console.log('调用登录前检查接口')
+            
+            // #ifdef MP-WEIXIN
+            try {
+                const loginBeforeCheckRes = await loginBeforeCheck({
+                    openId: uni.getStorageSync('openId'),
+                    sellerNo: globalData.sellerNo,
+                    type: "3",
+                    phoneKey: uni.getStorageSync('session_key'),
+                    unionId: uni.getStorageSync('unionId')
+                });
+                
+                if (loginBeforeCheckRes.code === 0) {
+                    console.log('微信登录检查成功:', loginBeforeCheckRes.data)
+                    uni.setStorageSync('token', loginBeforeCheckRes.data.Authorization)
+                    uni.setStorageSync('phoneNo', loginBeforeCheckRes.data.phoneNo)
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (error) {
+                console.error('微信登录检查失败:', error)
+                return false;
+            }
+            // #endif
+
+            // #ifdef MP-ALIPAY
+            try {
+                const loginBeforeCheckRes = await alipayLoginBeforeCheck({
+                    openId: uni.getStorageSync('openId'),
+                    sellerNo: globalData.sellerNo,
+                    type: "3"
+                });
+                
+                console.log('支付宝登录检查结果:', loginBeforeCheckRes.data)
+                if (loginBeforeCheckRes.code === 0) {
+                    console.log('支付宝登录检查成功:', loginBeforeCheckRes.data)
+                    uni.setStorageSync('token', loginBeforeCheckRes.data.Authorization)
+                    uni.setStorageSync('phoneNo', loginBeforeCheckRes.data.phoneNo)
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (error) {
+                console.error('支付宝登录检查失败:', error)
+                return false;
+            }
+            // #endif
         },
         
         // 手机号码登录/注册
@@ -292,14 +547,18 @@ export default {
         
         // 打开服务协议
         openServiceAgreement() {
-            console.log('打开服务协议');
             // 跳转到服务协议页面
+            uni.navigateTo({
+                url: '/pages/common/service'
+            })
         },
         
         // 打开隐私政策
         openPrivacyPolicy() {
-            console.log('打开隐私政策');
             // 跳转到隐私政策页面
+            uni.navigateTo({
+                url: '/pages/common/privacy'
+            })
         }
     }
 }
@@ -312,11 +571,14 @@ export default {
     background-color: #E2F5FF;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     padding: 0 48rpx;
     box-sizing: border-box;
     font-family: "Noto Sans SC", sans-serif;
+}
+
+.title-section-text {
+    margin-top: 100rpx;
 }
 
 /* 主要内容区域 */
@@ -328,6 +590,7 @@ export default {
 
 /* 标题区域 */
 .title-section {
+    margin-top: 200rpx;
     margin-bottom: 96rpx;
 }
 
@@ -336,13 +599,58 @@ export default {
     font-size: 48rpx;
     font-weight: bold;
     color: #1f2937;
-    margin-bottom: 16rpx;
+    margin-bottom: 32rpx;
 }
 
 .subtitle {
     display: block;
-    font-size: 36rpx;
+    font-size: 24rpx;
     color: #4b5563;
+}
+
+/* Logo 动画容器 */
+.logo-animation-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    min-height: 120rpx;
+    position: relative;
+}
+
+/* Logo 包装器 */
+.logo-wrapper {
+    position: relative;
+    left: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 500ms ease-out;
+}
+
+.logo-wrapper.logo-shift-left {
+    transform: translateX(-70rpx);
+}
+
+/* Logo SVG */
+.logo-svg {
+    width: 120rpx;
+    height: 120rpx;
+}
+
+/* 品牌文字 */
+.brand-text {
+    position: relative;
+    font-size: 48rpx;
+    color: #6AAAFB;
+    font-weight: bold;
+    margin-left: 20rpx;
+    opacity: 0;
+    transition: opacity 500ms ease-in;
+}
+
+.brand-text.text-visible {
+    opacity: 1;
 }
 
 /* 表单区域 */
@@ -406,6 +714,12 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+    border: none;
+    line-height: normal;
+}
+
+.login-button::after {
+    border: none;
 }
 
 .login-button:hover {
@@ -444,6 +758,9 @@ export default {
     width: calc(100% - 96rpx);
     max-width: 640rpx;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .agreement-container {

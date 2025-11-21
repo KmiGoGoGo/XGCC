@@ -1,24 +1,27 @@
 <template>
   <view class="order-list-container">
+    <uv-navbar :border="false" title="我的订单" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    
     <!-- 搜索栏 -->
-    <view class="search-bar">
-      <view class="search-input-wrapper">
-        <uv-input 
-          v-model="searchKeyword"
-          placeholder="输入站点名称/桩号搜索"
-          border="none"
-          fontSize="28rpx"
-          prefixIcon="search"
-          prefixIconStyle="font-size: 28rpx; color: #666;"
-          :customStyle="searchInputStyle"
-          @input="onSearchInput"
-          @confirm="onSearchConfirm"
-        />
+    <!-- <view class="search-section">
+      <view class="search-container">
+        <view class="search-input-wrapper">
+          <view class="search-icon">
+            <text class="icon-search">🔍</text>
+          </view>
+          <uv-input 
+            v-model="searchKeyword"
+            shape="round"
+            placeholder="输入站点名称/桩号搜索"
+            border="none"
+            fontSize="28rpx"
+            :customStyle="searchInputStyle"
+            @input="onSearchInput"
+            @confirm="onSearchConfirm"
+          />
+        </view>
       </view>
-      <view class="filter-wrapper" @click="toggleFilter">
-        <text class="filter-icon">筛选</text>
-      </view>
-    </view>
+    </view> -->
     
     <!-- 筛选弹窗 -->
     <uv-popup 
@@ -52,60 +55,81 @@
     </uv-popup>
 
     <!-- 状态标签栏 -->
-    <view class="status-tabs">
-      <view
-        class="tab-item"
-        :class="{ active: activeTab === tab.key }"
-        v-for="tab in tabs"
-        :key="tab.key"
-        @click="changeTab(tab.key)"
-      >
-        {{ tab.name }}
+    <view class="status-tabs-container">
+      <view class="status-tabs">
+        <view
+          class="tab-item"
+          :class="{ active: activeTab === tab.key }"
+          v-for="tab in tabs"
+          :key="tab.key"
+          @click="changeTab(tab.key)"
+        >
+          <text class="tab-text">{{ tab.name }}</text>
+        </view>
       </view>
     </view>
 
     <!-- 超时占位订单提示 -->
-    <view class="occupy-banner" v-if="occupyCount > 0" @click="goToOccupyPage">
+    <!-- <view class="occupy-banner" v-if="occupyCount > 0" @click="goToOccupyPage">
       <text>超时占位订单 ({{ occupyCount }})</text>
       <text class="arrow">></text>
-    </view>
+    </view> -->
 
     <!-- 订单列表 -->
     <view class="order-list">
-      <view class="order-card" v-for="order in orderList" :key="order.id">
-        <view class="card-header">
-          <text class="station-name">{{ order.stationName }}</text>
-          <text class="order-status" @click="goToDetails(order)">{{ order.billTypeStr }} ></text>
-        </view>
-        <view class="card-body">
-          <text class="info-line">时间：{{ formatTimeRange(order.timeS, order.timeE) }}</text>
-          <text class="info-line">订单编号：{{ order.busShowNo }}</text>
-        </view>
-        <view class="card-footer">
-          <text class="amount">¥ {{ formatAmount(order.actualBalance) }}</text>
-          <view class="actions">
-            <!-- 充电中时不显示任何按钮 -->
-            <template v-if="!isCharging(order.billStatus)">
-              <view class="action-btn btn-secondary" @click="goToComment(order.id)">评价</view>
-              <!-- 待结算时只显示再次充电按钮 -->
-              <view 
-                v-if="isSettling(order.billStatus)" 
-                class="action-btn btn-primary"
-                @click="recharge"
-              >
-                再次充电
+      <!-- 订单列表 -->
+      <template v-if="orderList.length > 0">
+        <view class="order-card" v-for="order in orderList" :key="order.id" @click="goToDetails(order)">
+          <view class="card-content">
+            <view class="card-header">
+              <text class="station-name">{{ order.stationName }}</text>
+              <text class="order-status" :class="getStatusClass(order.billStatus)">
+                {{ order.billTypeStr }}
+              </text>
+            </view>
+            
+            <view class="card-body">
+              <text class="info-line">时间 {{ formatTimeRange(order.timeS, order.timeE) }}</text>
+              <text class="info-line">订单编号 {{ order.busShowNo }}</text>
+            </view>
+            
+            <view class="card-footer">
+              <text class="amount" :class="getAmountClass(order.billStatus)">
+                ¥ {{ formatAmount(order.actualBalance) }}
+              </text>
+              <view class="actions">
+                <!-- 充电中时不显示任何按钮 -->
+                <template v-if="!isCharging(order.billStatus)">
+                  <view class="action-btn btn-secondary" @click.stop="goToComment(order.id)">
+                    <text class="btn-text">评价</text>
+                  </view>
+                  <!-- 待结算时只显示再次充电按钮 -->
+                  <view 
+                    v-if="isSettling(order.billStatus)" 
+                    class="action-btn btn-primary"
+                    @click.stop="recharge"
+                  >
+                    <text class="btn-text">再次充电</text>
+                  </view>
+                  <!-- 待支付时显示立即支付按钮 -->
+                  <view 
+                    v-if="isUnpaid(order.billStatus)" 
+                    class="action-btn btn-primary"
+                    @click.stop="goToPay(order.id, order.busId)"
+                  >
+                    <text class="btn-text">立即支付</text>
+                  </view>
+                </template>
               </view>
-              <!-- 待支付时显示立即支付按钮 -->
-              <view 
-                v-if="isUnpaid(order.billStatus)" 
-                class="action-btn btn-primary"
-                @click="goToPay(order.billid, order.busId)"
-              >
-                立即支付
-              </view>
-            </template>
+            </view>
           </view>
         </view>
+      </template>
+      
+      <!-- 空状态 -->
+      <view v-else class="empty-state">
+        <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
+        <text class="empty-text">暂无相关订单</text>
       </view>
     </view>
   </view>
@@ -137,9 +161,11 @@ export default {
       // 搜索相关
       searchKeyword: '',
       searchInputStyle: {
-        backgroundColor: '#fff',
-        borderRadius: '30rpx',
-        padding: '10rpx 20rpx'
+        backgroundColor: 'transparent',
+        borderRadius: '0',
+        padding: '0',
+        fontSize: '28rpx',
+        color: '#1e293b'
       },
       // 筛选相关
       showFilter: false,
@@ -262,11 +288,15 @@ export default {
      * @description 跳转到订单详情页面
      */
     goToDetails(order) {
-      const { id, billStatus, busId, gunId, isCharging, gunNumber, pileNumber, pileId } = order;
+      const { id, billStatus, busId, gunId, isCharging, gunNumber, pileNum, pileId } = order;
       console.log('order', order);
       if (billStatus === 4 || isCharging) {
         uni.navigateTo({
-          url: `/pages/charge/charging?billId=${id}&busId=${busId}&gunId=${gunId}&gunNo=${gunNumber}&pileNo=${pileNumber}&pileId=${pileId}&animationEnabled=false`
+          url: `/pages/charge/charging?billId=${id}&busId=${busId}&gunId=${gunId}&gunNo=${gunNumber}&pileNo=${pileNum}&animationEnabled=false`
+        });
+      } else if (billStatus === 11) {
+        uni.navigateTo({
+          url: `/pages/bill/settlementPay?billId=${id}&busId=${busId}`
         });
       } else {
         uni.navigateTo({
@@ -419,6 +449,24 @@ export default {
     onFilterPopupChange(e) {
       this.showFilter = e.show;
       console.log('弹窗状态改变：', e);
+    },
+    /**
+     * @description 获取状态样式类
+     */
+    getStatusClass(billStatus) {
+      if (this.isCharging(billStatus)) return 'status-charging';
+      if (this.isUnpaid(billStatus)) return 'status-unpaid';
+      if (this.isSettling(billStatus)) return 'status-settling';
+      return 'status-completed';
+    },
+    /**
+     * @description 获取金额样式类
+     */
+    getAmountClass(billStatus) {
+      if (this.isCharging(billStatus)) return 'amount-charging';
+      if (this.isUnpaid(billStatus)) return 'amount-unpaid';
+      if (this.isSettling(billStatus)) return 'amount-settling';
+      return 'amount-completed';
     }
   },
   onReachBottom() {
@@ -432,87 +480,144 @@ export default {
 
 <style scoped>
 .order-list-container {
-  background-color: #fff;
+  background-color: #f6f7f8;
   min-height: 100vh;
-  padding-bottom: 16rpx;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* 搜索栏 */
-.search-bar {
-  display: flex;
-  align-items: center;
-  padding: 16rpx;
+.search-section {
+  padding: 24rpx 32rpx;
   background-color: white;
 }
+
+.search-container {
+  width: 100%;
+}
+
 .search-input-wrapper {
-  flex: 1;
   display: flex;
   align-items: center;
-  background-color: #fff;
-  border-radius: 30rpx;
-  padding: 10rpx 20rpx;
+  background-color: #f1f3f4;
+  border-radius: 24rpx;
+  height: 96rpx;
+  padding: 0 24rpx;
+  transition: all 0.3s ease;
 }
-.filter-wrapper {
-  margin-left: 24rpx;
-  cursor: pointer;
+
+.search-input-wrapper:focus-within {
+  background-color: #e8f0fe;
+  box-shadow: 0 0 0 2rpx rgba(19, 164, 236, 0.2);
 }
-.filter-icon {
+
+.search-icon {
+  margin-right: 16rpx;
+  color: #64748b;
+}
+
+.icon-search {
   font-size: 32rpx;
-  color: #333;
 }
 
 /* 筛选弹窗样式 */
 .filter-popup {
-  padding: 20rpx;
+  padding: 40rpx;
+  background-color: white;
 }
+
 .filter-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 24rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-  margin-bottom: 24rpx;
+  padding-bottom: 32rpx;
+  border-bottom: 1rpx solid #e2e8f0;
+  margin-bottom: 32rpx;
 }
+
 .filter-title {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: -0.02em;
 }
+
 .filter-actions {
   display: flex;
-  gap: 32rpx;
+  gap: 24rpx;
 }
+
 .reset-btn, .confirm-btn {
-  font-size: 32rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 16rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  padding: 16rpx 32rpx;
+  border-radius: 20rpx;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
+
 .reset-btn {
-  color: #666;
-  border: 1rpx solid #ddd;
+  color: #64748b;
+  background-color: #f1f3f4;
+  border: none;
 }
+
+.reset-btn:hover {
+  background-color: #e2e8f0;
+}
+
 .confirm-btn {
-  color: #fff;
-  background-color: #2594FB;
+  color: white;
+  background: linear-gradient(135deg, #3b82f6 0%, #13a4ec 100%);
+  box-shadow: 0 4rpx 12rpx rgba(19, 164, 236, 0.3);
+}
+
+.confirm-btn:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 6rpx 16rpx rgba(19, 164, 236, 0.4);
 }
 
 /* 状态标签栏 */
+.status-tabs-container {
+  padding: 24rpx 32rpx;
+  background-color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
 .status-tabs {
   display: flex;
-  justify-content: space-around;
-  padding: 16rpx;
-  background-color: white;
+  background-color: #f1f3f4;
+  border-radius: 20rpx;
+  padding: 8rpx;
+  height: 80rpx;
 }
+
 .tab-item {
-  padding: 10rpx 20rpx;
-  font-size: 28rpx;
-  color: #666;
-  border-radius: 30rpx;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+  cursor: pointer;
 }
+
 .tab-item.active {
-  background-color: #007aff;
-  color: white;
+  background-color: white;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.tab-text {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #64748b;
+  transition: color 0.3s ease;
+}
+
+.tab-item.active .tab-text {
+  color: #13a4ec;
+  font-weight: 600;
 }
 
 /* 超时占位订单提示 */
@@ -530,66 +635,169 @@ export default {
 
 /* 订单列表 */
 .order-list {
-  padding: 0 16rpx;
+  padding: 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 32rpx;
 }
+
 .order-card {
   background-color: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 16rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
+
+.order-card:hover {
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.12);
+  transform: translateY(-2rpx);
+}
+
+.card-content {
+  padding: 32rpx;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #fff;
+  margin-bottom: 24rpx;
 }
+
 .station-name {
-  font-size: 32rpx;
-  font-weight: bold;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
+
 .order-status {
   font-size: 28rpx;
-  color: #666;
+  font-weight: 500;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
 }
+
+.status-charging {
+  color: #3b82f6;
+  background-color: #dbeafe;
+}
+
+.status-unpaid {
+  color: #f59e0b;
+  background-color: #fef3c7;
+}
+
+.status-settling {
+  color: #10b981;
+  background-color: #d1fae5;
+}
+
+.status-completed {
+  color: #10b981;
+  background-color: #d1fae5;
+}
+
 .card-body {
-  padding: 16rpx 0;
+  margin-bottom: 32rpx;
 }
+
 .info-line {
   display: block;
-  font-size: 24rpx;
-  color: #999;
-  margin-top: 8rpx;
+  font-size: 28rpx;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 8rpx;
 }
+
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 16rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #e2e8f0;
 }
+
 .amount {
-  font-size: 36rpx;
-  color: #ff4d4f;
-  font-weight: bold;
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.2;
 }
+
+.amount-charging {
+  color: #3b82f6;
+}
+
+.amount-unpaid {
+  color: #f59e0b;
+}
+
+.amount-settling {
+  color: #10b981;
+}
+
+.amount-completed {
+  color: #10b981;
+}
+
 .actions {
   display: flex;
   gap: 16rpx;
 }
+
 .action-btn {
-  padding: 10rpx 24rpx;
-  border-radius: 30rpx;
+  padding: 16rpx 32rpx;
+  border-radius: 20rpx;
   font-size: 28rpx;
-  border: 1rpx solid;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 120rpx;
+  text-align: center;
 }
+
 .btn-secondary {
-  color: #666;
-  border-color: #ccc;
+  background-color: #f1f3f4;
+  color: #64748b;
+  border: none;
 }
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
+}
+
 .btn-primary {
-  background-color: #007AFF;
+  background: linear-gradient(135deg, #3b82f6 0%, #13a4ec 100%);
   color: white;
-  border-color: #007AFF;
+  box-shadow: 0 4rpx 12rpx rgba(19, 164, 236, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2rpx);
+  box-shadow: 0 6rpx 16rpx rgba(19, 164, 236, 0.4);
+}
+
+.btn-text {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 32rpx;
+  min-height: 60vh;
+}
+
+.empty-text {
+  margin-top: 32rpx;
+  font-size: 28rpx;
+  color: #94a3b8;
+  font-weight: 400;
 }
 </style>
