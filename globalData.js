@@ -40,7 +40,7 @@ export default {
   baseConfig: {},
   wxOId: "gh_77c2bc2b3348",
   appVersion: "1.0.1",
-  wxAppName: "超易充",
+  wxAppName: "星光超充",
   mapkey: "183d9e251da0eaf107b88fe205d15920",
   defaultCity: {
     cityId: "100293",
@@ -49,8 +49,8 @@ export default {
     latitude: "23.848884",
     longitude: "113.768234"
   },
-  sellerNo: "shicheng",
-  sellerId: 401,
+  sellerNo: "xg",
+  sellerId: 399,
   // URL: "https://cy.gy-ev.com/api",
   URL: "https://xgcc.cc/api",
   // URL: "http://127.0.0.1:7100",

@@ -1,7 +1,7 @@
 <template>
 	<view class="records-page">
         <uv-navbar :border="false" title="账户账单" autoBack placeholder safeAreaInsetTop></uv-navbar>
-		
+
 		<!-- 顶部筛选区域 -->
 		<!-- <view class="top-filter-bar">
 			<view class="month-selector">
@@ -34,10 +34,10 @@
 
 		<!-- 分段控制器：使用 uv-subsection -->
 		<view class="subsection-container">
-			<uv-subsection 
-				:list="subsectionList" 
-				mode="subsection" 
-				:current="subsectionCurrent" 
+			<uv-subsection
+				:list="subsectionList"
+				mode="subsection"
+				:current="subsectionCurrent"
 				@change="onSubsectionChange"
 			></uv-subsection>
 		</view>
@@ -70,7 +70,7 @@
 		</view>
 
 		<!-- 日历组件 -->
-		<uv-calendar 
+		<uv-calendar
 			v-model="showCalendar"
 			mode="range"
 			ref="calendar"
@@ -346,7 +346,7 @@
 		flex-direction: column;
 		gap: 8rpx;
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
-		
+
 		&:active {
 			transform: translateY(2rpx);
 			box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.12);
@@ -362,7 +362,7 @@
 	.stat-value {
 		font-size: 48rpx;
 		font-weight: 700;
-		
+
 		&.income {
 			color: #FFA500;
 		}
@@ -397,7 +397,7 @@
 		transition: all 0.3s ease;
 		position: relative;
 		z-index: 1;
-		
+
 		&.active {
 			background: #ffffff;
 			box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.15);
@@ -409,7 +409,7 @@
 		font-weight: 500;
 		color: #8E8E93;
 		transition: color 0.3s ease;
-		
+
 		.active & {
 			color: #333333;
 			font-weight: 600;
@@ -434,7 +434,7 @@
 		box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 		transition: transform 0.2s ease, box-shadow 0.2s ease;
 		min-height: 176rpx;
-		
+
 		&:active {
 			transform: translateY(2rpx);
 			box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
@@ -449,7 +449,7 @@
 		align-items: center;
 		justify-content: center;
 		flex-shrink: 0;
-		
+
 		&.icon-blue {
 			background: rgba(59, 130, 246, 0.1);
 		}
@@ -470,7 +470,7 @@
 	.icon-symbol {
 		font-size: 48rpx;
 		font-weight: 400;
-		
+
 		.icon-blue & {
 			color: #3B82F6;
 		}
@@ -519,7 +519,7 @@
 	.amount-value {
 		font-size: 36rpx;
 		font-weight: 700;
-		
+
 		&.income {
 			color: #FFA500;
 		}

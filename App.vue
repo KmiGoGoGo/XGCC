@@ -19,4 +19,12 @@ page {
   -webkit-tap-highlight-color: transparent;
   tap-highlight-color: transparent; /* 兼容部分环境 */
 }
+
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+  background: transparent;
+}
 </style>

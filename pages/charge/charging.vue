@@ -7,7 +7,7 @@
                 <view class="splash-logo-container" :class="{ 'logo-shift-left': logoShiftLeft }">
                     <canvas type="2d" id="splashCanvas" class="splash-canvas"></canvas>
                 </view>
-                <text class="splash-text" :class="{ 'text-visible': textVisible }">星光超充</text>
+                <text class="splash-text" :class="{ 'text-visible': textVisible }">{{ getWxAppName() }}</text>
             </view>
             
             <!-- 固定居中显示的启动中文字 -->
@@ -27,7 +27,7 @@
                     <canvas type="2d" id="logoCanvas" class="logo-canvas"></canvas>
                 </view>
                 <!-- #endif -->
-                <text class="logo-text">星光超充</text>
+                <text class="logo-text">{{ getWxAppName() }}</text>
             </view>
         </view>
         
@@ -167,6 +167,7 @@ import { querChargeOnline } from '../../api/charge.js'
 import { getPreChargeAmountByBusId } from '../../api/charge.js'
 import { stopCharge } from '../../api/charge.js'
 import StatusTag from '../../components/common/StatusTag.vue'
+import globalData from '../../globalData.js'
 
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
@@ -301,6 +302,9 @@ export default {
     },
     methods: {
         // 初始化开屏 LOGO lottie 动画（微信小程序）
+        getWxAppName() {
+            return globalData.wxAppName;
+        },
         initSplashLottie() {
             // #ifdef MP-WEIXIN
             wx.createSelectorQuery()

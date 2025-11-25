@@ -415,11 +415,135 @@
 				}
 			}
 		},
-		onLoad() {
+		onLoad(options) {
 			// this.initCityInfo();
 			// this.getLocation();
 			// this.queryDynamicsActivity();
 			uni.hideTabBar();
+			console.log("打印数据1q", options, options.q)
+			var that = this;
+
+			var url = decodeURIComponent(options.q);
+			const code = url.trim()
+
+			// 提取域名部分
+			const domain = code.split("/")[2];
+			console.log('地址' + code)
+			console.log('域名' + domain)
+			// 要兼容老扫码
+			if (domain != null && (domain.endsWith("cc.gy-ev.com") || domain.endsWith("xgcc.cc") || domain.endsWith(
+					"saas.gy-ev.com"))) {
+				let sellerNoGy = "";
+				let pileNo = "";
+				let gunNoI = "";
+
+				// 1. 先解码 URL（避免特殊字符问题，小程序中必加）
+				const decodedCode = decodeURIComponent(code);
+
+				// 2. 拆分「路径部分」和「查询参数部分」（只关注 gunNo，忽略 connectorid）
+				let pathPart = decodedCode;
+				let queryPart = "";
+				const queryStartIndex = decodedCode.indexOf("?") !== -1 ? decodedCode.indexOf("?") : decodedCode
+					.indexOf(
+						"&");
+
+				if (queryStartIndex !== -1) {
+					pathPart = decodedCode.slice(0, queryStartIndex); // 路径：http://cc.gy-ev.com/10600102
+					queryPart = decodedCode.slice(queryStartIndex + 1); // 查询参数：gunNo=0&connectorid=0000
+				}
+
+				// 3. 解析查询参数：只提取 gunNo（忽略 connectorid）
+				if (queryPart) {
+					// 小程序高版本（基础库 ≥2.21.0）用原生 API
+					if (typeof URLSearchParams !== "undefined") {
+						const params = new URLSearchParams(queryPart);
+						gunNoI = params.get("gunNo") || ""; // 只拿 gunNo，其他参数不管
+					}
+					// 小程序低版本（基础库 <2.21.0）手动解析（只找 gunNo）
+					else {
+						const paramArr = queryPart.split("&");
+						for (const item of paramArr) {
+							const [key, value] = item.split("=");
+							if (key === "gunNo") { // 只处理 gunNo，忽略 connectorid
+								gunNoI = value || "";
+								break; // 找到就退出，不用遍历其他参数
+							}
+						}
+					}
+				}
+
+				// 4. 解析路径部分（获取桩号和商户号，保留原有逻辑）
+				const pathSegments = pathPart.split("/");
+				const lastPathSegment = pathSegments.pop() || "";
+
+				// 情况1：路径最后一段是纯数字（含 "路径+参数" 和 原 "纯数字单路径"）
+				if (/^\d+$/.test(lastPathSegment)) {
+					sellerNoGy = "cy"; // 固定商户号（按业务调整）
+					pileNo = lastPathSegment; // 纯数字直接当桩号（无需截取）
+
+					// 若查询参数中没拿到 gunNo，再用原逻辑截取（兼容旧格式）
+					if (!gunNoI) {
+						pileNo = lastPathSegment.slice(0, lastPathSegment.length - 2);
+						gunNoI = lastPathSegment.slice(lastPathSegment.length - 2);
+						gunNoI =  that.decrementGunNumber(gunNoI).toString(); // 原逻辑的枪号递减（按需保留）
+					}
+				}
+				// 情况2：原有 "/商家/桩号_枪号" 格式
+				else {
+					sellerNoGy = pathSegments[3] || "";
+					[pileNo, gunNoI] = lastPathSegment.split("_");
+					if (lastPathSegment.split("_").length === 1) {
+						pileNo = pathSegments.pop() || "";
+						gunNoI = lastPathSegment;
+					}
+				}
+
+				// 5. 原有逻辑：shicheng 商户枪号减1
+				if (sellerNoGy === "shicheng" && gunNoI) {
+					gunNoI = (parseInt(gunNoI) - 1).toString();
+				}
+
+				console.log(pileNo, '编码');
+				console.log(sellerNoGy, '商户');
+				console.log(gunNoI, '枪号');
+				console.log(globalData, '域名')
+				if ((globalData.sellerNo == 'xg' || sellerNoGy == globalData.sellerNo) && pileNo !== '' &&
+					gunNoI !== '' && !isNaN(parseInt(
+						gunNoI))) {
+					// ('未能识别二维码2')
+					// const requestParams = this.handleRequestParams(url)
+					const requestParams = {
+						pileNo: pileNo, // 枪编号
+						gunNo: gunNoI // 桩编号
+					}
+					// 扫桩枪二维码充电
+					this.goTerminalDetails(requestParams)
+				} else {
+					uni.showModal({
+						title: '提示',
+						content: '未能识别的二维码',
+						showCancel: false
+					});
+				}
+			} else if (domain != null && domain.endsWith("gy-ev.com")) {
+				const requestParams = this.handleRequestParams(url)
+				const {
+					parkNumber,
+					lineNum,
+					carPortCode,
+					gunNo
+				} = requestParams
+				if (gunNo) {
+					// 扫桩枪二维码充电
+					this.goTerminalDetails(requestParams)
+				} else {
+					uni.showModal({
+						title: '提示',
+						content: '未能识别的二维码',
+						showCancel: false
+					});
+				}
+			}
 		},
 		async onShow() {
 			uni.showLoading({
@@ -525,6 +649,54 @@
 			this.clearChargeMonitorTimer();
 		},
 		methods: {    // 定义命名方法
+			// 枪号减一操作
+			decrementGunNumber(gunNoStr) {
+				const gunNoInt = parseInt(gunNoStr, 10);
+				if (isNaN(gunNoInt)) {
+					console.error("枪号不是有效的数字");
+					return null;
+				}
+			
+				const decrementedGunNo = gunNoInt - 1;
+			
+				// 返回减一后的结果，不再保持两位数
+				return decrementedGunNo;
+			},
+			goTerminalDetails(theRequest) {
+				// var theRequest = {
+				//   pileNo: '',
+				//   gunNo: ''
+				// };
+				// var str = url.split("?")[1];
+				// let strs = str.split("&");
+				// for (var i = 0; i < strs.length; i++) {
+				//   theRequest[strs[i].split("=")[0]] = decodeURI(strs[i].split("=")[1]);
+				// }
+				if (theRequest.pileNo && theRequest.gunNo) {
+					this.wxScanCodeLogin(
+						`/pages/charge/gunStartingCharge?pileNum=${theRequest.pileNo}&gunNo=${theRequest.gunNo}&platformNo=${theRequest.platformNo}`
+					)
+					// app.globalData.CHECK_LOGIN(function() {
+					// uni.navigateTo({
+					//   url: '../../homeSub/pages/terminal/gunDetail/gunDetail?pileNo=' + theRequest.pileNo + '&gunNo=' + theRequest.gunNo
+					// })
+					// })
+				}
+			},
+			wxScanCodeLogin(url) {
+				if (uni.getStorageSync('token')) {
+					uni.navigateTo({
+						url
+					})
+				} else {
+					uni.navigateTo({
+						url: `/pages/login/login`
+					})
+				}
+			},
+			getWxAppName() {
+				return globalData.wxAppName;
+			},
 			goToTestPage() {
 				uni.navigateTo({
 					url: `/pages/coupon/useCoupon?billId=${12244308}`

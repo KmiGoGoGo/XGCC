@@ -2,20 +2,20 @@
     <view class="service-page">
         <uv-navbar :border="false" title="服务协议" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         <view class="content">
-            <view class="title">{{ appName }}注册服务条款</view>
+            <view class="title">{{ getWxAppName() }}注册服务条款</view>
             
             <view class="note">
-                注：本条款是用户与<text class="green">{{ companyName }}</text>旗下"<text class="green">{{ appName }}</text>"之间的协议。版本发布日期为<text class="bold">2021 年 8月 2 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
+                注：本条款是用户与<text class="green">{{ companyName }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2021 年 8月 2 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
             </view>
             
             <view class="section">
                 <view class="section-title">一、重要须知</view>
                 <view class="section-content">
                     <view class="content-item">
-                        1、<text class="green">{{ companyName }}</text>在此特别提醒，用户在注册、使用"<text class="green">{{ appName }}（Android &IOS）</text>"之前，请认真阅读本服务条款中的各项条款说明。通过进入注册程序并勾选"我同意<text class="green">{{ appName }}</text>注册服务条款"，即表示用户与<text class="green">{{ companyName }}</text>已达成协议，自愿接受本服务条款的所有内容（未成年人审阅时应得到法定监护人的陪同）；
+                        1、<text class="green">{{ companyName }}</text>在此特别提醒，用户在注册、使用"<text class="green">{{ getWxAppName() }}（Android &IOS）</text>"之前，请认真阅读本服务条款中的各项条款说明。通过进入注册程序并勾选"我同意<text class="green">{{ getWxAppName() }}</text>注册服务条款"，即表示用户与<text class="green">{{ companyName }}</text>已达成协议，自愿接受本服务条款的所有内容（未成年人审阅时应得到法定监护人的陪同）；
                     </view>
                     <view class="content-item">
-                        2、"<text class="green">{{ appName }}</text>"有权在必要时修改本服务条款，请用户随时关注APP服务条款的修改。如果用户不同意所改动的内容，可以主动停止使用"<text class="green">{{ appName }}</text>"提供的相关服务，并可注销此APP。
+                        2、"<text class="green">{{ getWxAppName() }}</text>"有权在必要时修改本服务条款，请用户随时关注APP服务条款的修改。如果用户不同意所改动的内容，可以主动停止使用"<text class="green">{{ getWxAppName() }}</text>"提供的相关服务，并可注销此APP。
                     </view>
                     <view class="content-item">
                         3、客户一旦成功注册成为会员，将有一个独立的密码和用户名，并可以随时修改自己的密码；用户将对用户名和密码的安全及其用户名进行的所有活动和事件负全部责任。用户若发现本账号被非法使用或存在安全漏洞的情况，请立即通告本公司。否则，一切责任和后果由用户本人承担。
@@ -27,7 +27,7 @@
                 <view class="section-title">二、服务简介</view>
                 <view class="section-content">
                     <view class="content-item">
-                        1、"<text class="green">{{ appName }}</text>"分为Android和IOS两个版本，可以实现个人电动车主充电导航、扫码充电、支付、订单管理、分享等功能，用户注册成为会员后，即可享受APP提供的任何服务；
+                        1、"<text class="green">{{ getWxAppName() }}</text>"分为Android和IOS两个版本，可以实现个人电动车主充电导航、扫码充电、支付、订单管理、分享等功能，用户注册成为会员后，即可享受APP提供的任何服务；
                     </view>
                     <view class="content-item">
                         2、APP钱包首次最低充值金额为10元人民币，目前支持微信或支付宝两种支付方式；
@@ -54,7 +54,7 @@
                     <view class="sub-list">
                         <view class="sub-item">a)基于国家法律法规的规定而对外披露；</view>
                         <view class="sub-item">b)应国家司法机关及其他有关机关基于法定程序的要求而披露；</view>
-                        <view class="sub-item">c)为保护"{{ appName }}"用户的合法权益而披露；</view>
+                        <view class="sub-item">c)为保护"{{ getWxAppName() }}"用户的合法权益而披露；</view>
                         <view class="sub-item">d)在紧急情况下，为保护其他用户及第三方人身安全而披露；</view>
                         <view class="sub-item">e)用户本人或用户监护人授权披露的；</view>
                         <view class="sub-item">f)因向用户提供服务所必须，而将信息提供给充电运营合作方的。</view>
@@ -126,14 +126,19 @@
 </template>
 
 <script>
+import globalData from '../../globalData.js'
 export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            appName: '星光超充',  // 应用名称
             companyName: '光烨科技',  // 公司名称
             customerServicePhone: '020-32163681'  // 客服电话
         }
+    },
+    methods: {
+        getWxAppName() {
+            return globalData.wxAppName;
+        },
     }
 }
 </script>

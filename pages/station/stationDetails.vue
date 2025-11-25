@@ -9,7 +9,7 @@
               <view class="logo-wrapper">
                   <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
               </view>
-              <text class="brand-text">星光超充</text>
+              <text class="brand-text">{{ getWxAppName() }}</text>
           </view>
       </view>
     </view>
@@ -180,7 +180,7 @@
 import { getSellerBasicsConfig, getIconTwo } from '@/api/style.js';
 import { getStationDetailByIdNotAuth, getStationDetailByIdNew } from '@/api/station.js';
 import PriceInfo from '@/components/station/PriceInfo.vue';
-import globalData from '@/globalData.js';
+import globalData from '../../globalData.js';
 import StatusTag from '@/components/common/StatusTag.vue';
 
 export default {
@@ -343,6 +343,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     async fetchAllData(stationId) {
       uni.showLoading({ title: '加载中...' });
       try {

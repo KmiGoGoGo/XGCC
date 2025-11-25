@@ -1,12 +1,12 @@
 <template>
     <view class="version-page">
-        <uv-navbar :border="false" title="关于【星光超充】" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" :title="`关于【${getWxAppName()}】`" autoBack placeholder safeAreaInsetTop></uv-navbar>
         <!-- 应用信息 -->
         <view class="app-info">
             <view class="logo-wrapper">
                   <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
               </view>
-            <text class="app-name">星光超充</text>
+            <text class="app-name">{{ getWxAppName() }}</text>
             <text class="app-version">v1.0.0</text>
         </view>
         
@@ -32,7 +32,7 @@
 
 <script>
 import { logout } from '@/api/member.js'
-
+import globalData from '../../globalData.js'
 export default {
     data() {
         return {
@@ -44,6 +44,9 @@ export default {
         console.log('hasToken',this.hasToken)
     },
     methods: {
+        getWxAppName() {
+            return globalData.wxAppName;
+        },
         goToService() {
             uni.navigateTo({
                 url: '/pages/common/service'

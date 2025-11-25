@@ -10,7 +10,7 @@
                     <view class="logo-wrapper" :class="{ 'logo-shift-left': logoShiftLeft }">
                         <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
                     </view>
-                    <text class="brand-text" :class="{ 'text-visible': textVisible }">星光超充</text>
+                    <text class="brand-text" :class="{ 'text-visible': textVisible }">{{ getWxAppName() }}</text>
                 </view>
                 <view class="title-section-text">
                     <text class="title">欢迎使用</text>
@@ -71,7 +71,7 @@
 
 <script>
 import { loginBeforeCheck, alipayLoginBeforeCheck, getMemberInfo, changeUser, loginOther } from '@/api/member';
-import globalData from '@/globalData';
+import globalData from '../../globalData.js';
 
 export default {
     data() {
@@ -100,6 +100,9 @@ export default {
         this.initAuth()
     },
     methods: {
+        getWxAppName() {
+            return globalData.wxAppName;
+        },
         back() {
             // 判断是否有上一页
             const pages = getCurrentPages()

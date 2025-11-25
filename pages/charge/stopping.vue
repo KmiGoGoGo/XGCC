@@ -7,7 +7,7 @@
                 <view class="splash-logo-container" :class="{ 'logo-shift-left': logoShiftLeft }">
                     <canvas type="2d" id="splashCanvas" class="splash-canvas"></canvas>
                 </view>
-                <text class="splash-text" :class="{ 'text-visible': textVisible }">星光超充</text>
+                <text class="splash-text" :class="{ 'text-visible': textVisible }">{{ getWxAppName() }}</text>
             </view>
             
             <!-- 固定居中显示的停止中文字 -->
@@ -38,7 +38,7 @@
 
 <script>
 import { getBillDetailById } from '@/api/bill.js'
-
+import globalData from '../../globalData.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
@@ -79,6 +79,9 @@ export default {
         this.startCountdown();
     },
     methods: {
+        getWxAppName() {
+            return globalData.wxAppName;
+        },
         // 初始化开屏 LOGO lottie 动画（微信小程序）
         initSplashLottie() {
             // #ifdef MP-WEIXIN
