@@ -167,6 +167,10 @@ export default {
       if (this.disposableOrderInfo.isProcessing) {
         return '处理中...';
       }
+      // 未插枪时显示提示
+      if (!this.isGunPlugged) {
+        return '请插枪后点击启动';
+      }
       // 当主枪和从枪都有时显示双枪并充
       if (this.dualGunInfo.mainGun && this.dualGunInfo.secondaryGun) {
         return '双枪并充';
