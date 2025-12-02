@@ -1,6 +1,14 @@
 <template>
     <view class="login-container">
-        <uv-navbar :border="false" title="登录" bgColor="transparent" @leftClick="back" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="登录" bgColor="transparent" @leftClick="back" placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
         <!-- 主要内容区域 -->
         <view class="main-content">
             <!-- 标题区域 -->
@@ -72,6 +80,7 @@
 <script>
 import { loginBeforeCheck, alipayLoginBeforeCheck, getMemberInfo, changeUser, loginOther } from '@/api/member';
 import globalData from '../../globalData.js';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 export default {
     data() {
@@ -562,6 +571,10 @@ export default {
             uni.navigateTo({
                 url: '/pages/common/privacy'
             })
+        },
+        // 联系客服
+        contactCustomerService() {
+            contactCustomerServiceFn();
         }
     }
 }
@@ -819,5 +832,16 @@ export default {
 
 .agreement-link:hover {
     color: #1d4ed8;
+}
+
+.server-icon-wrapper {
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+    background-color: #FEFFFF;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

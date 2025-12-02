@@ -1,7 +1,15 @@
 <template>
   <view class="page-container">
     
-    <uv-navbar :border="false" autoBack :title="gunParams.stationName" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack :title="gunParams.stationName" placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     <!-- 条件渲染视图 -->
     <template v-if="pileInfo && memberInfo">
       <charge-idle-view
@@ -95,6 +103,7 @@ import {
   alipayDisposableOrderResultQuery,
   alipayDisposableCancelRecharge
 } from '@/api/pay.js';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 export default {
   components: {
@@ -1089,6 +1098,10 @@ export default {
       // }
       
       console.log('所有定时器清理完成');
+    },
+    // 联系客服
+    contactCustomerService() {
+      contactCustomerServiceFn();
     }
   }
 };
@@ -1188,5 +1201,16 @@ export default {
 .price-list {
   max-height: 60vh;
   overflow-y: auto;
+}
+
+.server-icon-wrapper {
+  width: 55rpx;
+  height: 55rpx;
+  border-radius: 50%;
+  background-color: #FEFFFF;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

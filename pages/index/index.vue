@@ -208,6 +208,7 @@
 	import { getMyOccupyBillPage } from '@/api/bill.js';
 	import { pageChargeServiceMonitor } from '@/api/charge.js';
 	import globalData from '@/globalData.js';
+	import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 	export default {
 		components: {
 			Tabbar,
@@ -1763,6 +1764,10 @@
 			onNavbarRightClick() {
 				console.log('导航栏右侧点击');
 				// 这里可以添加右侧点击的逻辑
+			},
+			// 联系客服
+			contactCustomerService() {
+				contactCustomerServiceFn();
 			}
 		}
 	}
@@ -1800,6 +1805,7 @@
 	.navbar-center {
 		width: 51%;
 	}
+	
 	
 	.city-text {
 		color: #0F172A;

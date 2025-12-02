@@ -1,6 +1,14 @@
 <template>
   <view class="invoice-page">
-    <uv-navbar :border="false" title="发票管理" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="发票管理" autoBack placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     
     <!-- 温馨提示区域 -->
     <view class="tip-container">
@@ -48,6 +56,7 @@
 <script>
 import UnInvoiceList from '@/components/invoice/UnInvoiceList.vue'
 import InvoiceRecordList from '@/components/invoice/InvoiceRecordList.vue'
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 
 export default {
   name: 'InvoicePage',
@@ -67,6 +76,9 @@ export default {
   },
   
   methods: {
+    contactCustomerService() {
+      contactCustomerServiceFn()
+    },
     // Tab切换
     onTabChange(index) {
         console.log('onTabChange', index.index)

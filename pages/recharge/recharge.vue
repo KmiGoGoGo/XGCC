@@ -1,7 +1,15 @@
 <template>
     <view class="recharge-container">
         
-        <uv-navbar :border="false" title="余额充值" autoBack placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="余额充值" autoBack placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
 
         <view class="content-wrapper">
             <!-- 充值优惠横幅 -->
@@ -162,6 +170,7 @@ import { alipayUnifiedOrder, alipayOrderResultQuery, wechatUnifiedOrder, wechatO
 import { getStyleContent } from '../../api/style';
 import { getRechargeDiscounts, getRechargeAwardExplain } from '../../api/member';
 import StatusTag from '../../components/common/StatusTag.vue';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 export default {
     components: {
@@ -941,6 +950,10 @@ export default {
         switchPayType(type) {
             this.payType = type;
             console.log('切换支付方式：', type);
+        },
+        // 联系客服
+        contactCustomerService() {
+            contactCustomerServiceFn();
         }
     }
 }
@@ -1433,5 +1446,16 @@ export default {
 
 .payment-button.disabled .button-text {
     color: #94a3b8;
+}
+
+.server-icon-wrapper {
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+    background-color: #FEFFFF;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

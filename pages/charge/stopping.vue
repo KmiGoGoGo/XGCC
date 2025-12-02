@@ -17,7 +17,15 @@
         </view>
         <!-- #endif -->
         
-        <uv-navbar :border="false" bgColor="transparent" @leftClick="handleBack" title="停止充电中"  placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" bgColor="transparent" @leftClick="handleBack" title="停止充电中"  placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
         
         <!-- 居中提示文字 -->
         <view class="message-container">
@@ -42,6 +50,7 @@ import globalData from '../../globalData.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 // #endif
 
 export default {
@@ -311,6 +320,10 @@ export default {
         if (this.billId && !this.pollingTimer) {
             this.startPolling();
         }
+    },
+    // 联系客服
+    contactCustomerService() {
+        contactCustomerServiceFn();
     }
 }
 </script>
@@ -519,5 +532,16 @@ export default {
     50% {
         transform: scale(1.05);
     }
+}
+
+.server-icon-wrapper {
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+    background-color: #FEFFFF;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

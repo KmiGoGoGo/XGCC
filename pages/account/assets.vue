@@ -1,7 +1,15 @@
 <template>
 	<view class="assets-page">
 		
-        <uv-navbar :border="false" autoBack title="我的资产" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" autoBack title="我的资产" placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
 		
 		<!-- 页面内容容器 -->
 		<view class="page-container">
@@ -122,7 +130,7 @@
 		getAccountInfo,
 		getAccountFlowPage
 	} from '@/api/member.js';
-
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 	export default {
 		data() {
 			return {
@@ -244,6 +252,9 @@
 			}
 		},
 		methods: {
+			contactCustomerService() {
+				contactCustomerServiceFn()
+			},
 			goToRecords() {
 				uni.navigateTo({
 					url: '/pages/account/records'

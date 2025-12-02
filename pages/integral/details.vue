@@ -1,6 +1,14 @@
 <template>
   <view class="details-container">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     <!-- 筛选区域 -->
     <view class="filter-section">
       <view class="tabs">
@@ -44,6 +52,7 @@
 
 <script>
 import { getIntegralDetail, getIntegralSum } from '@/api/integral.js';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 export default {
   data() {
     return {
@@ -129,6 +138,9 @@ export default {
     formatValue(value) {
       if (typeof value !== 'number') return '0.00';
       return (value / 1000).toFixed(2);
+    },
+    contactCustomerService() {
+      contactCustomerServiceFn()
     }
   },
   // 页面触底加载更多

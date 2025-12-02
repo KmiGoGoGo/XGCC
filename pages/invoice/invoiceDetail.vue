@@ -1,7 +1,15 @@
 <template>
   <view class="invoice-detail-container">
     <!-- 状态头部 -->
-    <uv-navbar :border="false" title="发票详情" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="发票详情" autoBack placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     <view class="status-header">
       <view class="status-info">
         <uv-icon name="clock" color="#409eff" size="32rpx"></uv-icon>
@@ -98,6 +106,7 @@
 <script>
 import { queryInvoiceDetailById } from '@/api/invoice.js'
 import OrderListModal from '@/components/invoice/OrderListModal.vue'
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 export default {
   name: 'InvoiceDetail',
@@ -254,6 +263,10 @@ export default {
           })
         }
       })
+    },
+    // 联系客服
+    contactCustomerService() {
+      contactCustomerServiceFn();
     }
   }
 }
@@ -397,5 +410,16 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.server-icon-wrapper {
+  width: 55rpx;
+  height: 55rpx;
+  border-radius: 50%;
+  background-color: #FEFFFF;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

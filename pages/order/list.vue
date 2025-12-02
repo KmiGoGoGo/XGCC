@@ -1,6 +1,14 @@
 <template>
   <view class="order-list-container">
-    <uv-navbar :border="false" title="我的订单" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="我的订单" autoBack placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     
     <!-- 搜索栏 -->
     <!-- <view class="search-section">
@@ -138,6 +146,7 @@
 <script>
 import { getMyOccupyBillPage, myBillPage } from '@/api/bill.js';
 import FilterOptions from '@/components/FilterOptions/FilterOptions.vue';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 export default {
   components: {
     FilterOptions
@@ -210,6 +219,9 @@ export default {
     this.loadData();
   },
   methods: {
+    contactCustomerService() {
+      contactCustomerServiceFn()
+    },
     /**
      * @description 加载页面数据
      */

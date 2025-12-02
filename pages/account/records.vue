@@ -1,6 +1,14 @@
 <template>
 	<view class="records-page">
-        <uv-navbar :border="false" title="账户账单" autoBack placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="账户账单" autoBack placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
 
 		<!-- 顶部筛选区域 -->
 		<!-- <view class="top-filter-bar">
@@ -90,6 +98,7 @@
 	import {
 		getAccountFlowPage
 	} from '@/api/member.js';
+	import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 	export default {
 		data() {
@@ -260,6 +269,10 @@
 			getDefaultEndTime() {
 				const now = new Date();
 				return this.formatDate(now) + ' 23:59:59';
+			},
+			// 联系客服
+			contactCustomerService() {
+				contactCustomerServiceFn();
 			}
 		}
 	};
@@ -532,5 +545,16 @@
 		font-size: 24rpx;
 		color: #8E8E93;
 		line-height: 1.3;
+	}
+
+	.server-icon-wrapper {
+		width: 55rpx;
+		height: 55rpx;
+		border-radius: 50%;
+		background-color: #FEFFFF;
+		opacity: 0.8;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 </style>

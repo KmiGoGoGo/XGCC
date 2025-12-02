@@ -17,7 +17,15 @@
         </view>
         <!-- #endif -->
         
-        <uv-navbar :border="false" bgColor="transparent" autoBack :title="title" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" bgColor="transparent" autoBack :title="title" placeholder safeAreaInsetTop>
+          <template v-slot:right>
+            <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+              <view class="server-icon-wrapper">
+                <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+              </view>
+            </view>
+          </template>
+        </uv-navbar>
         
         <!-- 头部容器：logo和价格标签 -->
         <view class="header-container">
@@ -172,6 +180,7 @@ import globalData from '../../globalData.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 // #endif
 
 export default {
@@ -713,6 +722,10 @@ export default {
         this.stopBubbleAnimation();
         this.destroyLottieAnimations();
     },
+    // 联系客服
+    contactCustomerService() {
+        contactCustomerServiceFn();
+    }
 
 }
 </script>
@@ -1185,6 +1198,17 @@ export default {
     color: #FFFFFF;
     font-size: 32rpx;
     font-weight: 500;
+}
+
+.server-icon-wrapper {
+    width: 55rpx;
+    height: 55rpx;
+    border-radius: 50%;
+    background-color: #FEFFFF;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 </style>

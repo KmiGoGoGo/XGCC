@@ -1,6 +1,14 @@
 <template>
     <view class="refund-apply-container">
-        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
+            <template v-slot:right>
+                <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+                    <view class="server-icon-wrapper">
+                        <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+                    </view>
+                </view>
+            </template>
+        </uv-navbar>
         
         <!-- 主要内容区域 -->
         <view class="main-content">
@@ -79,7 +87,7 @@
 
 <script>
 import { getRefundList, refundApply } from '../../api/refund';
-
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 export default {
     data() {
         return {
@@ -139,6 +147,9 @@ export default {
         this.refreshData();
     },
     methods: {
+        contactCustomerService() {
+            contactCustomerServiceFn()
+        },
         /**
          * 返回上一页
          */

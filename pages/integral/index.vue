@@ -1,6 +1,14 @@
 <template>
   <view class="integral-container">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="server-icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     
     <!-- 当前积分卡片 -->
     <view class="integral-card">
@@ -101,6 +109,7 @@
 
 <script>
 import { getIntegral, getMemberGradeRule, getIntegralDetail, getIntegralSum } from '@/api/integral.js';
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 
 export default {
   data() {
@@ -425,6 +434,10 @@ export default {
     getDefaultEndTime() {
       const now = new Date();
       return this.formatDate(now) + ' 23:59:59';
+    },
+    // 联系客服
+    contactCustomerService() {
+      contactCustomerServiceFn();
     }
   }
 };
@@ -586,5 +599,16 @@ export default {
 
 .change-amount.negative {
   color: #ef4444;
+}
+
+.server-icon-wrapper {
+  width: 55rpx;
+  height: 55rpx;
+  border-radius: 50%;
+  background-color: #FEFFFF;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -1,6 +1,14 @@
 <template>
 	<view class="refund-page">
-		<uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+		<uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
+			<template v-slot:right>
+				<view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+					<view class="server-icon-wrapper">
+						<uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+					</view>
+				</view>
+			</template>
+		</uv-navbar>
 		<!-- 金额信息卡片 -->
 		<view class="amount-card">
 			<view class="amount-content">
@@ -76,7 +84,7 @@
 <script>
 	import { getLeaguerAccountRefundAmount, getLeaguerAccountRefundList } from '@/api/refund.js';
 	import { getStyleContent, getStyleConfig } from '@/api/style.js';
-
+	import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 	export default {
 		data() {
 			return {
@@ -108,6 +116,9 @@
 			}
 		},
 		methods: {
+			contactCustomerService() {
+				contactCustomerServiceFn()
+			},
 			goToApplyRefundPage() {
 				uni.navigateTo({
 					url: '/pages/refund/leaguerAccountRefundApply'

@@ -312,7 +312,7 @@
 		</view>
 
 		
-		<view class="contact-text">如有疑问请联系客服</view>
+		<view class="contact-text" @click="contactCustomerService">如有疑问请联系客服</view>
 
 		<!-- 完成按钮 -->
 		<view class="fixed-bottom-bar" v-if="orderStatus !== 2">
@@ -327,7 +327,7 @@
 
 <script>
 import { getBillDetailById } from '@/api/bill.js'
-
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
 export default {
 	name: 'SettlementInfo',
 	data() {
@@ -435,6 +435,9 @@ export default {
 		return false;
 	},
 	methods: {
+		contactCustomerService() {
+			contactCustomerServiceFn()
+		},
 		handleBack() {
 			// 获取当前页面栈
 			const pages = getCurrentPages();
