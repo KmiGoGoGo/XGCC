@@ -271,55 +271,6 @@ export default {
   box-shadow: 0 2rpx 8rpx rgba(19, 164, 236, 0.4);
 }
 
-/* 深色模式支持 */
-@media (prefers-color-scheme: dark) {
-  .occupy-order-container {
-    background-color: #101c22;
-  }
-  
-  .order-card {
-    background-color: rgba(30, 41, 59, 0.5);
-    border-color: rgba(71, 85, 105, 0.2);
-  }
-  
-  .station-name {
-    color: #f1f5f9;
-  }
-  
-  .status-unpaid {
-    background-color: rgba(234, 88, 12, 0.2);
-    color: #fb923c;
-  }
-  
-  .status-paid {
-    background-color: rgba(19, 164, 236, 0.2);
-    color: #60a5fa;
-  }
-  
-  .card-body {
-    border-color: #334155;
-  }
-  
-  .info-icon,
-  .info-text {
-    color: #94a3b8;
-  }
-  
-  .amount {
-    color: #f1f5f9;
-  }
-  
-  .btn-secondary {
-    background-color: #334155;
-    color: #f1f5f9;
-    border-color: #475569;
-  }
-  
-  .btn-secondary:active {
-    background-color: #475569;
-  }
-}
-
 /* 空状态 */
 .empty-state {
   display: flex;
@@ -335,12 +286,5 @@ export default {
   font-size: 28rpx;
   color: #94a3b8;
   font-weight: 400;
-}
-
-/* 深色模式下的空状态 */
-@media (prefers-color-scheme: dark) {
-  .empty-text {
-    color: #64748b;
-  }
 }
 </style>
