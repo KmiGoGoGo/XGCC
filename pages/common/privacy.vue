@@ -285,7 +285,7 @@
                         为保障我们高效处理您的问题并及时向您反馈，需要您提交身份证明、有效联系方式和书面请求及相关证据，我们会在验证您身份的前提下处理您的请求。
                     </view>
                     <view class="content-item bold">
-                        再次感谢您对<text class="green">{{ companyName }}</text>的信任和使用！ 注：本隐私政策版本发布日期为 2021 年 8月 2 日，于 2021 年 8月 9 日起正式生效。
+                        再次感谢您对<text class="green">{{ companyName }}</text>的信任和使用！ 注：本隐私政策版本发布日期为 2025 年 12月 1 日，于 2025 年 12月 1 日起正式生效。
                     </view>
                 </view>
             </view>
@@ -300,8 +300,8 @@ export default {
         return {
             // 这里是需要您填写的变量
             companyName: '光烨科技',  // 公司名称
-            customerServicePhone: '020-32163681',  // 客服电话
-            companyAddress: '广东省广州市番禺区南村镇德道产业园一号楼3楼'  // 公司地址
+            customerServicePhone: '4006331838',  // 客服电话
+            companyAddress: '广东省东莞市石龙镇美能达路光华实业6-8号'  // 公司地址
         }
     },
     methods: {

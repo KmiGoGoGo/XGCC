@@ -230,6 +230,11 @@ export default {
       try {
         const activeStatuses = this.tabs.find(t => t.key === this.activeTab)?.statuses;
 
+        const tokenMemberType = uni.getStorageSync('tokenMemberType');
+        let memberType = 1;
+        if (tokenMemberType && tokenMemberType !== 0) {
+          memberType = tokenMemberType;
+        }
         const [occupyRes, billRes] = await Promise.all([
           getMyOccupyBillPage({ current: 1, pageSize: 10 }),
           myBillPage({
@@ -239,7 +244,7 @@ export default {
             // 其他筛选条件
             startTime: this.filterParams.startTime,
             endTime: this.filterParams.endTime,
-            memberType: 1,
+            memberType: memberType,
             searchBarCondition: this.searchKeyword,
             version: 1,
           })

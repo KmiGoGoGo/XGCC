@@ -5,7 +5,7 @@
             <view class="title">{{ getWxAppName() }}注册服务条款</view>
             
             <view class="note">
-                注：本条款是用户与<text class="green">{{ companyName }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2021 年 8月 2 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
+                注：本条款是用户与<text class="green">{{ companyName }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2025 年 12月 1 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
             </view>
             
             <view class="section">
@@ -111,7 +111,7 @@
                 <view class="section-title">六、法律管辖与其他</view>
                 <view class="section-content">
                     <view class="content-item">
-                        1、本协议的订立、执行和解释及争议的解决均应适用中国法律。如双方就本协议内容或其执行发生任何争议，双方应尽力友好协商解决；协商不成时，应向协议签订地有管辖权的人民法院提起诉讼。本协议签订地为中华人民共和国广州市南沙区。
+                        1、本协议的订立、执行和解释及争议的解决均应适用中国法律。如双方就本协议内容或其执行发生任何争议，双方应尽力友好协商解决；协商不成时，应向协议签订地有管辖权的人民法院提起诉讼。本协议签订地为中华人民共和国东莞市石龙镇。
                     </view>
                     <view class="content-item">
                         2、如本服务条款中的任何条款无论因何种原因完全或部分无效或不具有执行力，本服务条款的其余条款仍应有效且具有约束力，并且努力使该规定反映之意向具备效力。
@@ -132,7 +132,7 @@ export default {
         return {
             // 这里是需要您填写的变量
             companyName: '光烨科技',  // 公司名称
-            customerServicePhone: '020-32163681'  // 客服电话
+            customerServicePhone: '4006331838'  // 客服电话
         }
     },
     methods: {
