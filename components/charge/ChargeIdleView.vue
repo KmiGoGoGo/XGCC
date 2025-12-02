@@ -216,7 +216,7 @@
           </view>
           <view class="occupy-fee-item">
             <text class="occupy-fee-label">当前收费时段:</text>
-            <text class="occupy-fee-value">{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr}}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr }}</text>
+            <text class="occupy-fee-value">{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00' }}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59'  }}</text>
           </view>
           <view class="occupy-fee-description">
             充电结束后请于{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟内拔枪驶离充电车位，若车辆充电结束{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{ parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100 }}元
