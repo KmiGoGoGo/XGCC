@@ -39,7 +39,7 @@
 				<view class="list-item" v-for="item in refundList" :key="item.id">
 					<view class="item-left">
 						<view class="item-icon">
-							<text class="icon">account_balance_wallet</text>
+							<uv-icon name="weixin-fill" size="48" color="#13a4ec"></uv-icon>
 						</view>
 						<view class="item-info">
 							<text class="item-title">充值</text>
@@ -65,7 +65,7 @@
 				</text>
 				<view class="footer-divider"></view>
 				<view class="contact-service" @click="contactCustomerService">
-					<text class="service-icon">support_agent</text>
+					<uv-icon name="server-fill" size="24" color="#13a4ec"></uv-icon>
 					<text class="service-text">联系客服</text>
 				</view>
 			</view>
@@ -124,12 +124,44 @@
 					showCancel: false
 				});
 			},
-			contactCustomerService() {
+			async contactCustomerService() {
+				const res = await getStyleConfig()
+					if (res.code !== 0) {
+						uni.showToast({
+							title: res.msg || '获取客服信息失败',
+							icon: 'none'
+						});
+						return;
+					}
+				const telephone = res.data.telephone || '4006331838';
+				const serviceTime = res.data.serviceTime || '09:00-18:00';
+				console.log('telephone', res);
 				uni.showModal({
-					title: '联系客服',
-					content: `${this.customerInfo.telephone || ''}\n${this.customerInfo.serviceTime || ''}`,
-					showCancel: false
-				});
+						title: '联系客服',
+						content: `客服电话：${telephone || ''}\n客服工作时间：${serviceTime || ''}`,
+						showCancel: true,
+						cancelText: '取消',
+						confirmText: '呼叫客服',
+						confirmColor: '#007AFF',
+						success: (res1) => {
+							if (res1.confirm) {
+								// 用户点击了呼叫客服按钮
+								uni.makePhoneCall({
+									phoneNumber: telephone,
+									success: () => {
+										console.log('呼叫成功');
+									},
+									fail: (err) => {
+										console.log('呼叫失败', err);
+										uni.showToast({
+											title: '呼叫失败',
+											icon: 'none'
+										});
+									}
+								});
+							}
+						}
+					});
 			},
 			goToRecordsPage() {
 				uni.navigateTo({

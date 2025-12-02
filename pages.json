@@ -266,7 +266,7 @@
     {
       "path": "pages/common/version",
       "style": {
-        "navigationBarTitleText": "关于超易充",
+        "navigationBarTitleText": "关于",
         "navigationStyle": "custom"
       }
     },

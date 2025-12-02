@@ -1,7 +1,7 @@
 <template>
     <view class="recharge-container">
         
-        <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="余额充值" autoBack placeholder safeAreaInsetTop></uv-navbar>
 
         <view class="content-wrapper">
             <!-- 充值优惠横幅 -->
@@ -18,12 +18,18 @@
 
             <!-- 金额输入框 -->
             <view class="amount-input-section">
-                <view class="amount-label">充值金额</view>
+                <view class="amount-input-header">
+                    <view class="amount-label">充值金额</view>
+                    <view class="navbar-action" @click="goToRecords">
+                        <text class="action-text">充值记录</text>
+                    </view>
+                </view>
                 <view class="amount-input-wrapper">
                     <text class="currency-symbol">¥</text>
                     <uv-input 
                         v-model="rechargeAmount"
                         placeholder="请输入充值金额"
+                        placeholderStyle="font-size: 40rpx;"
                         type="digit"
                         :disabled="isPaymentProcessing"
                         border="none"
@@ -48,30 +54,58 @@
                 </view>
             </view>
 
+            <!-- 支付方式选择（可选） -->
+            <view class="payment-method-section" v-if="false">
+                <view class="payment-method-label">支付方式</view>
+                <view class="payment-method-options">
+                    <view 
+                        :class="['payment-method-item', { 'active': payType === 'wechat' }]"
+                        @click="switchPayType('wechat')"
+                    >
+                        <text class="method-icon">💳</text>
+                        <text class="method-name">微信支付</text>
+                    </view>
+                    <view 
+                        :class="['payment-method-item', { 'active': payType === 'alipay' }]"
+                        @click="switchPayType('alipay')"
+                    >
+                        <text class="method-icon">💵</text>
+                        <text class="method-name">支付宝</text>
+                    </view>
+                </view>
+            </view>
+
             <!-- 充值奖励 -->
             <view class="reward-section" v-if="hasReward">
                 <view class="reward-card">
-                    <text class="reward-title">充值奖励 - 新手专享券包</text>
-                    <view class="reward-content">
-                        <text class="reward-item">20元充电券 x2</text>
-                        <text class="reward-item">服务费5折券 x5</text>
+                    <!-- <text class="reward-title">{{ currentReward.title || '充值奖励' }}</text> -->
+                    <view style="margin-bottom: 16rpx;">
+                        <StatusTag
+                            :text="currentReward.title || '充值奖励'"
+                            backgroundColor="#FDEEEE"
+                            textColor="#E53E3E"
+                            fontSize="24rpx"
+                            padding="8rpx 12rpx"
+                            borderRadius="12rpx"
+                            fontWeight="bold"
+                        ></StatusTag>
                     </view>
-                    <view class="expand-details" @click="toggleStationList">
+                    <view class="reward-content" v-if="currentReward.description">
+                        <rich-text :nodes="currentReward.description"></rich-text>
+                    </view>
+                    <view class="expand-details" @click="toggleStationList" v-if="currentReward.stationList && currentReward.stationList.length > 0">
                         <text class="expand-text">{{ showStationList ? '收起适用站点详情' : '展开适用站点详情' }}</text>
-                        <text class="expand-icon">{{ showStationList ? '⌃' : '⌄' }}</text>
+                        <uv-icon v-if="showStationList" name="arrow-down" size="16" color="#007AFF"></uv-icon>
+                        <uv-icon v-else name="arrow-up" size="16" color="#007AFF"></uv-icon>
                     </view>
                     
                     <!-- 适用站点列表 -->
-                    <view v-if="showStationList" class="station-list">
-                        <text v-for="(station, index) in stationList" :key="index" class="station-item">
+                    <view v-if="showStationList && currentReward.stationList && currentReward.stationList.length > 0" class="station-list">
+                        <text v-for="(station, index) in currentReward.stationList" :key="index" class="station-item">
                             {{ station }}
                         </text>
                     </view>
                 </view>
-            </view>
-            
-            <view class="navbar-action" @click="goToRecords">
-                <text class="action-text">充值记录</text>
             </view>
 
         <!-- 支付方式 -->
@@ -115,22 +149,28 @@
                     <text class="modal-title">充值优惠详情</text>
                     <text class="modal-close" @click="hidePromoDetail">✕</text>
                 </view>
-                <scroll-view class="modal-body" scroll-y>
+                <view class="modal-body">
                     <text class="detail-content">{{ promoDetailContent }}</text>
-                </scroll-view>
+                </view>
             </view>
         </view>
     </view>
 </template>
 
 <script>
-import { alipayLeaguerUnifiedOrders, alipayOrderResultQuery } from '../../api/pay';
+import { alipayUnifiedOrder, alipayOrderResultQuery, wechatUnifiedOrder, wechatOrderResultQuery, wechatLeaguerUnifiedOrders } from '../../api/pay';
 import { getStyleContent } from '../../api/style';
+import { getRechargeDiscounts, getRechargeAwardExplain } from '../../api/member';
+import StatusTag from '../../components/common/StatusTag.vue';
 
 export default {
+    components: {
+        StatusTag
+    },
     data() {
         return {
             rechargeAmount: "200", // 默认金额改为字符串200
+            payType: 'wechat', // 支付方式：'alipay' 支付宝, 'wechat' 微信支付
             pollingTimer: null, // 轮询定时器
             isPaymentProcessing: false, // 防止重复支付
             currentTradeNo: null, // 当前订单号
@@ -139,10 +179,10 @@ export default {
             quickAmounts: [ // 快捷金额选项
                 { value: 50, special: false },
                 { value: 100, special: false },
-                { value: 200, special: true },
-                { value: 300, special: true },
-                { value: 600, special: true },
-                { value: 1000, special: true }
+                { value: 200, special: false },
+                { value: 300, special: false },
+                { value: 600, special: false },
+                { value: 1000, special: false }
             ],
             inputCustomStyle: { // uv-input自定义样式
                 padding: '0',
@@ -164,54 +204,13 @@ export default {
             promoDetailContent: '', // 优惠活动详细内容
             showDetailModal: false, // 是否显示详情弹窗
             showStationList: false, // 是否展开站点列表
-            stationList: [ // 适用站点列表
-                '超易充石龙祥龙路充电站',
-                '超易充石龙广源路公共充电站',
-                '超易充石龙莞惠枢纽充电站', 
-                '超易充高埗政府广场充电站',
-                '超易充高埗文化广场充电站',
-                '超易充高埗江滨广场充电站',
-                '超易充石龙西湖客运站充电站',
-                '超易充望牛墩望洪酒店充电站',
-                '超易充企石公交枢纽站',
-                '超易充常平镇常黄路充电站',
-                '超易充万江牌楼基充电站',
-                '超易充东城温塘光烨充电站',
-                '超易充常平东莞东火车站光烨充电站',
-                '超易充高埗汽车北站光烨充电站',
-                '超易充黄江实验小学光烨充电站',
-                '超易充南城宏图路福地光烨超充站',
-                '超易充南城宏图路福地光烨充电站',
-                '超易充中堂坤鑫光烨充电站',
-                '超易充企石滨江公园光烨充电站',
-                '超易充企石森林公园光烨充电站',
-                '超易充清溪大利光烨充电站',
-                '超易充清溪大绿地光烨充电站',
-                '超易充清溪金龙阳光城光烨充电站',
-                '超易充塘厦华维大厦光烨充电站',
-                '超易充东能横沥职教城充电站',
-                '超易充道滘燿盈广场超充站',
-                '超易充厚街环冈奥通充电站'
-            ],
-            // 充值奖励映射
-            rewardMapping: {
-                200: {
-                    title: '价值20元券包',
-                    description: '(10元券*1张+5元券*2张，券有效期30天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                300: {
-                    title: '价值25元券包',
-                    description: '(10元券*1张+5元券*3张，券有效期45天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                600: {
-                    title: '价值55元券包',
-                    description: '(10元券*3张+5元券*5张，券有效期60天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                },
-                1000: {
-                    title: '价值120元券包',
-                    description: '(10元券*6张+5元券*12张，券有效期90天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
-                }
-            }
+            stationList: [], // 适用站点列表（从接口动态获取）
+            // 充值奖励映射（动态获取）
+            rewardMapping: {},
+            // 当前加载中的金额（防止重复请求）
+            loadingAmount: null,
+            // 输入金额的防抖定时器
+            amountInputTimer: null
         }
     },
     computed: {
@@ -223,22 +222,58 @@ export default {
         currentReward() {
             const amount = this.numericRechargeAmount;
             return this.rewardMapping[amount] || {
-                title: '价值20元券包',
-                description: '(10元券*1张+5元券*2张，券有效期30天，可在参与充值优惠活动的站点抵扣使用；充值送券后不可退款，请根据充电情况适量充值。)'
+                title: null,
+                description: null,
+                stationList: []
             };
         },
         // 是否有奖励（只有特定金额才有奖励）
         hasReward() {
-            return this.rewardMapping.hasOwnProperty(this.numericRechargeAmount);
+            const amount = this.numericRechargeAmount;
+            const reward = this.rewardMapping[amount];
+            return reward && reward.title && reward.stationList && reward.stationList.length > 0;
+        }
+    },
+    watch: {
+        // 监听充值金额变化，限制小数位
+        rechargeAmount(newVal) {
+            if (newVal && typeof newVal === 'string') {
+                // 如果包含小数点，检查小数位数
+                if (newVal.includes('.')) {
+                    const parts = newVal.split('.');
+                    // 如果小数点后超过两位，截取前两位
+                    if (parts[1] && parts[1].length > 2) {
+                        const limitedValue = parts[0] + '.' + parts[1].substring(0, 2);
+                        // 使用 $nextTick 确保在下一个 tick 更新，避免循环更新
+                        this.$nextTick(() => {
+                            if (this.rechargeAmount !== limitedValue) {
+                                this.rechargeAmount = limitedValue;
+                            }
+                        });
+                    }
+                }
+            }
         }
     },
     onLoad() {
         // 页面加载时获取优惠活动内容
         this.loadPromoContent();
+        // 获取充值优惠金额列表
+        this.loadRechargeDiscounts();
+        // 加载默认金额的奖励说明
+        const defaultAmount = Number(this.rechargeAmount) || 0;
+        if (defaultAmount > 0) {
+            this.loadRechargeAwardExplain(defaultAmount);
+        }
     },
     beforeDestroy() {
         // 页面销毁时清除定时器
         this.clearPollingTimer();
+        // 清除输入防抖定时器
+        if (this.amountInputTimer) {
+            clearTimeout(this.amountInputTimer);
+            this.amountInputTimer = null;
+        }
     },
     methods: {
         /**
@@ -247,6 +282,7 @@ export default {
         async recharge() {
             // 输入验证
             const amount = Number(this.rechargeAmount);
+            
             if (amount <= 0) {
                 uni.showToast({
                     title: '请输入有效的充值金额',
@@ -273,15 +309,38 @@ export default {
                 this.paymentStatus = null; // 清除之前的状态
                 uni.showLoading({ title: '正在创建订单...' });
 
-                console.log('发起充值，金额：', amount);
+                console.log('发起充值，金额：', amount)
+                if (isNaN(amount)) {
+                    uni.showToast({
+                        title: '充值金额非法',
+                        icon: 'none'
+                    });
+                    this.isPaymentProcessing = false;
+                    return;
+                }
                 
-                // 调用后端统一下单接口
-                const orderRes = await alipayLeaguerUnifiedOrders({
-                    totalFee: (Number(amount) * 100).toFixed(0).toString(),
-                    openId: uni.getStorageSync('openId'),
-                    subject: '账户充值', // 订单标题
-                    body: `充值金额：${amount}元` // 订单描述
-                });
+                // 根据支付方式调用不同的统一下单接口
+                let orderRes;
+                if (this.payType === 'wechat') {
+                    // 微信支付
+                    orderRes = await this.callWechatUnifiedOrder(amount);
+                } else {
+                    // 支付宝
+                    // #ifdef MP-ALIPAY
+                    // 支付宝小程序使用 alipayUnifiedOrder
+                    orderRes = await alipayUnifiedOrder({
+                        totalFee: Math.round(Number(amount) * 100).toString(),
+                        openId: uni.getStorageSync('openId'),
+                        subject: '账户充值', // 订单标题
+                        body: `充值金额：${amount}元` // 订单描述
+                    });
+                    // #endif
+                    
+                    // #ifndef MP-ALIPAY
+                    // 非支付宝小程序平台暂不支持支付宝支付
+                    throw new Error('当前平台不支持支付宝支付');
+                    // #endif
+                }
 
                 console.log('统一下单结果：', orderRes);
                 uni.hideLoading();
@@ -289,10 +348,17 @@ export default {
                 if (orderRes.code === 0 && orderRes.data) {
                     // 保存订单号用于后续查询
                     this.currentTradeNo = orderRes.data.tradeNo;
-                    this.currentOutTradeNo = orderRes.data.outTradeNo;
+                    this.currentOutTradeNo = orderRes.data.outTradeNo || orderRes.data.orderNo;
                     
-                    // 调用支付宝支付接口
-                    await this.callAlipayPayment(orderRes.data);
+                    // 调用支付接口
+                    if (this.payType === 'wechat') {
+                        this.currentTradeNo = orderRes.data.orderNo;
+                        await this.callWechatPayment(orderRes.data);
+                    } else {
+                        // #ifdef MP-ALIPAY
+                        await this.callAlipayPayment(orderRes.data);
+                        // #endif
+                    }
                 } else {
                     throw new Error(orderRes.msg || '创建订单失败');
                 }
@@ -412,13 +478,142 @@ export default {
         },
 
         /**
+         * 调用微信统一下单接口
+         */
+        async callWechatUnifiedOrder(amount) {
+            // 获取 openId
+            let openId = uni.getStorageSync('openId');
+            
+            // 根据平台确定交易类型
+            let tradeType = 'JSAPI';
+            // #ifdef APP-PLUS
+            tradeType = 'APP';
+            // #endif
+            
+            // #ifdef H5
+            tradeType = 'MWEB';
+            // #endif
+            
+            return await wechatLeaguerUnifiedOrders({
+                openId: openId,
+                totalFee: Math.round(Number(amount) * 100).toString(),
+                tradeType: tradeType
+            });
+        },
+
+        /**
+         * 调用微信支付接口
+         * 根据不同的平台使用条件编译实现不同的支付方式
+         * 支持平台：
+         * - MP-WEIXIN: 微信小程序支付
+         * - APP-PLUS: APP微信支付
+         * 
+         * @param {Object} orderData 订单数据，包含以下字段：
+         *   - timeStamp: 时间戳
+         *   - nonceStr: 随机字符串
+         *   - package: 包含prepay_id的包
+         *   - sign: 签名
+         *   - signType: 签名类型（RSA或MD5）
+         *   - appId: 小程序/公众号ID
+         */
+        callWechatPayment(orderData) {
+            return new Promise((resolve, reject) => {
+                console.log('微信支付参数：', orderData);
+                
+                // #ifdef MP-WEIXIN
+                // 微信小程序
+                let paymentParams = {
+                    timeStamp: orderData.timeStamp + '',
+                    nonceStr: orderData.nonceStr,
+                    package: orderData.package || orderData.packageStr,
+                    signType: orderData.signType || 'MD5',
+                    paySign: orderData.sign || orderData.paySign,
+                    success: (res) => {
+                        console.log('微信小程序支付调起成功：', res);
+                        // 调起支付成功不代表支付成功，需要轮询查询结果
+                        this.startPaymentPolling();
+                        resolve(res);
+                    },
+                    fail: (err) => {
+                        console.error('微信小程序支付失败：', err);
+                        uni.hideLoading();
+                        if (err.errMsg && err.errMsg.includes('cancel')) {
+                            // 用户取消支付
+                            this.onPaymentCancelled(err);
+                        } else {
+                            this.showPaymentStatus('error', '支付失败，请重试');
+                        }
+                        this.isPaymentProcessing = false;
+                        reject(err);
+                    }
+                };
+                
+                console.log('发起微信小程序支付，参数：', paymentParams);
+                uni.requestPayment(paymentParams);
+                // #endif
+
+                // #ifdef APP-PLUS
+                // APP 微信支付
+                let appPaymentParams = {
+                    provider: 'wxpay',
+                    orderInfo: {
+                        appid: orderData.appId || orderData.appid,
+                        noncestr: orderData.nonceStr,
+                        package: orderData.package || 'Sign=WXPay',
+                        partnerid: orderData.partnerId || orderData.partnerid,
+                        prepayid: orderData.prepayId || orderData.prepayid,
+                        timestamp: orderData.timeStamp + '',
+                        sign: orderData.sign,
+                        signType: orderData.signType || 'MD5'
+                    },
+                    success: (res) => {
+                        console.log('APP微信支付调起成功：', res);
+                        this.startPaymentPolling();
+                        resolve(res);
+                    },
+                    fail: (err) => {
+                        console.error('APP微信支付失败：', err);
+                        uni.hideLoading();
+                        this.isPaymentProcessing = false;
+                        this.showPaymentStatus('error', '支付失败，请重试');
+                        reject(err);
+                    }
+                };
+                
+                console.log('发起APP微信支付，参数：', appPaymentParams);
+                uni.requestPayment(appPaymentParams);
+                // #endif
+
+                // #ifndef MP-WEIXIN || APP-PLUS
+                // 其他平台不支持微信支付
+                console.error('当前平台不支持微信支付');
+                uni.showToast({
+                    title: '当前平台暂不支持微信支付',
+                    icon: 'none'
+                });
+                this.isPaymentProcessing = false;
+                reject(new Error('当前平台不支持微信支付'));
+                // #endif
+            });
+        },
+
+        /**
          * 查询支付结果
          */
         async queryPaymentResult() {
             try {
-                const queryRes = await alipayOrderResultQuery({
-                    orderNo: this.currentOutTradeNo
-                });
+                let queryRes;
+                if (this.payType === 'wechat') {
+                    // 查询微信支付结果
+                    queryRes = await wechatOrderResultQuery({
+                        orderNo: this.currentOutTradeNo
+                    });
+                } else {
+                    // 查询支付宝支付结果
+                    queryRes = await alipayOrderResultQuery({
+                        orderNo: this.currentOutTradeNo
+                    });
+                }
 
                 console.log('支付结果查询：', queryRes);
 
@@ -555,9 +750,11 @@ export default {
          * 选择快捷金额
          * @param {Number} amount 金额
          */
-        selectAmount(amount) {
+        async selectAmount(amount) {
             if (!this.isPaymentProcessing) {
                 this.rechargeAmount = String(amount);
+                // 请求该金额对应的奖励说明
+                await this.loadRechargeAwardExplain(amount);
             }
         },
 
@@ -575,9 +772,37 @@ export default {
          * @param {String|Number} value 输入的值
          */
         onAmountChange(value) {
-            // 可以转成数字
-            this.rechargeAmount = Number(value);
-            // this.rechargeAmount = value;
+            // 将值转为字符串处理
+            let inputValue = String(value || '');
+            
+            // 限制最多两位小数
+            if (inputValue) {
+                // 如果包含小数点，检查小数位数
+                if (inputValue.includes('.')) {
+                    const parts = inputValue.split('.');
+                    // 如果小数点后超过两位，截取前两位
+                    if (parts[1] && parts[1].length > 2) {
+                        inputValue = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                }
+            }
+            
+            // 更新 rechargeAmount，确保输入框显示的是限制后的值
+            this.rechargeAmount = inputValue;
+            
+            // 清除之前的定时器
+            if (this.amountInputTimer) {
+                clearTimeout(this.amountInputTimer);
+            }
+            
+            // 防抖：用户停止输入500ms后，如果是整数金额，则加载奖励说明
+            this.amountInputTimer = setTimeout(() => {
+                const amount = Number(inputValue);
+                // 如果是整数且大于0，加载对应的奖励说明
+                if (amount > 0 && amount % 1 === 0) {
+                    this.loadRechargeAwardExplain(amount);
+                }
+            }, 500);
         },
 
         /**
@@ -604,6 +829,76 @@ export default {
         },
 
         /**
+         * 加载充值优惠金额列表
+         */
+        async loadRechargeDiscounts() {
+            try {
+                const response = await getRechargeDiscounts(100000);
+                if (response.code === 0 && response.data && Array.isArray(response.data)) {
+                    // 将返回的金额数组（单位：分）转换为元，并更新 quickAmounts 的 special 属性
+                    const discountAmounts = response.data.map(amount => amount / 100); // 将分转换为元
+                    
+                    // 更新 quickAmounts，如果金额在优惠列表中，则设置 special 为 true
+                    this.quickAmounts = this.quickAmounts.map(item => {
+                        return {
+                            ...item,
+                            special: discountAmounts.includes(item.value)
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('加载充值优惠金额列表失败：', error);
+            }
+        },
+
+        /**
+         * 加载充值奖励说明
+         * @param {Number} amount 金额（单位：元）
+         */
+        async loadRechargeAwardExplain(amount) {
+            // 防止重复请求
+            if (this.loadingAmount === amount) {
+                return;
+            }
+
+            // 如果已经加载过该金额的奖励说明，直接返回
+            if (this.rewardMapping[amount]) {
+                return;
+            }
+
+            try {
+                this.loadingAmount = amount;
+                const price = amount * 100; // 转换为分
+                const response = await getRechargeAwardExplain(price);
+                
+                if (response.code === 0 && response.data && Array.isArray(response.data)) {
+                    const [title, descriptionHtml, stationArray] = response.data;
+                    console.log('descriptionHtml', descriptionHtml);
+                    console.log('stationArray', stationArray);
+                    
+                    // 提取站点名称列表
+                    const stationList = Array.isArray(stationArray) 
+                        ? stationArray.map(item => item.name || item).filter(Boolean)
+                        : [];
+                    
+                    // 更新 rewardMapping - 使用展开运算符创建新对象，确保响应式更新
+                    this.rewardMapping = {
+                        ...this.rewardMapping,
+                        [amount]: {
+                            title: title || '充值奖励',
+                            description: descriptionHtml || '',
+                            stationList: stationList
+                        }
+                    };
+                }
+            } catch (error) {
+                console.error('加载充值奖励说明失败：', error);
+            } finally {
+                this.loadingAmount = null;
+            }
+        },
+
+        /**
          * 显示优惠详情弹窗
          */
         showPromoDetail() {
@@ -622,12 +917,42 @@ export default {
          */
         toggleStationList() {
             this.showStationList = !this.showStationList;
+        },
+
+        /**
+         * 返回上一页
+         */
+        goBack() {
+            uni.navigateBack();
+        },
+
+        /**
+         * 跳转到充值记录页面
+         */
+        goToRecords() {
+            uni.navigateTo({
+                url: '/pages/account/records'
+            });
+        },
+
+        /**
+         * 切换支付方式（如果需要UI选择）
+         */
+        switchPayType(type) {
+            this.payType = type;
+            console.log('切换支付方式：', type);
         }
     }
 }
 </script>
 
 <style scoped>
+.amount-input-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16rpx;
+}
 .recharge-container {
     background-color: #f6f7f8;
     min-height: 100vh;
@@ -751,7 +1076,6 @@ export default {
     font-size: 32rpx;
     font-weight: 500;
     color: #334155;
-    margin-bottom: 16rpx;
     display: block;
 }
 

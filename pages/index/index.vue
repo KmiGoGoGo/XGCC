@@ -2,7 +2,6 @@
 	<view class="page-container">
 		<!-- 自定义导航栏 -->
 		<uv-navbar 
-			title="超易充电" 
 			:fixed="true"
 			:safeAreaInsetTop="true"
 			:placeholder="true"
@@ -26,11 +25,11 @@
 						placeholder="请输入站点名称" 
 						disabled 
 						bgColor="#FFFFFF"
+						custom-style="width: 330rpx;"
 						@click="goToSearch" 
 						:boxStyle="{
 							borderRadius: '40rpx',
-							height: '50rpx',
-							width: '20%',
+							height: '50rpx'
 						}"
 					></uv-search>
 				</view>

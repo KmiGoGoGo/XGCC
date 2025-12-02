@@ -1,7 +1,7 @@
 <template>
   <view class="invoice-detail-container">
     <!-- 状态头部 -->
-    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="发票详情" autoBack placeholder safeAreaInsetTop></uv-navbar>
     <view class="status-header">
       <view class="status-info">
         <uv-icon name="clock" color="#409eff" size="32rpx"></uv-icon>
@@ -69,6 +69,16 @@
         <text class="action-text">查看</text>
         <uv-icon name="arrow-right" color="#999" size="24rpx"></uv-icon>
       </view>
+    </view>
+    
+    <!-- 复制发票PDF下载链接按钮 -->
+    <view 
+      v-if="detailData.invoiceStatus === 'INVOICE_FINISH' && detailData.invoiceUrl" 
+      class="copy-link-section"
+      @click="copyInvoiceUrl"
+    >
+      <uv-icon name="file-text" color="#409eff" size="32rpx"></uv-icon>
+      <text class="copy-link-text">复制发票PDF下载链接</text>
     </view>
     
     <!-- 加载状态 -->
@@ -216,6 +226,34 @@ export default {
     // 关闭订单弹窗
     closeOrderModal() {
       this.showOrderModal = false
+    },
+    
+    // 复制发票PDF下载链接
+    copyInvoiceUrl() {
+      if (!this.detailData.invoiceUrl) {
+        uni.showToast({
+          title: '发票链接不存在',
+          icon: 'none'
+        })
+        return
+      }
+      
+      uni.setClipboardData({
+        data: this.detailData.invoiceUrl,
+        success: () => {
+          uni.showToast({
+            title: '链接已复制到剪切板',
+            icon: 'success'
+          })
+        },
+        fail: (err) => {
+          console.error('复制失败:', err)
+          uni.showToast({
+            title: '复制失败，请重试',
+            icon: 'none'
+          })
+        }
+      })
     }
   }
 }
@@ -327,6 +365,30 @@ export default {
       font-size: 28rpx;
       color: #999;
     }
+  }
+}
+
+.copy-link-section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  
+  &:active {
+    background-color: #f5f5f5;
+  }
+  
+  .copy-link-text {
+    font-size: 28rpx;
+    color: #409eff;
+    font-weight: 500;
   }
 }
 

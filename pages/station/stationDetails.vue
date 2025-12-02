@@ -1,6 +1,14 @@
 <template>
   <view class="page-container">
-    <uv-navbar bgColor="transparent" @leftClick="() => uni.navigateBack()" leftIconColor="#ffffff"></uv-navbar>
+    <uv-navbar bgColor="transparent" @leftClick="() => uni.navigateBack()" leftIconColor="#ffffff">
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <view class="icon-wrapper">
+            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
+          </view>
+        </view>
+      </template>
+    </uv-navbar>
     <view style="width:100%; z-index: 1;">
       <uv-swiper v-if="stationImages.length > 0" :list="stationImages" height="350rpx" radius="0rpx"></uv-swiper>
       <view v-else class="no-image-placeholder">
@@ -182,7 +190,7 @@ import { getStationDetailByIdNotAuth, getStationDetailByIdNew } from '@/api/stat
 import PriceInfo from '@/components/station/PriceInfo.vue';
 import globalData from '../../globalData.js';
 import StatusTag from '@/components/common/StatusTag.vue';
-
+import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
 export default {
   components: {
     PriceInfo,
@@ -582,6 +590,10 @@ export default {
         name: name,
         address: street
       });
+    },
+    // 联系客服
+    contactCustomerService() {
+      contactCustomerServiceFn();
     }
   }
 };
@@ -595,6 +607,17 @@ export default {
   flex-direction: column;
   /* width: 100%; */
   /* margin-top: 270rpx; */
+}
+
+.icon-wrapper {
+  width: 55rpx;
+  height: 55rpx;
+  border-radius: 50%;
+  background-color: #FEFFFF;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .station-distance-info-content {

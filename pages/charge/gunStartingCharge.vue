@@ -826,10 +826,6 @@ export default {
         }, 1000);
         uni.showToast({ title: error.message || '启动充电失败', icon: 'none' });
         
-        // 发生错误时取消订单
-        if (this.disposableOrderInfo.orderNo) {
-          this.cancelDisposableOrder('启动流程异常');
-        }
       } finally {
         this.disposableOrderInfo.isProcessing = false;
         // 无论成功还是失败，都要重置启动中状态
@@ -947,6 +943,7 @@ export default {
           if (queryRes.code === 204) {
             this.clearPaymentPolling();
             uni.showToast({ title: '支付确认超时，金额已退回', icon: 'none' });
+            console.log('支付确认超时，金额已退回', queryRes);
           }
           if (queryRes.code === 0) {
             // 支付成功，清除轮询并启动充电
@@ -966,7 +963,7 @@ export default {
           if (error.code === 204) {
             uni.showToast({ title: '支付确认超时，金额已退回', icon: 'none' });
           }
-          if (this.disposableOrderInfo.pollCount >= maxPollCount || error.code === 204) {
+          if (this.disposableOrderInfo.pollCount >= maxPollCount) {
             this.clearPaymentPolling();
             this.cancelDisposableOrder('查询支付结果异常');
           }

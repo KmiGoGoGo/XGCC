@@ -265,6 +265,20 @@ export function alipayLeaguerUnifiedOrders(data) {
 }
 
 /**
+ * @description 车队子成员会员统一下单
+ * @param {object} data - 请求体
+ * @param {string} data.orderNo - 订单号
+ * @param {number} data.amount - 支付金额
+ * @param {string} data.subject - 订单标题
+ * @param {string} [data.body] - 订单描述
+ * @returns {Promise<object>} 返回会员统一下单结果
+ */
+
+export function wechatLeaguerUnifiedOrders(data) {
+    return http.post('/api-service/api/leaguerUnifiedOrders', data);
+}
+
+/**
  * =====================================
  * 微信占位订单支付相关API
  * =====================================
