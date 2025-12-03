@@ -4,9 +4,10 @@
     <uv-navbar :border="false" title="发票详情" autoBack placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="invoice_detail_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
@@ -17,57 +18,57 @@
       </view>
       <text class="status-time">{{ formatTime(detailData.applicationTime) }}</text>
     </view>
-    
+
     <!-- 发票详情 -->
     <view class="detail-section">
       <view class="section-title">发票详情</view>
-      
+
       <view class="detail-row">
         <text class="label">发票类型</text>
         <text class="value">{{ detailData.invoiceTypeName || '增值税电子专用发票' }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">发票抬头</text>
         <text class="value">{{ detailData.invoiceRise || '-' }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">税号</text>
         <text class="value">{{ detailData.dutyParagraph || '-' }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">发票内容</text>
         <text class="value">{{ getInvoiceContent() }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">发票金额</text>
         <text class="value amount">¥{{ (detailData.totalBalance / 100).toFixed(2) }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">申请时间</text>
         <text class="value">{{ formatTime(detailData.applicationTime) }}</text>
       </view>
-      
+
       <view class="detail-row">
         <text class="label">运营单位</text>
         <text class="value">{{ detailData.unitName || '-' }}</text>
       </view>
     </view>
-    
+
     <!-- 收件方式 -->
     <view class="detail-section">
       <view class="section-title">收件方式</view>
-      
+
       <view class="detail-row">
         <text class="label">{{ detailData.acceptInvoiceType == 1 ? '邮箱' : '手机号' }}</text>
         <text class="value">{{ detailData.acceptInvoiceType == 1 ? detailData.email : detailData.phone }}</text>
       </view>
     </view>
-    
+
     <!-- 订单汇总 -->
     <view class="summary-section" @click="viewOrderDetails">
       <view class="summary-info">
@@ -78,40 +79,42 @@
         <uv-icon name="arrow-right" color="#999" size="24rpx"></uv-icon>
       </view>
     </view>
-    
+
     <!-- 复制发票PDF下载链接按钮 -->
-    <view 
-      v-if="detailData.invoiceStatus === 'INVOICE_FINISH' && detailData.invoiceUrl" 
-      class="copy-link-section"
-      @click="copyInvoiceUrl"
+    <view
+        v-if="detailData.invoiceStatus === 'INVOICE_FINISH' && detailData.invoiceUrl"
+        class="copy-link-section"
+        @click="copyInvoiceUrl"
     >
       <uv-icon name="file-text" color="#409eff" size="32rpx"></uv-icon>
       <text class="copy-link-text">复制发票PDF下载链接</text>
     </view>
-    
+
     <!-- 加载状态 -->
     <view v-if="loading" class="loading-container">
       <uv-loading-icon text="加载中..." textSize="28rpx"></uv-loading-icon>
     </view>
-    
+
     <!-- 订单列表弹窗 -->
-    <OrderListModal 
-      :visible="showOrderModal" 
-      :billIds="detailData.billList || []"
-      @close="closeOrderModal"
+    <OrderListModal
+        :visible="showOrderModal"
+        :billIds="detailData.billList || []"
+        @close="closeOrderModal"
     />
   </view>
 </template>
 
 <script>
-import { queryInvoiceDetailById } from '@/api/invoice.js'
+import {queryInvoiceDetailById} from '@/api/invoice.js'
 import OrderListModal from '@/components/invoice/OrderListModal.vue'
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
   name: 'InvoiceDetail',
   components: {
-    OrderListModal
+    OrderListModal,
+    CustomerServiceButton
   },
   data() {
     return {
@@ -121,24 +124,24 @@ export default {
       showOrderModal: false
     }
   },
-  
+
   onLoad(options) {
     if (options.id) {
       this.invoiceId = options.id
       this.loadInvoiceDetail()
     }
   },
-  
+
   methods: {
     // 加载发票详情
     async loadInvoiceDetail() {
       if (!this.invoiceId) return
-      
+
       this.loading = true
       try {
         const response = await queryInvoiceDetailById(this.invoiceId)
         console.log('发票详情:', response)
-        
+
         if (response.code === 0) {
           this.detailData = response.data
         } else {
@@ -157,7 +160,7 @@ export default {
         this.loading = false
       }
     },
-    
+
     // 获取状态文本
     getStatusText(status) {
       const statusMap = {
@@ -191,35 +194,35 @@ export default {
       }
       return statusMap[status] || '未知状态'
     },
-    
+
     // 获取发票内容
     getInvoiceContent() {
       if (this.detailData.invoiceItemEnum) {
         return this.detailData.invoiceItemEnum.replace('&', '&')
       }
-      
+
       const items = []
       if (this.detailData.invoiceItem1) items.push(this.detailData.invoiceItem1)
       if (this.detailData.invoiceItem2) items.push(this.detailData.invoiceItem2)
       if (this.detailData.invoiceItem3) items.push(this.detailData.invoiceItem3)
-      
+
       return items.length > 0 ? items.join('&') : '充电费用&充电服务费'
     },
-    
+
     // 获取订单汇总文本
     getOrderSummaryText() {
       const billTotal = this.detailData.billTotal || 0
       const chargingNum = this.detailData.chargingNum || 0
       return `1张发票，含${chargingNum}个充电订单`
     },
-    
+
     // 格式化时间
     formatTime(timeStr) {
       if (!timeStr) return ''
       const date = new Date(timeStr)
       return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`
     },
-    
+
     // 查看订单详情
     viewOrderDetails() {
       if (this.detailData.billList && this.detailData.billList.length > 0) {
@@ -231,12 +234,12 @@ export default {
         })
       }
     },
-    
+
     // 关闭订单弹窗
     closeOrderModal() {
       this.showOrderModal = false
     },
-    
+
     // 复制发票PDF下载链接
     copyInvoiceUrl() {
       if (!this.detailData.invoiceUrl) {
@@ -246,7 +249,7 @@ export default {
         })
         return
       }
-      
+
       uni.setClipboardData({
         data: this.detailData.invoiceUrl,
         success: () => {
@@ -287,19 +290,19 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  
+
   .status-info {
     display: flex;
     align-items: center;
     gap: 12rpx;
-    
+
     .status-text {
       font-size: 32rpx;
       font-weight: 600;
       color: #333;
     }
   }
-  
+
   .status-time {
     font-size: 28rpx;
     color: #666;
@@ -311,7 +314,7 @@ export default {
   border-radius: 16rpx;
   margin-bottom: 20rpx;
   overflow: hidden;
-  
+
   .section-title {
     background: #f8f9fa;
     padding: 24rpx 30rpx;
@@ -320,28 +323,28 @@ export default {
     color: #333;
     border-bottom: 1rpx solid #eee;
   }
-  
+
   .detail-row {
     display: flex;
     align-items: center;
     padding: 24rpx 30rpx;
     border-bottom: 1rpx solid #f0f0f0;
-    
+
     &:last-child {
       border-bottom: none;
     }
-    
+
     .label {
       color: #666;
       font-size: 28rpx;
       min-width: 140rpx;
     }
-    
+
     .value {
       color: #333;
       font-size: 28rpx;
       flex: 1;
-      
+
       &.amount {
         color: #ff6b35;
         font-weight: 600;
@@ -359,21 +362,21 @@ export default {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  
+
   .summary-info {
     flex: 1;
-    
+
     .summary-text {
       font-size: 28rpx;
       color: #333;
     }
   }
-  
+
   .summary-action {
     display: flex;
     align-items: center;
     gap: 8rpx;
-    
+
     .action-text {
       font-size: 28rpx;
       color: #999;
@@ -393,11 +396,11 @@ export default {
   gap: 12rpx;
   cursor: pointer;
   transition: background-color 0.3s;
-  
+
   &:active {
     background-color: #f5f5f5;
   }
-  
+
   .copy-link-text {
     font-size: 28rpx;
     color: #409eff;

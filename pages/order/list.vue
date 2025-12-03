@@ -3,13 +3,14 @@
     <uv-navbar :border="false" title="我的订单" autoBack placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="order_list_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
-    
+
     <!-- 搜索栏 -->
     <!-- <view class="search-section">
       <view class="search-container">
@@ -17,7 +18,7 @@
           <view class="search-icon">
             <text class="icon-search">🔍</text>
           </view>
-          <uv-input 
+          <uv-input
             v-model="searchKeyword"
             shape="round"
             placeholder="输入站点名称/桩号搜索"
@@ -30,14 +31,14 @@
         </view>
       </view>
     </view> -->
-    
+
     <!-- 筛选弹窗 -->
-    <uv-popup 
-      ref="filterPopup"
-      mode="bottom" 
-      :round="20"
-      :customStyle="{ height: '60%', padding: '20rpx' }"
-      @change="onFilterPopupChange"
+    <uv-popup
+        ref="filterPopup"
+        mode="bottom"
+        :round="20"
+        :customStyle="{ height: '60%', padding: '20rpx' }"
+        @change="onFilterPopupChange"
     >
       <view class="filter-popup">
         <view class="filter-header">
@@ -47,17 +48,17 @@
             <text class="confirm-btn" @click="confirmFilter">确定</text>
           </view>
         </view>
-        
-        <FilterOptions 
-          :data="startTimeOptions"
-          :defaultValue="filterParams.startTimeKey"
-          @change="onStartTimeChange"
+
+        <FilterOptions
+            :data="startTimeOptions"
+            :defaultValue="filterParams.startTimeKey"
+            @change="onStartTimeChange"
         />
-        
-        <FilterOptions 
-          :data="endTimeOptions"
-          :defaultValue="filterParams.endTimeKey"
-          @change="onEndTimeChange"
+
+        <FilterOptions
+            :data="endTimeOptions"
+            :defaultValue="filterParams.endTimeKey"
+            @change="onEndTimeChange"
         />
       </view>
     </uv-popup>
@@ -66,11 +67,11 @@
     <view class="status-tabs-container">
       <view class="status-tabs">
         <view
-          class="tab-item"
-          :class="{ active: activeTab === tab.key }"
-          v-for="tab in tabs"
-          :key="tab.key"
-          @click="changeTab(tab.key)"
+            class="tab-item"
+            :class="{ active: activeTab === tab.key }"
+            v-for="tab in tabs"
+            :key="tab.key"
+            @click="changeTab(tab.key)"
         >
           <text class="tab-text">{{ tab.name }}</text>
         </view>
@@ -95,12 +96,12 @@
                 {{ order.billTypeStr }}
               </text>
             </view>
-            
+
             <view class="card-body">
               <text class="info-line">时间 {{ formatTimeRange(order.timeS, order.timeE) }}</text>
               <text class="info-line">订单编号 {{ order.busShowNo }}</text>
             </view>
-            
+
             <view class="card-footer">
               <text class="amount" :class="getAmountClass(order.billStatus)">
                 ¥ {{ formatAmount(order.actualBalance) }}
@@ -112,18 +113,18 @@
                     <text class="btn-text">评价</text>
                   </view>
                   <!-- 待结算时只显示再次充电按钮 -->
-                  <view 
-                    v-if="isSettling(order.billStatus)" 
-                    class="action-btn btn-primary"
-                    @click.stop="recharge"
+                  <view
+                      v-if="isSettling(order.billStatus)"
+                      class="action-btn btn-primary"
+                      @click.stop="recharge"
                   >
                     <text class="btn-text">再次充电</text>
                   </view>
                   <!-- 待支付时显示立即支付按钮 -->
-                  <view 
-                    v-if="isUnpaid(order.billStatus)" 
-                    class="action-btn btn-primary"
-                    @click.stop="goToPay(order.id, order.busId)"
+                  <view
+                      v-if="isUnpaid(order.billStatus)"
+                      class="action-btn btn-primary"
+                      @click.stop="goToPay(order.id, order.busId)"
                   >
                     <text class="btn-text">立即支付</text>
                   </view>
@@ -133,7 +134,7 @@
           </view>
         </view>
       </template>
-      
+
       <!-- 空状态 -->
       <view v-else class="empty-state">
         <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
@@ -144,20 +145,23 @@
 </template>
 
 <script>
-import { getMyOccupyBillPage, myBillPage } from '@/api/bill.js';
+import {getMyOccupyBillPage, myBillPage} from '@/api/bill.js';
 import FilterOptions from '@/components/FilterOptions/FilterOptions.vue';
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+
 export default {
   components: {
-    FilterOptions
+    FilterOptions,
+    CustomerServiceButton
   },
   data() {
     return {
       tabs: [
-        { name: '全部订单', key: 'all', statuses: null },
-        { name: '充电中', key: 'charging', statuses: [4] },
-        { name: '待结算', key: 'settling', statuses: [5, 6, 7, 8, 9] },
-        { name: '待支付', key: 'unpaid', statuses: [11, 12, 13] },
+        {name: '全部订单', key: 'all', statuses: null},
+        {name: '充电中', key: 'charging', statuses: [4]},
+        {name: '待结算', key: 'settling', statuses: [5, 6, 7, 8, 9]},
+        {name: '待支付', key: 'unpaid', statuses: [11, 12, 13]},
       ],
       activeTab: 'all',
       occupyCount: 0,
@@ -188,22 +192,22 @@ export default {
       startTimeOptions: {
         name: '开始时间',
         list: [
-          { value: '今天', key: 'today' },
-          { value: '昨天', key: 'yesterday' },
-          { value: '近7天', key: 'last7days' },
-          { value: '近30天', key: 'last30days' },
-          { value: '自定义', key: 'custom' }
+          {value: '今天', key: 'today'},
+          {value: '昨天', key: 'yesterday'},
+          {value: '近7天', key: 'last7days'},
+          {value: '近30天', key: 'last30days'},
+          {value: '自定义', key: 'custom'}
         ]
       },
       // 结束时间选项
       endTimeOptions: {
         name: '结束时间',
         list: [
-          { value: '今天', key: 'today' },
-          { value: '昨天', key: 'yesterday' },
-          { value: '近7天', key: 'last7days' },
-          { value: '近30天', key: 'last30days' },
-          { value: '自定义', key: 'custom' }
+          {value: '今天', key: 'today'},
+          {value: '昨天', key: 'yesterday'},
+          {value: '近7天', key: 'last7days'},
+          {value: '近30天', key: 'last30days'},
+          {value: '自定义', key: 'custom'}
         ]
       }
     };
@@ -226,7 +230,7 @@ export default {
      * @description 加载页面数据
      */
     async loadData() {
-      uni.showLoading({ title: '加载中...' });
+      uni.showLoading({title: '加载中...'});
       try {
         const activeStatuses = this.tabs.find(t => t.key === this.activeTab)?.statuses;
 
@@ -236,7 +240,7 @@ export default {
           memberType = tokenMemberType;
         }
         const [occupyRes, billRes] = await Promise.all([
-          getMyOccupyBillPage({ current: 1, pageSize: 10 }),
+          getMyOccupyBillPage({current: 1, pageSize: 10}),
           myBillPage({
             current: this.pagination.current,
             size: this.pagination.size,
@@ -253,7 +257,7 @@ export default {
         if (occupyRes.code === 0) {
           this.occupyCount = occupyRes.data.total;
         }
-		
+
         console.log(billRes);
         if (billRes.code === 0) {
           this.orderList = [...this.orderList, ...billRes.data.records];
@@ -262,7 +266,7 @@ export default {
 
       } catch (error) {
         console.error('加载订单数据失败:', error);
-        uni.showToast({ title: '数据加载失败', icon: 'none' });
+        uni.showToast({title: '数据加载失败', icon: 'none'});
       } finally {
         uni.hideLoading();
       }
@@ -305,7 +309,7 @@ export default {
      * @description 跳转到订单详情页面
      */
     goToDetails(order) {
-      const { id, billStatus, busId, gunId, isCharging, gunNumber, pileNum, pileId } = order;
+      const {id, billStatus, busId, gunId, isCharging, gunNumber, pileNum, pileId} = order;
       console.log('order', order);
       if (billStatus === 4 || isCharging) {
         uni.navigateTo({
@@ -344,7 +348,7 @@ export default {
      */
     goToPay(billId, busId) {
       if (!billId || !busId) {
-        uni.showToast({ title: '订单信息不完整', icon: 'none' });
+        uni.showToast({title: '订单信息不完整', icon: 'none'});
         return;
       }
       uni.navigateTo({
@@ -412,17 +416,17 @@ export default {
     convertTimeKeyToDate(key, isEndTime = false) {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       switch (key) {
         case 'today':
-          return isEndTime ? 
-            new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString() :
-            today.toISOString();
+          return isEndTime ?
+              new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString() :
+              today.toISOString();
         case 'yesterday':
           const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
           return isEndTime ?
-            new Date(yesterday.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString() :
-            yesterday.toISOString();
+              new Date(yesterday.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString() :
+              yesterday.toISOString();
         case 'last7days':
           const last7days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
           return isEndTime ? now.toISOString() : last7days.toISOString();

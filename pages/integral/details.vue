@@ -3,9 +3,10 @@
     <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="integral_details_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
@@ -13,11 +14,11 @@
     <view class="filter-section">
       <view class="tabs">
         <view
-          class="tab-item"
-          :class="{ active: activeTab === tab.type }"
-          v-for="tab in tabs"
-          :key="tab.type"
-          @click="changeTab(tab.type)"
+            class="tab-item"
+            :class="{ active: activeTab === tab.type }"
+            v-for="tab in tabs"
+            :key="tab.type"
+            @click="changeTab(tab.type)"
         >
           {{ tab.name }}
         </view>
@@ -51,15 +52,20 @@
 </template>
 
 <script>
-import { getIntegralDetail, getIntegralSum } from '@/api/integral.js';
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
+import {getIntegralDetail, getIntegralSum} from '@/api/integral.js';
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+
 export default {
+  components: {
+    CustomerServiceButton
+  },
   data() {
     return {
       tabs: [
-        { name: '全部', type: null },
-        { name: '增加', type: 1 },
-        { name: '扣减', type: 2 },
+        {name: '全部', type: null},
+        {name: '增加', type: 1},
+        {name: '扣减', type: 2},
       ],
       activeTab: null, // null-全部, 1-增加, 2-扣减
       detailsList: [],
@@ -98,7 +104,7 @@ export default {
      * @description 加载所有数据
      */
     async loadData() {
-      uni.showLoading({ title: '加载中...' });
+      uni.showLoading({title: '加载中...'});
       try {
         const params = {
           current: this.pagination.current,
@@ -111,7 +117,7 @@ export default {
         // 并行获取明细和总计
         const [detailsRes, sumRes] = await Promise.all([
           getIntegralDetail(params),
-          getIntegralSum({ startTime: params.startTime, endTime: params.endTime })
+          getIntegralSum({startTime: params.startTime, endTime: params.endTime})
         ]);
 
         if (detailsRes.code === 0) {
@@ -125,7 +131,7 @@ export default {
 
       } catch (error) {
         console.error('加载积分明细数据失败:', error);
-        uni.showToast({ title: '数据加载失败', icon: 'none' });
+        uni.showToast({title: '数据加载失败', icon: 'none'});
       } finally {
         uni.hideLoading();
       }
@@ -169,10 +175,12 @@ export default {
   background-color: white;
   border-radius: 16rpx;
 }
+
 .tabs {
   display: flex;
   gap: 16rpx;
 }
+
 .tab-item {
   padding: 12rpx 24rpx;
   border-radius: 30rpx;
@@ -181,11 +189,13 @@ export default {
   color: #333;
   border: 1rpx solid #eee;
 }
+
 .tab-item.active {
   background-color: #00c777;
   color: white;
   border-color: #00c777;
 }
+
 .time-selector {
   font-size: 28rpx;
   color: #333;
@@ -197,10 +207,12 @@ export default {
   gap: 32rpx;
   padding: 24rpx 16rpx;
 }
+
 .summary-item {
   font-size: 28rpx;
   color: #666;
 }
+
 .summary-item.increase {
   color: #00c777;
 }
@@ -210,6 +222,7 @@ export default {
   background-color: white;
   border-radius: 16rpx;
 }
+
 .list-item {
   display: flex;
   justify-content: space-between;
@@ -217,36 +230,45 @@ export default {
   padding: 32rpx;
   border-bottom: 1rpx solid #f5f5f5;
 }
+
 .list-item:last-child {
   border-bottom: none;
 }
+
 .item-left, .item-right {
   display: flex;
   flex-direction: column;
 }
+
 .item-left {
   align-items: flex-start;
 }
+
 .item-right {
   align-items: flex-end;
 }
+
 .item-source {
   font-size: 30rpx;
   font-weight: bold;
   color: #333;
 }
+
 .item-date {
   font-size: 24rpx;
   color: #999;
   margin-top: 8rpx;
 }
+
 .item-change {
   font-size: 32rpx;
   font-weight: bold;
 }
+
 .item-change.increase {
   color: #00c777;
 }
+
 .item-change.decrease {
   color: #ff4d4f;
 }

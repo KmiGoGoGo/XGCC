@@ -3,13 +3,14 @@
     <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="integral_index_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
-    
+
     <!-- 当前积分卡片 -->
     <view class="integral-card">
       <text class="card-title">当前总积分</text>
@@ -20,15 +21,15 @@
 
     <!-- 筛选标签页 -->
     <view class="filter-tabs">
-      <uv-subsection 
-        :list="filterTabs" 
-        :current="activeTab" 
-        @change="switchTab"
-        activeColor="#13a4ec"
-        inactiveColor="#6b7280"
-        bgColor="#f3f4f6"
-        customStyle="height: 80rpx;border-radius: 16rpx;"
-        customItemStyle="border-radius: 12rpx;"
+      <uv-subsection
+          :list="filterTabs"
+          :current="activeTab"
+          @change="switchTab"
+          activeColor="#13a4ec"
+          inactiveColor="#6b7280"
+          bgColor="#f3f4f6"
+          customStyle="height: 80rpx;border-radius: 16rpx;"
+          customItemStyle="border-radius: 12rpx;"
       ></uv-subsection>
     </view>
 
@@ -40,38 +41,40 @@
       </view>
       <view class="summary-right">
         <text class="summary-item">
-          增加: <text class="increase-amount">+{{ formatSumValue(sumData?.positive) }}</text>
+          增加:
+          <text class="increase-amount">+{{ formatSumValue(sumData?.positive) }}</text>
         </text>
         <text class="summary-item">
-          扣减: <text class="decrease-amount">{{ formatSumValue(sumData?.negative) }}</text>
+          扣减:
+          <text class="decrease-amount">{{ formatSumValue(sumData?.negative) }}</text>
         </text>
       </view>
     </view>
 
     <!-- 日历组件 -->
-    <uv-calendar 
-      v-model="showCalendar"
-      mode="range"
-      ref="calendar"
-      :minDate="getMinDate()"
-      monthNum="13"
-      :maxDate="getMaxDate()"
-      :startDate="getStartDate()"
-      :endDate="getEndDate()"
-      @confirm="onDateRangeChange"
-      :showConfirm="true"
-      :confirmClosePopup="true"
+    <uv-calendar
+        v-model="showCalendar"
+        mode="range"
+        ref="calendar"
+        :minDate="getMinDate()"
+        monthNum="13"
+        :maxDate="getMaxDate()"
+        :startDate="getStartDate()"
+        :endDate="getEndDate()"
+        @confirm="onDateRangeChange"
+        :showConfirm="true"
+        :confirmClosePopup="true"
     ></uv-calendar>
 
     <!-- 积分明细 -->
     <view class="details-section">
-      <scroll-view 
-        class="scroll-container"
-        scroll-y
-        @scrolltolower="loadMore"
-        :refresher-triggered="refreshing"
-        @refresherrefresh="onRefresh"
-        :lower-threshold="50"
+      <scroll-view
+          class="scroll-container"
+          scroll-y
+          @scrolltolower="loadMore"
+          :refresher-triggered="refreshing"
+          @refresherrefresh="onRefresh"
+          :lower-threshold="50"
       >
         <view class="details-list">
           <view v-for="item in integralDetails" :key="item.id" class="detail-item">
@@ -80,21 +83,21 @@
               <text class="date-time">{{ item.createTime }}</text>
             </view>
             <view class="item-right">
-              <text 
-                class="change-amount"
-                :class="{ 'positive': isPositive(item.integralChange), 'negative': !isPositive(item.integralChange) }"
+              <text
+                  class="change-amount"
+                  :class="{ 'positive': isPositive(item.integralChange), 'negative': !isPositive(item.integralChange) }"
               >
                 {{ formatToDecimal(item.integralChange) }}
               </text>
             </view>
           </view>
         </view>
-        
+
         <!-- 空状态 -->
         <view v-if="!loading && integralDetails.length === 0" class="empty-tip">
           <text>暂无积分记录</text>
         </view>
-        
+
         <!-- 加载更多提示 -->
         <view v-if="loading" class="loading-tip">
           <text>加载中...</text>
@@ -108,10 +111,14 @@
 </template>
 
 <script>
-import { getIntegral, getMemberGradeRule, getIntegralDetail, getIntegralSum } from '@/api/integral.js';
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
+import {getIntegral, getMemberGradeRule, getIntegralDetail, getIntegralSum} from '@/api/integral.js';
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
+  components: {
+    CustomerServiceButton
+  },
   data() {
     return {
       integralInfo: null,
@@ -171,15 +178,15 @@ export default {
         } catch (error) {
           console.error('加载积分数据失败:', error);
         }
-        
+
         const [gradeRuleRes, sumRes, detailsRes] = await Promise.all([
           getMemberGradeRule(),
           getIntegralSum({
             startTime: actualStartTime,
             endTime: actualEndTime
           }),
-          getIntegralDetail({ 
-            current: 1, 
+          getIntegralDetail({
+            current: 1,
             size: this.pageSize,
             startTime: actualStartTime,
             endTime: actualEndTime,
@@ -187,7 +194,7 @@ export default {
           })
         ]);
 
-        
+
         if (gradeRuleRes.code === 0) {
           this.gradeRule = gradeRuleRes.data;
         }
@@ -202,10 +209,10 @@ export default {
       } catch (error) {
         console.error('加载积分数据失败:', error);
         if (error.code === 2) {
-          uni.showToast({ title: '请先登录', icon: 'none' });
+          uni.showToast({title: '请先登录', icon: 'none'});
           return;
         } else {
-          uni.showToast({ title: '网络错误', icon: 'none' });
+          uni.showToast({title: '网络错误', icon: 'none'});
           return;
         }
       } finally {
@@ -263,13 +270,13 @@ export default {
      */
     async loadIntegralDetails() {
       if (this.loading) return;
-      
+
       this.loading = true;
       try {
         // 获取实际的日期范围，如果为空则使用默认值
         const actualStartTime = this.startTime
         const actualEndTime = this.endTime
-        
+
         const res = await getIntegralDetail({
           current: this.currentPage,
           size: this.pageSize,
@@ -277,7 +284,7 @@ export default {
           endTime: actualEndTime,
           type: this.getTypeByTab(this.activeTab)
         });
-        
+
         if (res.code === 0) {
           const newRecords = res.data.records;
           if (this.currentPage === 1) {
@@ -290,10 +297,10 @@ export default {
       } catch (error) {
         console.error('加载积分明细失败:', error);
         if (error.code === 2) {
-          uni.showToast({ title: '请先登录', icon: 'none' });
+          uni.showToast({title: '请先登录', icon: 'none'});
           return;
         } else {
-          uni.showToast({ title: '网络错误', icon: 'none' });
+          uni.showToast({title: '网络错误', icon: 'none'});
           return;
         }
       } finally {
@@ -310,12 +317,12 @@ export default {
         currentPage: this.currentPage,
         detailsLength: this.integralDetails.length
       });
-      
+
       if (!this.hasMore || this.loading) {
-        console.log('loadMore blocked:', { hasMore: this.hasMore, loading: this.loading });
+        console.log('loadMore blocked:', {hasMore: this.hasMore, loading: this.loading});
         return;
       }
-      
+
       this.currentPage++;
       this.loadIntegralDetails();
     },
@@ -348,7 +355,7 @@ export default {
       const endDate = this.getEndDate();
       const startMonth = startDate.substring(0, 7);
       const endMonth = endDate.substring(0, 7);
-      
+
       if (startMonth === endMonth) {
         return startMonth;
       } else {

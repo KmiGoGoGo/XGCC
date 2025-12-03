@@ -3,13 +3,14 @@
     <uv-navbar :border="false" title="发票管理" autoBack placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="invoice_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
-    
+
     <!-- 温馨提示区域 -->
     <view class="tip-container">
       <view class="tip-card">
@@ -20,34 +21,34 @@
         <text class="tip-content">若遇发票开具失败（自动开票系统繁忙）等情况的相关说明。</text>
       </view>
     </view>
-    
+
     <!-- Tab切换 -->
     <view class="tabs-container">
       <view class="tabs-wrapper">
-        <view 
-          v-for="(tab, index) in tabList" 
-          :key="index"
-          class="tab-item"
-          :class="{ 'tab-active': currentTab === index }"
-          @tap="onTabChange({ index })"
+        <view
+            v-for="(tab, index) in tabList"
+            :key="index"
+            class="tab-item"
+            :class="{ 'tab-active': currentTab === index }"
+            @tap="onTabChange({ index })"
         >
           <text class="tab-text">{{ tab.name }}</text>
         </view>
       </view>
     </view>
-    
+
     <!-- Tab内容区域 -->
     <view class="tab-content">
       <!-- 未开发票 -->
-      <UnInvoiceList 
-        v-if="currentTab === 0" 
-        ref="unInvoiceRef"
+      <UnInvoiceList
+          v-if="currentTab === 0"
+          ref="unInvoiceRef"
       />
-      
+
       <!-- 发票记录 -->
-      <InvoiceRecordList 
-        v-if="currentTab === 1" 
-        ref="invoiceRecordRef"
+      <InvoiceRecordList
+          v-if="currentTab === 1"
+          ref="invoiceRecordRef"
       />
     </view>
   </view>
@@ -56,34 +57,36 @@
 <script>
 import UnInvoiceList from '@/components/invoice/UnInvoiceList.vue'
 import InvoiceRecordList from '@/components/invoice/InvoiceRecordList.vue'
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
   name: 'InvoicePage',
   components: {
     UnInvoiceList,
-    InvoiceRecordList
+    InvoiceRecordList,
+    CustomerServiceButton
   },
   data() {
     return {
       // Tab配置
       tabList: [
-        { name: '未开发票' },
-        { name: '发票记录' }
+        {name: '未开发票'},
+        {name: '发票记录'}
       ],
       currentTab: 0
     }
   },
-  
+
   methods: {
     contactCustomerService() {
       contactCustomerServiceFn()
     },
     // Tab切换
     onTabChange(index) {
-        console.log('onTabChange', index.index)
+      console.log('onTabChange', index.index)
       this.currentTab = index.index
-      
+
       // 切换Tab时刷新对应组件的数据
       this.$nextTick(() => {
         if (index.index === 0 && this.$refs.unInvoiceRef) {
@@ -115,24 +118,24 @@ export default {
   border-radius: 16rpx;
   padding: 32rpx;
   box-shadow: 0 4rpx 12rpx rgba(19, 164, 236, 0.1);
-  
+
   .tip-header {
     display: flex;
     align-items: center;
     gap: 16rpx;
     margin-bottom: 16rpx;
-    
+
     .tip-icon {
       font-size: 40rpx;
     }
-    
+
     .tip-title {
       font-size: 28rpx;
       font-weight: 700;
       color: #13a4ec;
     }
   }
-  
+
   .tip-content {
     font-size: 28rpx;
     color: #666666;
@@ -160,17 +163,17 @@ export default {
   padding: 16rpx 0;
   border-radius: 12rpx;
   transition: all 0.3s ease;
-  
+
   &.tab-active {
     background: #fff;
     box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
-    
+
     .tab-text {
       color: #13a4ec;
       font-weight: 700;
     }
   }
-  
+
   .tab-text {
     font-size: 28rpx;
     font-weight: 600;

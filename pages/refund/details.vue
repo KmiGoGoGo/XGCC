@@ -1,6 +1,6 @@
 <template>
   <view class="details-page">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack title="退款详情" placeholder safeAreaInsetTop></uv-navbar>
     <!-- 顶部卡片 -->
     <view class="top-card">
       <view class="card-header">
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { getRefundRecordById } from '@/api/member.js';
+import {getRefundRecordById} from '@/api/member.js';
 // I will assume getStyleContent exists in member.js for simplicity now, to avoid the refactoring mistake.
 // In a real scenario, I'd create api/style.js and import from there.
 // For now, I will just mock the data for instruction and customer service.
@@ -57,22 +57,22 @@ export default {
   },
   async onLoad(options) {
     if (!options.refundId) {
-      uni.showToast({ title: '缺少必要参数', icon: 'none' });
+      uni.showToast({title: '缺少必要参数', icon: 'none'});
       return;
     }
-    uni.showLoading({ title: '加载中...' });
+    uni.showLoading({title: '加载中...'});
     try {
-      const detailsRes = await getRefundRecordById({ refundId: options.refundId });
+      const detailsRes = await getRefundRecordById({refundId: options.refundId});
 
       if (detailsRes.code === 0) {
         this.details = detailsRes.data;
       } else {
-        uni.showToast({ title: detailsRes.msg || '获取详情失败', icon: 'none' });
+        uni.showToast({title: detailsRes.msg || '获取详情失败', icon: 'none'});
       }
 
     } catch (error) {
       console.error('获取退款详情失败', error);
-      uni.showToast({ title: '数据加载失败', icon: 'none' });
+      uni.showToast({title: '数据加载失败', icon: 'none'});
     } finally {
       uni.hideLoading();
     }
@@ -90,11 +90,11 @@ export default {
       return (amount / 100).toFixed(2);
     },
     formatStatus(status) {
-      const statusMap = { 'Approve': '退款成功', 'Reject': '退款失败', 'AwaitingApproval': '审核中' };
+      const statusMap = {'Approve': '退款成功', 'Reject': '退款失败', 'AwaitingApproval': '审核中'};
       return statusMap[status] || '未知状态';
     },
     getStatusClass(status) {
-      const classMap = { 'Approve': 'success', 'Reject': 'fail', 'AwaitingApproval': 'pending' };
+      const classMap = {'Approve': 'success', 'Reject': 'fail', 'AwaitingApproval': 'pending'};
       return classMap[status] || '';
     },
     showRefundInstruction() {
@@ -170,9 +170,18 @@ export default {
 .status {
   font-size: 28rpx;
   margin-top: 16rpx;
-  &.success { color: #67c23a; }
-  &.fail { color: #fa5151; }
-  &.pending { color: #f9ae3d; }
+
+  &.success {
+    color: #67c23a;
+  }
+
+  &.fail {
+    color: #fa5151;
+  }
+
+  &.pending {
+    color: #f9ae3d;
+  }
 }
 
 .details-list-card {

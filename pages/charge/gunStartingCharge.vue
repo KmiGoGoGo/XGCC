@@ -4,9 +4,10 @@
     <uv-navbar :border="false" autoBack title="充电枪详情" placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="gun_starting_charge_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
@@ -105,12 +106,14 @@ import {
   alipayDisposableCancelRecharge
 } from '@/api/pay.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
   components: {
     ChargeIdleView,
     ChargeBusyView,
-    StagePriceInfo
+    StagePriceInfo,
+    CustomerServiceButton
   },
   data() {
     return {

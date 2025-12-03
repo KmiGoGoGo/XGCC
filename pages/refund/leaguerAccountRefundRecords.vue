@@ -1,6 +1,6 @@
 <template>
   <view class="records-page">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack title="退款记录" placeholder safeAreaInsetTop></uv-navbar>
     <view class="main-content">
       <view class="records-list">
         <view class="record-card" v-for="item in records" :key="item.id" @click="goToDetails(item.id)">
@@ -11,7 +11,10 @@
             </view>
             <view class="right-section">
               <text class="refund-amount">¥{{ formatCurrency(item.balance) }}</text>
-              <text class="refund-status" :class="getStatusClass(item.checkStatus)">{{ formatStatus(item.checkStatus) }}</text>
+              <text class="refund-status" :class="getStatusClass(item.checkStatus)">{{
+                  formatStatus(item.checkStatus)
+                }}
+              </text>
             </view>
           </view>
         </view>
@@ -24,7 +27,7 @@
 </template>
 
 <script>
-import { getLeaguerAccountRefundRecordList } from '@/api/refund.js';
+import {getLeaguerAccountRefundRecordList} from '@/api/refund.js';
 
 export default {
   data() {
@@ -33,7 +36,7 @@ export default {
     };
   },
   async onLoad(options) {
-    uni.showLoading({ title: '加载中...' });
+    uni.showLoading({title: '加载中...'});
     try {
       const res = await getLeaguerAccountRefundRecordList({
         page: options.page || 1,
@@ -42,11 +45,11 @@ export default {
       if (res.code === 0 && res.data) {
         this.records = res.data.records;
       } else {
-        uni.showToast({ title: res.msg || '获取记录失败', icon: 'none' });
+        uni.showToast({title: res.msg || '获取记录失败', icon: 'none'});
       }
     } catch (error) {
       console.error('获取退款记录失败', error);
-      uni.showToast({ title: '网络错误', icon: 'none' });
+      uni.showToast({title: '网络错误', icon: 'none'});
     } finally {
       uni.hideLoading();
     }
@@ -112,7 +115,7 @@ export default {
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
   overflow: hidden;
   transition: all 0.2s ease;
-  
+
   &:active {
     transform: scale(0.98);
     box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.1);
@@ -165,15 +168,15 @@ export default {
   font-size: 28rpx;
   font-weight: 500;
   line-height: 1.3;
-  
+
   &.success {
     color: #13a4ec;
   }
-  
+
   &.fail {
     color: #ff4757;
   }
-  
+
   &.AwaitingApproval {
     color: #ff9500;
   }
@@ -192,16 +195,16 @@ export default {
   .records-page {
     background-color: #101c22;
   }
-  
+
   .record-card {
     background-color: rgba(16, 28, 34, 0.5);
   }
-  
+
   .refund-title,
   .refund-amount {
     color: #ffffff;
   }
-  
+
   .refund-time,
   .footer-notice {
     color: #8E8E93;
