@@ -3,22 +3,22 @@
     <uv-navbar bgColor="transparent" @leftClick="() => uni.navigateBack()" leftIconColor="#ffffff">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="station_details_page"
+          />
         </view>
       </template>
     </uv-navbar>
     <view style="width:100%; z-index: 1;">
       <uv-swiper v-if="stationImages.length > 0" :list="stationImages" height="350rpx" radius="0rpx"></uv-swiper>
       <view v-else class="no-image-placeholder">
-          <!-- Logo 区域 -->
-          <view class="logo-animation-container">
-              <view class="logo-wrapper">
-                  <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
-              </view>
-              <text class="brand-text">{{ getWxAppName() }}</text>
+        <!-- Logo 区域 -->
+        <view class="logo-animation-container">
+          <view class="logo-wrapper">
+            <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
           </view>
+          <text class="brand-text">{{ getWxAppName() }}</text>
+        </view>
       </view>
     </view>
     <!-- 主内容区域 -->
@@ -31,14 +31,14 @@
             <view class="station-title-section">
               <view class="station-name">{{ stationInfo.name }}</view>
             </view>
-            <view 
-              class="station-distance-info" 
-              @click="goAddress"
-              :data-latitude="stationInfo.latitude"
-              :data-longitude="stationInfo.longitude"
-              :data-name="stationInfo.name"
-              :data-street="stationInfo.street"
-              v-if="stationInfo.distance != null"
+            <view
+                class="station-distance-info"
+                @click="goAddress"
+                :data-latitude="stationInfo.latitude"
+                :data-longitude="stationInfo.longitude"
+                :data-name="stationInfo.name"
+                :data-street="stationInfo.street"
+                v-if="stationInfo.distance != null"
             >
               <view class="station-distance-info-content">
                 <uv-icon name="map" size="16" color="#6AAAFB"></uv-icon>
@@ -52,54 +52,58 @@
 
           <view class="station-tags" v-if="tagList.length > 0">
             <view v-for="tag in tagList" :key="tag">
-              <StatusTag :text="tag" padding="4rpx 4rpx" borderRadius="8rpx" backgroundColor="#F0FDF4" textColor="#16A34A" />
+              <StatusTag :text="tag" padding="4rpx 4rpx" borderRadius="8rpx" backgroundColor="#F0FDF4"
+                         textColor="#16A34A"/>
             </view>
           </view>
 
           <view class="station-street-info">
             {{ stationInfo.street }}
           </view>
-          
+
           <!-- 公告区域 -->
           <view class="announcement-section">
             <text class="announcement-text">· {{ stationInfo.notice || '暂无公告' }}</text>
             <text class="announcement-text">· {{ stationInfo.subsidy || '暂无停车费说明' }}</text>
           </view>
-          
+
           <!-- 充电类型状态网格 -->
           <view class="charging-status-grid">
             <!-- 快充状态 -->
             <view class="status-item" v-if="stationInfo.gunPriceInfo && stationInfo.gunPriceInfo.fastItem">
               <text class="status-label">快充</text>
               <view class="status-count">
-                <text :class="stationInfo.gunPriceInfo.fastItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
+                <text
+                    :class="stationInfo.gunPriceInfo.fastItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
                   {{ stationInfo.gunPriceInfo.fastItem.freeGunCount || 0 }}
                 </text>
-                <text class="separator"> / </text>
+                <text class="separator"> /</text>
                 <text class="total-count">{{ stationInfo.gunPriceInfo.fastItem.gunCount || 0 }}</text>
               </view>
             </view>
-            
+
             <!-- 慢充状态 -->
             <view class="status-item" v-if="stationInfo.gunPriceInfo && stationInfo.gunPriceInfo.slowItem">
               <text class="status-label">慢充</text>
               <view class="status-count">
-                <text :class="stationInfo.gunPriceInfo.slowItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
+                <text
+                    :class="stationInfo.gunPriceInfo.slowItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
                   {{ stationInfo.gunPriceInfo.slowItem.freeGunCount || 0 }}
                 </text>
-                <text class="separator"> / </text>
+                <text class="separator"> /</text>
                 <text class="total-count">{{ stationInfo.gunPriceInfo.slowItem.gunCount || 0 }}</text>
               </view>
             </view>
-            
+
             <!-- 超充状态 -->
             <view class="status-item" v-if="stationInfo.gunPriceInfo && stationInfo.gunPriceInfo.superItem">
               <text class="status-label">超充</text>
               <view class="status-count">
-                <text :class="stationInfo.gunPriceInfo.superItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
+                <text
+                    :class="stationInfo.gunPriceInfo.superItem.freeGunCount > 0 ? 'available-count' : 'unavailable-count'">
                   {{ stationInfo.gunPriceInfo.superItem.freeGunCount || 0 }}
                 </text>
-                <text class="separator"> / </text>
+                <text class="separator"> /</text>
                 <text class="total-count">{{ stationInfo.gunPriceInfo.superItem.gunCount || 0 }}</text>
               </view>
             </view>
@@ -158,14 +162,26 @@
           <view class="occupy-fee-content">
             <view class="occupy-fee-item">
               <text class="occupy-fee-label">超时占位费:</text>
-              <text class="occupy-fee-value">{{ parseInt(stationInfo.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟</text>
+              <text class="occupy-fee-value">{{
+                  parseInt(stationInfo.occupyCostModel.occupyPhraseRules[0].price) / 100
+                }}元/分钟
+              </text>
             </view>
             <view class="occupy-fee-item">
               <text class="occupy-fee-label">当前收费时段:</text>
-              <text class="occupy-fee-value">{{ stationInfo.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00' }}-{{ stationInfo.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59' }}</text>
+              <text class="occupy-fee-value">{{
+                  stationInfo.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00'
+                }}-{{ stationInfo.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59' }}
+              </text>
             </view>
             <view class="occupy-fee-description">
-              充电结束后请于{{ stationInfo.occupyCostModel.freeDuration }}分钟内拔枪驶离充电车位，若车辆充电结束{{ stationInfo.occupyCostModel.freeDuration }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{ parseInt(stationInfo.occupyCostModel.limitAmount) / 100 }}元
+              充电结束后请于{{
+                stationInfo.occupyCostModel.freeDuration
+              }}分钟内拔枪驶离充电车位，若车辆充电结束{{
+                stationInfo.occupyCostModel.freeDuration
+              }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{
+                parseInt(stationInfo.occupyCostModel.limitAmount) / 100
+              }}元
             </view>
           </view>
         </view>
@@ -185,16 +201,18 @@
 </template>
 
 <script>
-import { getSellerBasicsConfig, getIconTwo } from '@/api/style.js';
-import { getStationDetailByIdNotAuth, getStationDetailByIdNew } from '@/api/station.js';
+import {getStationDetailByIdNotAuth, getStationDetailByIdNew} from '@/api/station.js';
 import PriceInfo from '@/components/station/PriceInfo.vue';
-import globalData from '../../globalData.js';
+import globalData from '@/globalData';
 import StatusTag from '@/components/common/StatusTag.vue';
-import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+
 export default {
   components: {
     PriceInfo,
-    StatusTag
+    StatusTag,
+    CustomerServiceButton
   },
   data() {
     return {
@@ -214,7 +232,7 @@ export default {
           validate: (url) => url.includes('cc.gy-ev.com') && !url.includes('/shicheng/'),
           parse: (url) => {
             console.log('使用XG策略解析:', url);
-            
+
             // 提取路径部分
             const pathMatch = url.match(/cc\.gy-ev\.com(\/.*)$/);
             if (!pathMatch) {
@@ -223,18 +241,18 @@ export default {
             }
             const path = pathMatch[1];
             console.log('提取的路径:', path);
-            
+
             let pileNum, gunNo;
-            
+
             // 判断是否有下划线
             if (path.includes('_')) {
               // 有下划线的情况
               const parts = path.split('_');
               const pilePart = parts[0].substring(1); // 去掉开头的斜杠
               const gunPart = parts[1];
-              
+
               console.log('桩号部分:', pilePart, '枪号部分:', gunPart);
-              
+
               // 判断桩号长度
               if (pilePart.length === 8) {
                 // 8位桩号
@@ -254,26 +272,26 @@ export default {
                 gunNo = (gunNum - 1).toString(); // gunNo = gunNum - 1
               }
             }
-            
+
             console.log('XG策略解析结果 - 桩号:', pileNum, '枪号:', gunNo);
-            
+
             if (pileNum && gunNo !== undefined) {
               return {
                 pileNum: pileNum,
                 gunNo: gunNo
               };
             }
-            
+
             return null;
           }
         },
-        
+
         // 石城策略：格式为 /shicheng/pileNum_gunNo
         shicheng: {
           validate: (url) => url.includes('cc.gy-ev.com/shicheng/'),
           parse: (url) => {
             console.log('使用石城策略解析:', url);
-            
+
             // 提取shicheng路径部分
             const pathMatch = url.match(/cc\.gy-ev\.com\/shicheng\/(.*)$/);
             if (!pathMatch) {
@@ -282,22 +300,22 @@ export default {
             }
             const path = pathMatch[1];
             console.log('提取的石城路径:', path);
-            
+
             // 解析桩号和枪号
             if (path.includes('_')) {
               const parts = path.split('_');
               const pileNum = parts[0];
               const gunNum = parseInt(parts[1]);
               const gunNo = (gunNum - 1).toString(); // gunNo = gunNum - 1
-              
+
               console.log('石城策略解析结果 - 桩号:', pileNum, '枪号:', gunNo);
-              
+
               return {
                 pileNum: pileNum,
                 gunNo: gunNo
               };
             }
-            
+
             return null;
           }
         }
@@ -310,20 +328,20 @@ export default {
       if (!this.stationInfo.detailsImages) {
         return [];
       }
-      
+
       // 如果已经是数组格式，直接返回
       if (Array.isArray(this.stationInfo.detailsImages)) {
         return this.stationInfo.detailsImages.filter(img => img && img.trim() !== '');
       }
-      
+
       // 如果是字符串，尝试按逗号分割
       if (typeof this.stationInfo.detailsImages === 'string') {
         return this.stationInfo.detailsImages
-          .split(',')
-          .map(img => img.trim())
-          .filter(img => img !== '');
+            .split(',')
+            .map(img => img.trim())
+            .filter(img => img !== '');
       }
-      
+
       return [];
     }
   },
@@ -355,7 +373,7 @@ export default {
       return globalData.wxAppName;
     },
     async fetchAllData(stationId) {
-      uni.showLoading({ title: '加载中...' });
+      uni.showLoading({title: '加载中...'});
       try {
         // 构建充电站详情请求参数
         // 从本地存储中获取latitude和longitude
@@ -372,7 +390,7 @@ export default {
         // 根据token判断使用哪个API
         const token = uni.getStorageSync('token');
         let stationRes;
-        
+
         if (token && token.trim() !== '') {
           // 有token时使用认证接口
           console.log('使用认证接口获取充电站详情');
@@ -437,21 +455,21 @@ export default {
     // 解析二维码链接，提取桩号和枪号
     parseQRCode(url) {
       console.log('解析二维码链接:', url);
-      
+
       // 遍历所有策略，找到匹配的策略
       if (this.qrCodeStrategies[globalData.sellerNo].validate(url)) {
         console.log(`匹配到策略: ${globalData.sellerNo}`);
         return this.qrCodeStrategies[globalData.sellerNo].parse(url);
       }
-      
+
       console.log('没有匹配的解析策略', globalData.sellerNo);
       return null;
     },
-    
+
     // 处理扫码结果
     handleScanResult(result) {
       console.log('扫码结果:', result);
-      
+
       const qrData = this.parseQRCode(result);
       if (qrData) {
         // 跳转到充电页面
@@ -471,7 +489,7 @@ export default {
         });
       }
     },
-    
+
     goToScan() {
       // 扫码功能
       // #ifdef MP-ALIPAY
@@ -486,7 +504,7 @@ export default {
         }
       });
       // #endif
-      
+
       // #ifdef MP-WEIXIN
       wx.scanCode({
         success: (res) => {
@@ -549,7 +567,7 @@ export default {
     onScrollLeft() {
       console.log('滚动到最左边');
     },
-    // 滚动到右边时触发  
+    // 滚动到右边时触发
     onScrollRight() {
       console.log('滚动到最右边');
     },
@@ -575,7 +593,7 @@ export default {
       const longitude = parseFloat(e.currentTarget.dataset.longitude);
       const name = e.currentTarget.dataset.name;
       const street = e.currentTarget.dataset.street;
-      
+
       if (!latitude || !longitude) {
         uni.showToast({
           title: '位置信息不完整',
@@ -583,7 +601,7 @@ export default {
         });
         return;
       }
-      
+
       uni.openLocation({
         latitude: latitude,
         longitude: longitude,
@@ -607,17 +625,6 @@ export default {
   flex-direction: column;
   /* width: 100%; */
   /* margin-top: 270rpx; */
-}
-
-.server-icon-wrapper {
-  width: 55rpx;
-  height: 55rpx;
-  border-radius: 50%;
-  background-color: #FEFFFF;
-  opacity: 0.8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .station-distance-info-content {
@@ -658,6 +665,7 @@ export default {
   overflow: hidden;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
 }
+
 .station-images-container {
   padding: 20rpx 0 0 0;
 }
@@ -698,32 +706,32 @@ export default {
 
 /* Logo 动画容器 */
 .logo-animation-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 /* Logo 包装器 */
 .logo-wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Logo SVG */
 .logo-svg {
-    width: 200rpx;
-    height: 200rpx;
+  width: 200rpx;
+  height: 200rpx;
 }
 
 /* 品牌文字 */
 .brand-text {
-    font-size: 80rpx;
-    color: #6AAAFB;
-    font-weight: bold;
-    margin-left: 20rpx;
+  font-size: 80rpx;
+  color: #6AAAFB;
+  font-weight: bold;
+  margin-left: 20rpx;
 }
 
 .station-info {
@@ -930,21 +938,25 @@ export default {
   line-height: 1.6;
   margin-top: 8rpx;
 }
+
 .station-name-distance {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .station-name {
   font-size: 32rpx;
   font-weight: bold;
   margin-bottom: 8rpx;
 }
+
 .station-address-distance {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .station-address {
   font-size: 26rpx;
   color: #666;
@@ -954,6 +966,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .station-distance {
   font-size: 24rpx;
   color: #5aaaff;
@@ -967,6 +980,7 @@ export default {
   border-radius: 16rpx;
   box-shadow: 0 4rpx 8rpx rgba(0, 0, 0, 0.05);
 }
+
 .card-header {
   font-weight: bold;
   font-size: 28rpx;
@@ -975,12 +989,14 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
+
 .card-body {
   flex-wrap: wrap;
   display: flex;
   align-items: center;
   gap: 10rpx;
 }
+
 .parking-card-body-text {
   display: flex;
   align-items: center;
@@ -988,11 +1004,13 @@ export default {
   background-color: #F3F3F3;
   font-size: 22rpx;
 }
+
 .parking-card-body-text-icon {
   width: 10rpx;
   height: 20rpx;
   background-color: #1BA035;
 }
+
 .info-row {
   display: flex;
   justify-content: space-between;
@@ -1009,6 +1027,7 @@ export default {
   border-radius: 8rpx;
   padding: 4rpx 12rpx;
 }
+
 .service-btn {
   width: 100%;
   background: #fff;
@@ -1066,6 +1085,7 @@ export default {
   flex: 1;
   justify-content: space-between;
 }
+
 .collapse-title {
   margin-left: 5rpx;
   font-size: 24rpx;

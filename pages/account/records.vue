@@ -3,9 +3,10 @@
     <uv-navbar :border="false" title="账户账单" autoBack placeholder safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
-          <view class="server-icon-wrapper">
-            <uv-icon name="server-fill" size="24" color="#000" @click="contactCustomerService"></uv-icon>
-          </view>
+          <CustomerServiceButton
+              session-from="records_page"
+              custom-class="server-icon-wrapper"
+          />
         </view>
       </template>
     </uv-navbar>
@@ -100,8 +101,12 @@ import {
   getAccountFlowPage
 } from '@/api/member.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
+  components: {
+    CustomerServiceButton
+  },
   data() {
     return {
       stats: null,

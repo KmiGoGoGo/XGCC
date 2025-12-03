@@ -3,7 +3,7 @@
     <!-- 顶部区域：枪名称、标签和功率信息 -->
     <view class="gun-header">
       <view class="gun-title-section">
-        <text class="gun-title">{{ gunTitle }}</text>
+        <text class="gun-title">{{ stationName + '-' + gunTitle }}</text>
         <view class="tags-container">
           <Tag :backgroundColor="getPowerTagClass(gunInfo.powerMode)" borderRadius="20rpx">
             <text class="tag-text" :class="getTagTextClass(gunInfo.powerMode)">{{
