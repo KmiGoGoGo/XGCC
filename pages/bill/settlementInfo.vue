@@ -312,7 +312,12 @@
 		</view>
 
 		
-		<view class="contact-text" @click="contactCustomerService">如有疑问请联系客服</view>
+		<view class="contact-text">如有疑问请联系客服
+			<CustomerServiceButton 
+				session-from="settlement_info_page"
+				custom-class="contact-text-button"
+			/>
+		</view>
 
 		<!-- 完成按钮 -->
 		<view class="fixed-bottom-bar" v-if="orderStatus !== 2">
@@ -328,8 +333,12 @@
 <script>
 import { getBillDetailById } from '@/api/bill.js'
 import { contactCustomerService as contactCustomerServiceFn } from '@/utils/utils'
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 export default {
 	name: 'SettlementInfo',
+	components: {
+		CustomerServiceButton
+	},
 	data() {
 		return {
 			billId: null, // 从路由参数获取的账单ID

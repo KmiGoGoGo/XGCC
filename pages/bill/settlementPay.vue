@@ -1,6 +1,15 @@
 <template>
 	<view class="settlement-pay-container">
-        <uv-navbar :border="false" title="感谢使用!请支付订单" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="感谢使用!请支付订单" autoBack="true" placeholder safeAreaInsetTop>
+			<template v-slot:right>
+				<view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+				<CustomerServiceButton
+					session-from="settlement_pay_page"
+					custom-class="server-icon-wrapper"
+				/>
+				</view>
+			</template>
+		</uv-navbar>
 		<!-- 页面内容 -->
 		<view class="page-content">
 			<!-- 订单号卡片 -->
@@ -156,9 +165,12 @@
 <script>
 import { getDelayPayBill, delayDeductionCharge } from '@/api/bill.js'
 import { getMemberInfo } from '@/api/member.js'
-
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 export default {
 	name: 'SettlementPay',
+	components: {
+		CustomerServiceButton
+	},
 		data() {
 		return {
 			busId: null, // 从路由参数获取的busId
