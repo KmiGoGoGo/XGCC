@@ -6,7 +6,10 @@
         <text class="gun-title">{{ gunTitle }}</text>
         <view class="tags-container">
           <Tag :backgroundColor="getPowerTagClass(gunInfo.powerMode)" borderRadius="20rpx">
-            <text class="tag-text" :class="getTagTextClass(gunInfo.powerMode)">{{ getGunTypeText(gunInfo.powerMode) }}</text>
+            <text class="tag-text" :class="getTagTextClass(gunInfo.powerMode)">{{
+                getGunTypeText(gunInfo.powerMode)
+              }}
+            </text>
           </Tag>
           <!-- <Tag backgroundColor="#FFB366" borderRadius="20rpx">
             <text class="tag-text">直流</text>
@@ -17,7 +20,7 @@
         </view>
       </view>
     </view>
-    
+
     <!-- 底部区域：充电状态 -->
     <view class="status-section">
       <view class="status-content">
@@ -31,6 +34,7 @@
 
 <script>
 import Tag from '../common/Tag.vue';
+
 export default {
   name: 'SubSelectedGun',
   components: {
@@ -64,7 +68,7 @@ export default {
       if (this.customTitle) {
         return this.customTitle;
       }
-      
+
       return `${this.gunInfo.gunName}`;
     }
   },
@@ -76,54 +80,77 @@ export default {
     // 获取枪类型文本
     getGunTypeText(gunType) {
       switch (parseInt(gunType)) {
-        case 3: return '超充';
-        case 2: return '快充';
-        case 1: return '慢充';
-        default: return '未知';
+        case 3:
+          return '超充';
+        case 2:
+          return '快充';
+        case 1:
+          return '慢充';
+        default:
+          return '未知';
       }
     },
     // 获取功率标签背景色类名
     getPowerTagClass(powerMode) {
       console.log(powerMode);
       switch (parseInt(powerMode)) {
-        case 1: return '#F0F9F2';
-        case 2: return '#FAEBDD';
-        case 3: return '#DBEAFE';
-        default: return '#F0F9F2';
+        case 1:
+          return '#F0F9F2';
+        case 2:
+          return '#FAEBDD';
+        case 3:
+          return '#DBEAFE';
+        default:
+          return '#F0F9F2';
       }
     },
     // 获取标签文字颜色类名
     getTagTextClass(powerMode) {
       switch (parseInt(powerMode)) {
-        case 1: return 'tag-text-slow';
-        case 2: return 'tag-text-fast';
-        case 3: return 'tag-text-super';
-        default: return 'tag-text-default';
+        case 1:
+          return 'tag-text-slow';
+        case 2:
+          return 'tag-text-fast';
+        case 3:
+          return 'tag-text-super';
+        default:
+          return 'tag-text-default';
       }
     },
     // 获取状态标签背景色类名
     getStatusTagClass(gunState) {
       switch (parseInt(gunState)) {
-        case 1: return 'status-tag-blue';
-        case 2: return 'status-tag-green';
-        default: return 'status-tag-default';
+        case 1:
+          return 'status-tag-blue';
+        case 2:
+          return 'status-tag-green';
+        default:
+          return 'status-tag-default';
       }
     },
     // 获取状态文字颜色类名
     getStatusTextClass(gunState) {
       switch (parseInt(gunState)) {
-        case 1: return 'status-text-blue';
-        case 2: return 'status-text-green';
-        default: return 'status-text-default';
+        case 1:
+          return 'status-text-blue';
+        case 2:
+          return 'status-text-green';
+        default:
+          return 'status-text-default';
       }
     },
     getGunStateText(gunState) {
       switch (parseInt(gunState)) {
-        case 1: return '请插枪';
-        case 2: return '等待启动充电';
-        case 3: return '充电中';
-        case 4: return '充电完成';
-        default: return '未知状态';
+        case 1:
+          return '请插枪';
+        case 2:
+          return '等待启动充电';
+        case 3:
+          return '充电中';
+        case 4:
+          return '充电完成';
+        default:
+          return '未知状态';
       }
     },
     // 处理删除按钮点击
@@ -158,7 +185,7 @@ export default {
   display: flex;
   width: 100%;
   flex-direction: column;
-  align-items: flex-start; 
+  align-items: flex-start;
   justify-content: flex-start;
   gap: 16rpx;
 }
@@ -215,9 +242,11 @@ export default {
 .tag-text-slow {
   color: #1BA035;
 }
+
 .tag-text-fast {
   color: #FA8C16;
 }
+
 .tag-text-super {
   color: #2E4DB5;
 }
