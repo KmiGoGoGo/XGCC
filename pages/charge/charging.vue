@@ -60,12 +60,6 @@
       <text class="station-name">{{ chargingGunInfo.stationName || '测试站' }}</text>
       <text class="station-gun">{{ chargingGunInfo.gunName || '测试枪' }}</text>
     </view>
-    <!-- 充电站信息 -->
-    <view class="station-info">
-
-      <text class="station-name">{{ chargingGunInfo.stationName || '测试站' }}</text>
-      <text class="station-gun">{{ chargingGunInfo.gunName || '测试枪' }}</text>
-    </view>
 
     <!-- 电量百分比圆环 -->
     <view class="battery-circle">
