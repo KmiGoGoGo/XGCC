@@ -279,8 +279,10 @@ export default {
     console.log('充电中参数', options);
     // 校验参数
     this.animationEnabled = options.animationEnabled;
-    if (this.animationEnabled == 'false') {
+    if (this.animationEnabled === 'false') {
       this.noAnimation = true;
+      this.showSplash = false;
+      console.log('set noAnimation', this.noAnimation)
     }
     console.log('set animationEnabled', this.animationEnabled)
     if (!options.pileNo || !options.gunNo || !options.busId || !options.gunId || !options.billId) {
@@ -512,20 +514,22 @@ export default {
             this.destroiedSplash = true;
 
             // 3. 延迟 1000ms 后整个开屏层渐隐
-            setTimeout(() => {
-              this.splashHidden = true;
-
-              // 4. 完全隐藏后移除开屏层（节省性能）
+            if (this.showSplash) {
               setTimeout(() => {
-                this.showSplash = false;
-                // 销毁动画实例
-                if (this.splashLottieAnimation) {
-                  this.splashLottieAnimation.destroy();
-                  this.splashLottieAnimation = null;
-                }
-              }, 1000); // 等待透明度动画完成（600ms）
-            }, 1000); // 文字显示后延迟 1s
-            console.log('销毁开屏动画');
+                this.splashHidden = true;
+
+                // 4. 完全隐藏后移除开屏层（节省性能）
+                setTimeout(() => {
+                  // 销毁动画实例
+                  if (this.splashLottieAnimation) {
+                    this.splashLottieAnimation.destroy();
+                    this.splashLottieAnimation = null;
+                    this.showSplash = false;
+                  }
+                }, 1000); // 等待透明度动画完成（600ms）
+              }, 1000); // 文字显示后延迟 1s
+              console.log('销毁开屏动画');
+            }
           }
           // 这里可以根据接口返回的数据更新页面状态
           console.log('充电数据更新:', querChargeOnlineRes.data);
@@ -674,7 +678,9 @@ export default {
     this.$nextTick(() => {
       // 初始化开屏 LOGO lottie 动画（微信小程序）
       // #ifdef MP-WEIXIN
-      this.initSplashLottie();
+      if (this.showSplash) {
+        this.initSplashLottie();
+      }
       this.initLogoLottie();
       // #endif
 
