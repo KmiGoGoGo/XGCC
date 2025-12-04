@@ -175,7 +175,7 @@ export default {
       }
       // 正在轮询支付结果时显示等待状态
       if (this.disposableOrderInfo.pollTimer) {
-        return '支付确认中...';
+        return '支付确认中...请勿离开页面';
       }
       // 订单处理中时显示处理状态
       if (this.disposableOrderInfo.isProcessing) {
@@ -283,7 +283,11 @@ export default {
       }
     },
     async refreshData() {
-      uni.showLoading({title: '正在刷新...'});
+      let title = '正在刷新...';
+      if (this.disposableOrderInfo.pollTimer) {
+        title = '支付确认中，请勿离开页面...即将启动充电';
+      }
+      uni.showLoading({title: title});
       try {
         const [pileRes, memberRes, paymentRes, balanceRes] = await Promise.all([
           getPileDTOByNo({pileNo: this.pileNo, sellerId: globalData.sellerId}),
@@ -430,7 +434,13 @@ export default {
           }
         });
       } finally {
-        uni.hideLoading();
+        if (this.disposableOrderInfo.pollTimer) {
+          setTimeout(() => {
+            uni.hideLoading();
+          }, 5000);
+        } else {
+          uni.hideLoading();
+        }
       }
     },
     // 处理双枪状态变化
@@ -843,9 +853,9 @@ export default {
         this.disposableOrderInfo.isProcessing = false;
         // 无论成功还是失败，都要重置启动中状态
         this.isStarting = false;
-        setTimeout(() => {
-          uni.hideLoading();
-        }, 1000);
+        // setTimeout(() => {
+        //   uni.hideLoading();
+        // }, 3000);
       }
     },
 
@@ -866,7 +876,7 @@ export default {
             this.startPaymentResultPolling();
             uni.showToast({
               title: '支付成功，请勿离开页面，等待充电启动',
-              icon: 'success'
+              icon: 'none'
             });
             resolve(res);
           },
@@ -989,9 +999,6 @@ export default {
       try {
         uni.showLoading({title: '正在启动充电...'});
 
-
-        uni.hideLoading();
-
         const startChargeRes = await disposableStartCharge({
           pileNo: this.gunParams.pileNum,
           gunNo: this.gunParams.gunNo,
@@ -1032,6 +1039,10 @@ export default {
           content: '充电启动失败，支付款项将在1-3个工作日内自动退回',
           showCancel: false
         });
+      } finally {
+        setTimeout(() => {
+          uni.hideLoading();
+        }, 1000);
       }
     },
 

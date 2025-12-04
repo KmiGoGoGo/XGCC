@@ -65,7 +65,7 @@ export default {
   data() {
     return {
       splashLottieAnimation: null, // 存储开屏 lottie 动画实例
-      showSplash: false, // 是否显示开屏层
+      showSplash: true, // 是否显示开屏层
       splashHidden: false, // 开屏层是否隐藏（透明）
       logoShiftLeft: false, // logo 是否向左移动
       textVisible: false, // 文字是否可见
