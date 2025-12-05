@@ -118,7 +118,7 @@
                       class="action-btn btn-primary"
                       @click.stop="recharge"
                   >
-                    <text class="btn-text">完成充电</text>
+                    <text class="btn-text">再次充电</text>
                   </view>
                   <!-- 待支付时显示立即支付按钮 -->
                   <view

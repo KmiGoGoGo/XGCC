@@ -554,7 +554,7 @@ export default {
             this.electricalData.power = data.realTimePower;
 
             // 更新费用数据
-            this.feeData.estimatedFee = (parseInt(data.cost) / 1000).toFixed(3);
+            this.feeData.estimatedFee = (parseInt(data.cost) / 100).toFixed(3);
             if (this.feeData.preChargeAmount) {
               this.feeData.remainingFee = (this.feeData.preChargeAmount - this.feeData.estimatedFee).toFixed(2);
             }
@@ -585,6 +585,7 @@ export default {
             }
           }
         } else if (querChargeOnlineRes && querChargeOnlineRes.code === 40624) {
+          this.stopPolling()
           uni.showModal({
             title: '温馨提示',
             content: '平台检测到充电桩已经停止充电，是否结束充电？',
