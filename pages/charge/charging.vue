@@ -104,9 +104,9 @@
 
     <view class="time-info">
       <text class="time-value"></text>
-
+      <!-- todo 需要判断payMode -->
       <StatusTag
-          :text="`当前电价: ${priceData.currentPrice || '--'}元/度`"
+          :text="`当前电价(${nowStageInfo ? nowStageInfo.stage : '--'}): ${nowStageInfo ? nowStageInfo.sweepPriceStr : '--'}元/度`"
           backgroundColor="#4A90E2"
           textColor="#FFFFFF"
           :fontSize="'22rpx'"
@@ -180,6 +180,7 @@ import {stopCharge} from '../../api/charge.js'
 import StatusTag from '../../components/common/StatusTag.vue'
 import globalData from '../../globalData.js'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import {getStationGunDetails} from '@/api/stationGun.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
@@ -193,6 +194,7 @@ export default {
   },
   data() {
     return {
+      nowStageInfo: null,
       logoLottieAnimation: null, // 存储 logo lottie 动画实例
       splashLottieAnimation: null, // 存储开屏 lottie 动画实例
       showSplash: true, // 是否显示开屏层
@@ -258,6 +260,7 @@ export default {
       // 定时器相关
       pollingTimer: null,
       pollingInterval: 5000, // 5秒
+      stageDetailsTimer: null, // 价格详情定时器
       // 气泡相关
       bubbles: [],
       bubbleTimer: null,
@@ -309,6 +312,12 @@ export default {
 
       // 启动定时器进行轮询
       this.startPolling();
+
+      // 初始化价格详情：立即调用一次，然后每10分钟调用一次
+      this.getGunCurrentStageDetails();
+      this.stageDetailsTimer = setInterval(() => {
+        this.getGunCurrentStageDetails();
+      }, 10 * 60 * 1000); // 10分钟 = 600000毫秒
     } catch (error) {
       console.error('初始化充电数据失败:', error);
     }
@@ -628,6 +637,24 @@ export default {
       }
     },
 
+    async getGunCurrentStageDetails() {
+      const res = await getStationGunDetails({gunId: this.chargingGunInfo.gunId})
+      if (res.code == 0 && res.data) {
+        // 找到当前时段的价格
+        const nowStage = res.data.powerStageDetail.find(p => p.now)
+        if (nowStage) {
+          // 初始化 nowStageInfo 对象（如果为 null）
+          if (!this.nowStageInfo) {
+            this.nowStageInfo = {};
+          }
+          this.nowStageInfo.stage = nowStage.stage == 1 ? '尖' : nowStage.stage == 2 ? '峰' : nowStage.stage == 3 ? '平' : nowStage.stage == 4 ? '谷' : '--'
+          this.nowStageInfo.price = nowStage.currentPriceStr
+          this.nowStageInfo.sweepPriceStr = nowStage.sweepPriceStr
+          this.nowStageInfo.discount = nowStage.discount
+        }
+      }
+    },
+
     // 获取屏幕信息
     getScreenInfo() {
       const systemInfo = uni.getSystemInfoSync();
@@ -710,6 +737,11 @@ export default {
   onHide() {
     this.stopPolling();
     this.stopBubbleAnimation();
+    // 清除价格详情定时器
+    if (this.stageDetailsTimer) {
+      clearInterval(this.stageDetailsTimer);
+      this.stageDetailsTimer = null;
+    }
   },
 
   // 页面显示时重新开始轮询
@@ -717,6 +749,13 @@ export default {
     if (this.chargingGunInfo.busId) {
       this.startPolling();
       this.startBubbleAnimation();
+      // 重新启动价格详情定时器
+      if (!this.stageDetailsTimer) {
+        this.getGunCurrentStageDetails();
+        this.stageDetailsTimer = setInterval(() => {
+          this.getGunCurrentStageDetails();
+        }, 10 * 60 * 1000); // 10分钟 = 600000毫秒
+      }
     }
   },
 
@@ -725,6 +764,11 @@ export default {
     this.stopPolling();
     this.stopBubbleAnimation();
     this.destroyLottieAnimations();
+    // 清除价格详情定时器
+    if (this.stageDetailsTimer) {
+      clearInterval(this.stageDetailsTimer);
+      this.stageDetailsTimer = null;
+    }
   },
 
   // 页面销毁前清理定时器
@@ -732,6 +776,11 @@ export default {
     this.stopPolling();
     this.stopBubbleAnimation();
     this.destroyLottieAnimations();
+    // 清除价格详情定时器
+    if (this.stageDetailsTimer) {
+      clearInterval(this.stageDetailsTimer);
+      this.stageDetailsTimer = null;
+    }
   },
   // 联系客服
   contactCustomerService() {
