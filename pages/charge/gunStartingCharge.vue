@@ -194,7 +194,7 @@ export default {
         return '余额不足';
       }
 
-      if (this.currentPaymentType == -1 && this.presetAmount < 300) {
+      if ((this.currentPaymentType == -1 || this.currentPaymentType == 1) && this.presetAmount < 300) {
         return '预充金额小于3元';
       }
 
@@ -397,7 +397,7 @@ export default {
         console.log('this.memberInfo', this.memberInfo)
         if (this.memberInfo && this.memberInfo.accountBalance) {
           const accountBalance = parseInt(this.memberInfo.accountBalance);
-          if (this.memberInfo.deductMode === 'LeaguerAccount' && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
+          if ((this.memberInfo.deductMode === 'LeaguerAccount' || this.memberInfo.deductMode == null) && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
             this.currentPaymentType = 1; // 个人账户
             this.setPresetAmount('all');
           } else if (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) {
@@ -709,6 +709,8 @@ export default {
           uni.navigateTo({
             url: `/pages/charge/charging?pileNo=${this.gunParams.pileNum}&gunNo=${this.gunParams.gunNo}&busId=${startChargeRes.data.busId}&gunId=${this.gunParams.gunId}&billId=${startChargeRes.data.orderId}&animationEnabled=true`
           });
+        } else if (startChargeRes && startChargeRes.code === 3) {
+          uni.showToast({title: "充电桩刚刚结束充电，请稍后再试", icon: 'none'});
         } else {
           uni.showToast({title: startChargeRes.msg || '启动充电失败', icon: 'none'});
         }
@@ -746,6 +748,8 @@ export default {
           });
         } else if (startChargeRes && startChargeRes.code === 5) {
           uni.showToast({title: startChargeRes.msg || '启动充电失败请联系客服', icon: 'none'});
+        } else if (startChargeRes && startChargeRes.code === 3) {
+          uni.showToast({title: "充电桩刚刚结束充电，请稍后再试", icon: 'none'});
         } else {
           uni.showToast({title: startChargeRes.msg || '启动充电失败', icon: 'none'});
         }
@@ -793,6 +797,10 @@ export default {
           payMode: 1
         });
 
+        if (createOrderRes && createOrderRes.code === 3) {
+          uni.showToast({title: "充电桩刚刚结束充电，请稍后再试", icon: 'none'});
+          return;
+        }
         if (createOrderRes.code !== 0) {
           throw new Error(createOrderRes.msg || '充电前校验失败');
         }
@@ -1118,6 +1126,9 @@ export default {
     contactCustomerService() {
       contactCustomerServiceFn();
     }
+  },
+  mounted() {
+    console.log('gunStartingCharge mounted', this.memberInfo);
   }
 };
 </script>

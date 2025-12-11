@@ -92,7 +92,6 @@ export default {
     },
     // 获取功率标签背景色类名
     getPowerTagClass(powerMode) {
-      console.log(powerMode);
       switch (parseInt(powerMode)) {
         case 1:
           return '#F0F9F2';

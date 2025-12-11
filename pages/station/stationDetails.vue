@@ -318,6 +318,39 @@ export default {
 
             return null;
           }
+        },
+        // 松林策略：格式为 /songlin/pileNum_gunNo
+        songlin: {
+          validate: (url) => url.includes('cc.gy-ev.com/songlin/'),
+          parse: (url) => {
+            console.log('使用松林策略解析:', url);
+
+            // 提取songlin路径部分
+            const pathMatch = url.match(/cc\.gy-ev\.com\/songlin\/(.*)$/);
+            if (!pathMatch) {
+              console.log('无法提取松林路径');
+              return null;
+            }
+            const path = pathMatch[1];
+            console.log('提取的松林路径:', path);
+
+            // 解析桩号和枪号
+            if (path.includes('_')) {
+              const parts = path.split('_');
+              const pileNum = parts[0];
+              const gunNum = parseInt(parts[1]);
+              const gunNo = (gunNum - 1).toString(); // gunNo = gunNum - 1
+
+              console.log('松林策略解析结果 - 桩号:', pileNum, '枪号:', gunNo);
+
+              return {
+                pileNum: pileNum,
+                gunNo: gunNo
+              };
+            }
+
+            return null;
+          }
         }
       }
     };

@@ -501,7 +501,7 @@ export default {
       }
 
       // 5. 原有逻辑：shicheng 商户枪号减1
-      if (sellerNoGy === "shicheng" && gunNoI) {
+      if ((sellerNoGy === "shicheng" || sellerNoGy === "songlin") && gunNoI) {
         gunNoI = (parseInt(gunNoI) - 1).toString();
       }
 

@@ -676,7 +676,8 @@ export default {
 
       // 重置表单
       setTimeout(() => {
-        this.resetPaymentForm();
+        // this.resetPaymentForm();
+        uni.navigateBack();
       }, 2000);
 
       // 可以选择跳转到充值成功页面

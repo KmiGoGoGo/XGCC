@@ -1,23 +1,23 @@
 <template>
   <view class="content-wrapper" :class="{ 'keyboard-show': isKeyboardShow }">
     <!-- 当前身份 -->
-      <!-- <view class="identity-section">
-        <view>
-          <text>当前身份：</text>
-          <text>{{ memberInfo.tokenMemberType === 0 ? '个人身份' : '车队身份' }}</text>
-          <text>（{{ memberInfo.name }}）</text>
-        </view>
-        <text @click="changeUser" v-if="memberInfo.groupName">切换身份</text>
-      </view> -->
+    <!-- <view class="identity-section">
+      <view>
+        <text>当前身份：</text>
+        <text>{{ memberInfo.tokenMemberType === 0 ? '个人身份' : '车队身份' }}</text>
+        <text>（{{ memberInfo.name }}）</text>
+      </view>
+      <text @click="changeUser" v-if="memberInfo.groupName">切换身份</text>
+    </view> -->
 
     <!-- 选中枪信息 -->
-    <SelectedGun 
-      ref="selectedGun"
-      :pile-info="pileInfo" 
-      :main-gun-params="mainGunParams"
-      :pile-no="pileInfo?.pileNo"
-      @dual-gun-change="handleDualGunChange"
-      @gun-status-updated="handleGunStatusUpdated"
+    <SelectedGun
+        ref="selectedGun"
+        :pile-info="pileInfo"
+        :main-gun-params="mainGunParams"
+        :pile-no="pileInfo?.pileNo"
+        @dual-gun-change="handleDualGunChange"
+        @gun-status-updated="handleGunStatusUpdated"
     />
 
     <!-- 价格信息 -->
@@ -42,7 +42,9 @@
               <text class="breakdown-text">服务费{{ currentPriceInfo.currentServicePriceStr }}元/度</text>
             </view>
             <view class="current-time-slot">
-              <text class="time-slot-text">时段 {{ currentPriceInfo.currentStartTime }} - {{ currentPriceInfo.currentEndTime }}</text>
+              <text class="time-slot-text">时段 {{ currentPriceInfo.currentStartTime }} -
+                {{ currentPriceInfo.currentEndTime }}
+              </text>
             </view>
           </view>
           <view class="price-right">
@@ -53,25 +55,27 @@
           </view>
         </view>
       </view>
-      
+
       <!-- 分隔线 -->
       <view class="price-divider"></view>
-      
+
       <!-- 下一时段价格信息 -->
       <view class="next-price-section" v-if="nextPriceInfo && nextPriceInfo.currentStartTime">
         <view class="next-price-row">
           <!-- <text class="next-time-text">下一时段 {{ nextPriceInfo.currentStartTime }}-{{ nextPriceInfo.currentEndTime }}</text> -->
           <StatusTag
-            :text="`下一时段 ${nextPriceInfo.currentStartTime}-${nextPriceInfo.currentEndTime}`"
-            backgroundColor="#E2F7FA"
-            textColor="#6AAAFB"
-            fontSize="24rpx"
-            padding="4rpx 12rpx"
-            borderRadius="8rpx"
-            fontWeight="bold"
+              :text="`下一时段 ${nextPriceInfo.currentStartTime}-${nextPriceInfo.currentEndTime}`"
+              backgroundColor="#E2F7FA"
+              textColor="#6AAAFB"
+              fontSize="24rpx"
+              padding="4rpx 12rpx"
+              borderRadius="8rpx"
+              fontWeight="bold"
           />
           <view class="next-price-info">
-            <text class="next-price-value" :class="isPriceDown ? 'trend-down' : 'trend-up'">{{ nextPriceInfo.currentPriceStr }}元/度</text>
+            <text class="next-price-value" :class="isPriceDown ? 'trend-down' : 'trend-up'">
+              {{ nextPriceInfo.currentPriceStr }}元/度
+            </text>
             <view class="price-trend" :class="isPriceDown ? 'trend-down' : 'trend-up'">
               <text class="trend-icon">{{ isPriceDown ? '↓' : '↑' }}</text>
             </view>
@@ -88,18 +92,23 @@
         </view>
         <text class="switch-vehicle-btn" @click="goToVehicleList">管理车辆</text>
       </view>
-      <text class="vehicle-warning" v-if="memberInfo.plateNo">{{ pileInfo.parking || '临牌不享受停车减免政策,启动充电后无法修改车牌' }}</text>
+      <text class="vehicle-warning" v-if="memberInfo.plateNo">{{
+          pileInfo.parking || '临牌不享受停车减免政策,启动充电后无法修改车牌'
+        }}
+      </text>
     </view>
 
     <!-- 支付方式 -->
     <view class="section-card">
-      <view style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 20rpx;">
+      <view
+          style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 20rpx;">
         <text class="section-title">支付方式</text>
-        <view style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx; margin-top: 10rpx;">
+        <view
+            style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx; margin-top: 10rpx;">
           <view style="display: flex; align-items: center;">
-            <view 
-              v-if="memberInfo.motorcadeName"
-              :style="{
+            <view
+                v-if="memberInfo.motorcadeName"
+                :style="{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -117,7 +126,8 @@
             </view>
           </view>
           <view @click="changeUser" style="display: flex; align-items: center;">
-            <view v-if="memberInfo.motorcadeName" style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rpx;">
+            <view v-if="memberInfo.motorcadeName"
+                  style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rpx;">
               <view class="change-user">切换身份</view>
               <view>
                 <uv-icon name="reload" color="#007AFF" size="14"></uv-icon>
@@ -128,8 +138,8 @@
       </view>
       <view v-show="memberInfo.tokenMemberType == 0">
         <view class="payment-methods-container">
-          <view v-for="item in filteredPaymentMethods" :key="item.payType" 
-                class="payment-option-new" 
+          <view v-for="item in filteredPaymentMethods" :key="item.payType"
+                class="payment-option-new"
                 :class="{ 'payment-option-selected': paymentType == item.payType }"
                 @tap="selectPaymentMethod(item.payType)">
             <view class="payment-left">
@@ -137,19 +147,27 @@
                 <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>
               </view>
               <view class="payment-info">
-                <text class="payment-name-new">{{ item.accountName }}</text>
-                <text v-if="item.balance" class="balance-text-new">余额 {{ (parseInt(item.balance) / 100).toFixed(2) }}元</text>
+                <view style="display: flex; align-items: center; gap: 8rpx;">
+                  <text class="payment-name-new">{{ item.accountName }}</text>
+                  <uv-icon name="question-circle" size="18" v-if="item.payType == -1"
+                           @click.stop="showPaymentHelp"
+                  ></uv-icon>
+                </view>
+                <text v-if="item.balance" class="balance-text-new">余额 {{
+                    (parseInt(item.balance) / 100).toFixed(2)
+                  }}元
+                </text>
               </view>
             </view>
             <view class="payment-right">
-              <uv-button 
-                v-if="item.showTopUp" 
-                type="primary"
-                plain
-                size="mini"
-                shape="circle"
-                customStyle="background: linear-gradient(to right, #6099ff, #3a7dff); color: white; border: none; font-size: 24rpx; padding: 8rpx 24rpx;"
-                @click.stop="goToTopUp(item)"
+              <uv-button
+                  v-if="item.showTopUp"
+                  type="primary"
+                  plain
+                  size="mini"
+                  shape="circle"
+                  customStyle="background: linear-gradient(to right, #6099ff, #3a7dff); color: white; border: none; font-size: 24rpx; padding: 8rpx 24rpx;"
+                  @click.stop="goToTopUp(item)"
               >
                 去充值
               </uv-button>
@@ -160,32 +178,32 @@
           </view>
         </view>
       </view>
-      <view v-if="memberInfo.tokenMemberType == 2" class="fleet-account-badge"> 车队账户 </view>
+      <view v-if="memberInfo.tokenMemberType == 2" class="fleet-account-badge"> 车队账户</view>
       <uv-divider v-if="memberInfo.tokenMemberType != 2"></uv-divider>
       <!-- 预设充电金额 -->
       <view v-if="memberInfo.tokenMemberType == 0">
         <text class="section-description-new">充电费用达到上限或者充满电量则自动停止充电</text>
         <view class="amount-input-container-new">
           <text class="currency-symbol-new">¥</text>
-          <input 
-            class="amount-input-new"
-            placeholder="0.00" 
-            type="digit"
-            inputmode="numeric"
-            :value="amountInputValue"
-            @input="handleAmountInput"
-            @focus="handleInputFocus"
-            @blur="handleInputBlur"
-            ref="amountInput"
+          <input
+              class="amount-input-new"
+              placeholder="0.00"
+              type="digit"
+              inputmode="numeric"
+              :value="amountInputValue"
+              @input="handleAmountInput"
+              @focus="handleInputFocus"
+              @blur="handleInputBlur"
+              ref="amountInput"
           />
         </view>
         <view class="preset-options-new" v-if="paymentType == 1">
-          <view 
-            v-for="amount in presetOptions" 
-            :key="amount.value" 
-            class="preset-button"
-            :class="{ 'preset-button-active': isPresetAmountActive(amount) }"
-            @click="$emit('set-preset-amount', amount.value)"
+          <view
+              v-for="amount in presetOptions"
+              :key="amount.value"
+              class="preset-button"
+              :class="{ 'preset-button-active': isPresetAmountActive(amount) }"
+              @click="$emit('set-preset-amount', amount.value)"
           >
             <text class="preset-button-text">{{ amount.label }}</text>
           </view>
@@ -194,14 +212,13 @@
     </view>
 
 
-
     <!-- 超时占位说明 -->
     <view class="occupy-section-card" v-if="pileInfo.stationData.occupyCostModel">
       <view class="occupy-header" @click="toggleOccupyCollapse">
         <image
-          :src="parkingSvg"
-          mode="widthFix"
-          style="width: 30rpx; height: 30rpx;"
+            :src="parkingSvg"
+            mode="widthFix"
+            style="width: 30rpx; height: 30rpx;"
         />
         <text class="occupy-title">超时占位说明</text>
         <view class="arrow-icon" :class="{ 'rotated': isOccupyExpanded }">
@@ -212,14 +229,25 @@
         <view class="occupy-fee-details">
           <view class="occupy-fee-item">
             <text class="occupy-fee-label">超时占位费:</text>
-            <text class="occupy-fee-value">{{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟</text>
+            <text class="occupy-fee-value">
+              {{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟
+            </text>
           </view>
           <view class="occupy-fee-item">
             <text class="occupy-fee-label">当前收费时段:</text>
-            <text class="occupy-fee-value">{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00' }}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59'  }}</text>
+            <text class="occupy-fee-value">{{
+                pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00'
+              }}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59' }}
+            </text>
           </view>
           <view class="occupy-fee-description">
-            充电结束后请于{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟内拔枪驶离充电车位，若车辆充电结束{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{ parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100 }}元
+            充电结束后请于{{
+              pileInfo.stationData.occupyCostModel.freeDuration
+            }}分钟内拔枪驶离充电车位，若车辆充电结束{{
+              pileInfo.stationData.occupyCostModel.freeDuration
+            }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{
+              parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100
+            }}元
           </view>
         </view>
       </view>
@@ -232,8 +260,8 @@
 import PileGunCard from '@/components/station/PileGunCard.vue';
 import Card from '@/components/common/Card.vue';
 import SelectedGun from '@/components/gun/SelectedGun.vue';
-import { changeUser } from '@/api/member';
-import { getStationGunDetails } from '@/api/station';
+import {changeUser} from '@/api/member';
+import {getStationGunDetails} from '@/api/station';
 import StatusTag from '@/components/common/StatusTag.vue';
 
 export default {
@@ -265,10 +293,10 @@ export default {
       // 先写死为非车队身份
       userType: 'individual',
       presetOptions: [
-        { label: '30元', value: 3000 },
-        { label: '50元', value: 5000 },
-        { label: '100元', value: 10000 },
-        { label: '全部余额', value: 'all' }
+        {label: '30元', value: 3000},
+        {label: '50元', value: 5000},
+        {label: '100元', value: 10000},
+        {label: '全部余额', value: 'all'}
       ],
       // presetAmount: this.presetAmount,
       paymentType: this.currentPaymentType,
@@ -292,13 +320,20 @@ export default {
         }
       },
       immediate: true
+    },
+    currentPaymentType: {
+      handler(newVal) {
+        // 当父组件的currentPaymentType改变时，同步更新子组件的paymentType
+        this.paymentType = newVal;
+      },
+      immediate: true
     }
   },
   computed: {
     currentPriceInfo() {
       if (!this.pileInfo || !this.pileInfo.gunDTOList) return {};
       if (!this.mainGunParams || !this.mainGunParams.gunId) return {};
-      
+
       // 根据 gunId 查找对应的枪
       const targetGun = this.pileInfo.gunDTOList.find(gun => gun.gunid === this.mainGunParams.gunId);
       return targetGun ? (targetGun.nowPrice || {}) : {};
@@ -307,7 +342,7 @@ export default {
     nextPriceInfo() {
       if (!this.pileInfo || !this.pileInfo.gunDTOList) return {};
       if (!this.mainGunParams || !this.mainGunParams.gunId) return {};
-      
+
       // 根据 gunId 查找对应的枪
       const targetGun = this.pileInfo.gunDTOList.find(gun => gun.gunid === this.mainGunParams.gunId);
       return targetGun ? (targetGun.nextStagePrice || {}) : {};
@@ -324,16 +359,16 @@ export default {
       // 如果有传入数据，根据用户身份过滤
       if (this.userType === 'fleet') {
         // 车队身份：只显示车队相关的支付方式
-        return this.paymentMethods.filter(item => 
-          item.payType === 3 || item.accountName.includes('车队')
+        return this.paymentMethods.filter(item =>
+            item.payType === 3 || item.accountName.includes('车队')
         );
       } else {
         // 非车队身份：显示除车队和电卡6外的其他支付方式
         // 根据支付方式从小到大排序
         this.paymentMethods.sort((a, b) => a.payType - b.payType);
-        return this.paymentMethods.filter(item => 
-          (item.payType !== 3 && !item.accountName.includes('车队'))
-          && (item.payType !== 6 && item.balance !== 'N/A')
+        return this.paymentMethods.filter(item =>
+            (item.payType !== 3 && !item.accountName.includes('车队'))
+            && (item.payType !== 6 && item.balance !== 'N/A')
         );
       }
     }
@@ -372,20 +407,20 @@ export default {
     // 调整视图以适应键盘
     adjustViewForKeyboard() {
       const query = uni.createSelectorQuery().in(this);
-      
+
       // 获取系统信息
       const systemInfo = uni.getSystemInfoSync();
       const windowHeight = systemInfo.windowHeight;
-      
+
       query.select('.section-card:nth-last-child(1)').boundingClientRect((inputData) => {
         if (inputData) {
           query.selectViewport().scrollOffset((viewportData) => {
             // 计算输入框相对于当前视口的位置
             const inputBottom = inputData.bottom;
-            
+
             // 计算可视区域的底部位置（减去键盘高度）
             const visibleBottom = windowHeight - this.keyboardHeight;
-            
+
             // 如果输入框被键盘遮挡
             if (inputBottom > visibleBottom) {
               // 计算需要滚动的距离，让输入框位于可视区域的上半部分
@@ -393,14 +428,14 @@ export default {
               const needScrollDistance = inputBottom - targetPosition;
               const currentScrollTop = viewportData.scrollTop;
               const targetScrollTop = currentScrollTop + needScrollDistance;
-              
+
               console.log('键盘遮挡输入框，开始滚动:', {
                 inputBottom,
                 visibleBottom,
                 needScrollDistance,
                 targetScrollTop
               });
-              
+
               uni.pageScrollTo({
                 scrollTop: Math.max(0, targetScrollTop),
                 duration: 300
@@ -446,13 +481,14 @@ export default {
       // 点击行时选中对应的支付方式
       if (!this.filteredPaymentMethods.find(item => item.payType === payType)?.disabled) {
         this.paymentType = payType;
+        console.log("selectPaymentMethod触发 emit payment-change")
         this.$emit('payment-change', Number(payType));
       }
     },
     handleAmountInput(event) {
       let value = event.target.value || event.detail?.value || '';
       console.log('handleAmountInput触发，值:', value);
-      
+
       // 限制最多两位小数
       if (value) {
         // 如果包含小数点，检查小数位数
@@ -464,10 +500,10 @@ export default {
           }
         }
       }
-      
+
       // 更新本地输入值
       this.amountInputValue = value;
-      
+
       // 将输入的元转换为分
       const numValue = parseFloat(value) || 0;
       const centValue = parseInt(numValue * 100);
@@ -479,6 +515,15 @@ export default {
       // 根据不同的支付方式跳转到相应的充值页面
       uni.navigateTo({
         url: '/pages/recharge/recharge'
+      });
+    },
+    // 显示支付帮助信息
+    showPaymentHelp() {
+      uni.showModal({
+        title: '支付说明',
+        content: '充电需预先支付费用，充电结束后，剩余费用将在 1-3 个工作日内自动退回至原支付账户。因充电桩信息传输存在时差，可能出现实际费用超出预付金额的情况，届时将默认优先从你的个人账户余额中补足差额。',
+        showCancel: false,
+        confirmText: '我知道了'
       });
     },
     // 处理双枪状态变化
@@ -522,7 +567,7 @@ export default {
         }
         return false;
       }
-      
+
       // 其他选项直接比较数值
       return this.presetAmount == amount.value;
     },
@@ -554,12 +599,12 @@ export default {
         });
         return;
       }
-      
+
       try {
-        uni.showLoading({ title: '加载价格详情...' });
-        
+        uni.showLoading({title: '加载价格详情...'});
+
         const res = await getStationGunDetails(this.mainGunParams.gunId);
-        
+
         if (res.code === 0 && res.data && res.data.powerStageDetail) {
           // 将获取的价格详情数据传递给父组件
           this.$emit('show-price-details', res.data.powerStageDetail);
@@ -607,9 +652,10 @@ export default {
     }
   },
   mounted() {
+    console.log('ChargeIdleView mounted', this.memberInfo);
     if (this.memberInfo && this.memberInfo.accountBalance) {
       const accountBalance = parseInt(this.memberInfo.accountBalance);
-      if (this.memberInfo.deductMode === 'LeaguerAccount' && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
+      if ((this.memberInfo.deductMode === 'LeaguerAccount' || this.memberInfo.deductMode == null) && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
         this.$emit('payment-change', 1); // 个人账户
         this.$emit('preset-amount-change', this.memberInfo.accountBalance);
       } else if (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) {
@@ -859,6 +905,7 @@ export default {
 .trend-up .trend-icon {
   color: #ff4d4f;
 }
+
 .vehicle-section-card {
   background-color: #ffffff;
   border-radius: 16rpx;
@@ -906,6 +953,7 @@ export default {
   color: #999;
   line-height: 1.4;
 }
+
 .identity-section {
   display: flex;
   justify-content: space-between;
@@ -1000,17 +1048,20 @@ export default {
   margin-bottom: 16rpx;
   color: #F7A756;
 }
+
 .preset-input {
   border: 1rpx solid #e0e0e0;
   border-radius: 10rpx;
   padding: 10rpx;
   margin-bottom: 16rpx;
 }
+
 .preset-options {
   display: flex;
   justify-content: flex-start;
   gap: 20rpx;
 }
+
 /* 停车费折叠组件样式 */
 .parking-section-card {
   background-color: #ffffff;
