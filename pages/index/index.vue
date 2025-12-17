@@ -417,6 +417,18 @@ export default {
       }
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName() || '十万伏特',
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   async onLoad(options) {
     // this.initCityInfo();
     this.getLocation();
@@ -550,7 +562,11 @@ export default {
       this.setDefaultCity()
       console.log('没有城市信息，设置默认城市', uni.getStorageSync('cityName'), uni.getStorageSync('currentCityName'))
     }
+    uni.showLoading({
+      title: '加载中...'
+    })
     await this.checkLocationPermission();
+    uni.hideLoading();
   },
   async onShow() {
     // uni.showLoading({
@@ -1371,7 +1387,7 @@ export default {
     },
 
     // 设置默认城市信息
-    setDefaultCity(latitude = 22.9167, longitude = 113.7500) {
+    setDefaultCity(latitude = 23.070147, longitude = 114.105585) {
       const defaultCityName = '东莞市';
       uni.setStorageSync('currentCityName', defaultCityName);
       console.log('使用默认城市:', defaultCityName);

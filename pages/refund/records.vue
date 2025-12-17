@@ -1,6 +1,15 @@
 <template>
   <view class="records-page">
-    <uv-navbar :border="false" autoBack title="退款记录" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack title="退款记录" placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <CustomerServiceButton
+              session-from="refund_records_page"
+              custom-class="server-icon-wrapper"
+          />
+        </view>
+      </template>
+    </uv-navbar>
     <view class="main-content">
       <view class="records-list">
         <view class="record-card" v-for="item in records" :key="item.id" @click="goToDetails(item.id)">
@@ -28,8 +37,13 @@
 
 <script>
 import {getRefundRecordList} from '@/api/member.js';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
+  components: {
+    CustomerServiceButton
+  },
   data() {
     return {
       records: [],
@@ -55,6 +69,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     formatCurrency(amount) {
       if (amount === null || amount === undefined) return '0.00';
       return (amount / 100).toFixed(2);
@@ -190,24 +207,4 @@ export default {
   margin-top: 32rpx;
 }
 
-/* 暗色模式支持 */
-@media (prefers-color-scheme: dark) {
-  .records-page {
-    background-color: #101c22;
-  }
-
-  .record-card {
-    background-color: rgba(16, 28, 34, 0.5);
-  }
-
-  .refund-title,
-  .refund-amount {
-    color: #ffffff;
-  }
-
-  .refund-time,
-  .footer-notice {
-    color: #8E8E93;
-  }
-}
 </style>

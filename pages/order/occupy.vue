@@ -17,7 +17,7 @@
             </view>
             <view class="info-item">
               <text class="info-text">
-                超时占位费用: 
+                超时占位费用:
                 <text class="amount">¥{{ formatAmount(order.busBalance) }}</text>
               </text>
             </view>
@@ -25,12 +25,14 @@
           <view class="card-footer">
             <view class="actions">
               <view class="action-btn btn-secondary" @click="goToDetails(order.id)">详情</view>
-              <view class="action-btn btn-primary" v-if="order.billStatus === 11" @click="goToDetails(order.id)">立即支付</view>
+              <view class="action-btn btn-primary" v-if="order.billStatus === 11" @click="goToDetails(order.id)">
+                立即支付
+              </view>
             </view>
           </view>
         </view>
       </template>
-      
+
       <!-- 空状态 -->
       <view v-else class="empty-state">
         <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
@@ -41,7 +43,9 @@
 </template>
 
 <script>
-import { getMyOccupyBillPage } from '@/api/bill.js';
+import {getMyOccupyBillPage} from '@/api/bill.js';
+import globalData from '@/globalData';
+
 export default {
   data() {
     return {
@@ -56,12 +60,27 @@ export default {
   onShow() {
     this.loadData();
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     /**
      * @description 加载占位订单数据
      */
     async loadData() {
-      uni.showLoading({ title: '加载中...' });
+      uni.showLoading({title: '加载中...'});
       try {
         const res = await getMyOccupyBillPage({
           current: this.pagination.current,
@@ -74,7 +93,7 @@ export default {
         }
       } catch (error) {
         console.error('加载占位订单数据失败:', error);
-        uni.showToast({ title: '数据加载失败', icon: 'none' });
+        uni.showToast({title: '数据加载失败', icon: 'none'});
       } finally {
         uni.hideLoading();
       }
@@ -93,9 +112,12 @@ export default {
     getStatusText(status) {
       // 11-待支付, 14-已支付
       switch (status) {
-        case 11: return '待支付';
-        case 14: return '已支付';
-        default: return '未知';
+        case 11:
+          return '待支付';
+        case 14:
+          return '已支付';
+        default:
+          return '未知';
       }
     },
     /**
@@ -104,9 +126,12 @@ export default {
      */
     getStatusClass(status) {
       switch (status) {
-        case 11: return 'status-unpaid';
-        case 14: return 'status-paid';
-        default: return '';
+        case 11:
+          return 'status-unpaid';
+        case 14:
+          return 'status-paid';
+        default:
+          return '';
       }
     },
     /**

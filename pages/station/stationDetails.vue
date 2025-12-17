@@ -401,6 +401,18 @@ export default {
       this.fetchAllData(stationId);
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/station/stationDetails?id=' + this.currentStationId
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/station/stationDetails?id=' + this.currentStationId
+    }
+  },
   methods: {
     getWxAppName() {
       return globalData.wxAppName;

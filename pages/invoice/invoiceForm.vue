@@ -235,6 +235,7 @@
 import {applyInvoice} from '@/api/invoice'
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -469,8 +470,22 @@ export default {
       this.formData.totalBalance = options.totalSelectedAmount // 转换为分
     }
   },
-
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

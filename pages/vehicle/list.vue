@@ -42,26 +42,26 @@
         </view>
         <view class="popup-content">
           <vehicle-plate-input
-            v-model="newVehiclePlate"
-            ref="plateInput"
-            @input="handlePlateInput"
-            @change="handlePlateChange"
-            @keyboard-show="onKeyboardShow"
-            @keyboard-hide="onKeyboardHide"
+              v-model="newVehiclePlate"
+              ref="plateInput"
+              @input="handlePlateInput"
+              @change="handlePlateChange"
+              @keyboard-show="onKeyboardShow"
+              @keyboard-hide="onKeyboardHide"
           />
           <view class="button-container">
-            <uv-button 
-              text="取消" 
-              type="default" 
-              size="large"
-              :plain="true"
-              @click="closeAddVehiclePopup"
+            <uv-button
+                text="取消"
+                type="default"
+                size="large"
+                :plain="true"
+                @click="closeAddVehiclePopup"
             ></uv-button>
-            <uv-button 
-              text="提交" 
-              type="primary"
-              size="large"
-              @click="handleSubmit"
+            <uv-button
+                text="提交"
+                type="primary"
+                size="large"
+                @click="handleSubmit"
             ></uv-button>
           </view>
         </view>
@@ -71,8 +71,9 @@
 </template>
 
 <script>
-import { getVehicleList, addVehicle, updateVehicleInfo, delVehicleInfo, updateDefaultVehicle } from '@/api/vehicle.js';
+import {getVehicleList, addVehicle, updateVehicleInfo, delVehicleInfo, updateDefaultVehicle} from '@/api/vehicle.js';
 import VehiclePlateInput from '@/components/vehicle-plate-input/vehicle-plate-input.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -97,28 +98,37 @@ export default {
   onLoad() {
     this.fetchVehicleList();
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/vehicle/list'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     // 处理车牌号输入
     handlePlateInput(plateNo) {
       this.newVehiclePlate = plateNo;
     },
-    
+
     // 处理车牌号变化
     handlePlateChange(plateNo) {
       this.newVehiclePlate = plateNo;
     },
-    
+
     // 键盘显示时的回调
     onKeyboardShow() {
       this.keyboardVisible = true;
     },
-    
+
     // 键盘隐藏时的回调
     onKeyboardHide() {
       this.keyboardVisible = false;
     },
     async fetchVehicleList() {
-      uni.showLoading({ title: '加载中...' });
+      uni.showLoading({title: '加载中...'});
       try {
         const res = await getVehicleList();
         if (res.code === 0) {
@@ -128,15 +138,15 @@ export default {
             showActions: false
           }));
         } else {
-          uni.showToast({ title: '加载失败', icon: 'none' });
+          uni.showToast({title: '加载失败', icon: 'none'});
         }
       } catch (error) {
         console.error('获取车辆列表失败:', error);
         if (error.code === 2) {
-          uni.showToast({ title: '请先登录', icon: 'none' });
+          uni.showToast({title: '请先登录', icon: 'none'});
           return;
         } else {
-          uni.showToast({ title: '网络错误', icon: 'none' });
+          uni.showToast({title: '网络错误', icon: 'none'});
           return;
         }
       } finally {
@@ -166,14 +176,14 @@ export default {
       }
 
       try {
-        uni.showLoading({ title: '设置中...' });
+        uni.showLoading({title: '设置中...'});
 
         const response = await updateDefaultVehicle(vehicle.id);
 
         if (response.code === 0) {
           // 设置成功后重新获取车辆列表以更新状态
           await this.fetchVehicleList();
-          
+
           uni.showToast({
             title: '设置默认车辆成功',
             icon: 'success'
@@ -217,7 +227,7 @@ export default {
       this.newVehiclePlate = '';
       this.keyboardVisible = false;
       this.$refs.addVehiclePopup.open('bottom');
-      
+
       // 延迟后自动聚焦到输入框
       setTimeout(() => {
         if (this.$refs.plateInput) {
@@ -238,7 +248,7 @@ export default {
       // 关闭操作面板
       vehicle.showActions = false;
       this.$refs.addVehiclePopup.open('bottom');
-      
+
       // 延迟后自动聚焦到输入框
       setTimeout(() => {
         if (this.$refs.plateInput) {
@@ -270,7 +280,7 @@ export default {
      */
     handleSubmit() {
       const plateNo = this.newVehiclePlate;
-      
+
       if (this.isEditMode) {
         this.updateVehicle(plateNo);
       } else {
@@ -300,7 +310,7 @@ export default {
       }
 
       try {
-        uni.showLoading({ title: '添加中...' });
+        uni.showLoading({title: '添加中...'});
 
         // 调用添加车辆接口
         const requestData = {
@@ -316,7 +326,7 @@ export default {
         if (response.code === 0) {
           // 添加成功后重新获取车辆列表
           await this.fetchVehicleList();
-          
+
           uni.showToast({
             title: '车辆添加成功',
             icon: 'success'
@@ -370,7 +380,7 @@ export default {
       }
 
       try {
-        uni.showLoading({ title: '更新中...' });
+        uni.showLoading({title: '更新中...'});
 
         // 构建更新请求数据
         const requestData = {
@@ -389,7 +399,7 @@ export default {
         if (response.code === 0) {
           // 更新成功后重新获取车辆列表
           await this.fetchVehicleList();
-          
+
           uni.showToast({
             title: '车辆更新成功',
             icon: 'success'
@@ -452,14 +462,14 @@ export default {
       }
 
       try {
-        uni.showLoading({ title: '删除中...' });
+        uni.showLoading({title: '删除中...'});
 
         const response = await delVehicleInfo(vehicleId);
 
         if (response.code === 0) {
           // 删除成功后重新获取车辆列表
           await this.fetchVehicleList();
-          
+
           // 如果删除的是默认车辆，且还有剩余车辆，将第一个车辆设为默认
           if (isDefaultVehicle && this.vehicleList.length > 0) {
             const firstVehicle = this.vehicleList[0];
@@ -473,7 +483,7 @@ export default {
               }
             }
           }
-          
+
           uni.showToast({
             title: '车辆删除成功',
             icon: 'success'
@@ -505,9 +515,11 @@ export default {
   padding: 24rpx;
   box-sizing: border-box;
 }
+
 .card-list {
   padding-bottom: 150rpx; /* 为底部按钮留出空间 */
 }
+
 .vehicle-card {
   background-color: white;
   border-radius: 16rpx;
@@ -515,10 +527,12 @@ export default {
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
+
 .card-main {
-    position: relative;
-    padding: 24rpx;
+  position: relative;
+  padding: 24rpx;
 }
+
 .type-tag {
   position: absolute;
   top: 0;
@@ -529,22 +543,26 @@ export default {
   font-size: 22rpx;
   border-radius: 0 16rpx 0 16rpx;
 }
+
 .plate-number {
   text-align: center;
   font-size: 36rpx;
   font-weight: bold;
   padding: 32rpx 0;
 }
+
 .separator {
   height: 1rpx;
   background-color: #f0f0f0;
 }
+
 .card-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding-top: 24rpx;
 }
+
 .default-option {
   display: flex;
   align-items: center;
@@ -604,6 +622,7 @@ export default {
 .radio-btn.checked text {
   display: none;
 }
+
 .more-actions {
   font-size: 28rpx;
   color: #666;
@@ -617,6 +636,7 @@ export default {
   display: flex;
   background-color: #f7f7f7;
 }
+
 .action-btn {
   flex: 1;
   text-align: center;
@@ -624,9 +644,11 @@ export default {
   color: white;
   font-size: 28rpx;
 }
+
 .delete-btn {
   background-color: #f01f1f;
 }
+
 .edit-btn {
   background-color: #007aff;
 }
@@ -650,6 +672,7 @@ export default {
   box-shadow: 0 8rpx 24rpx rgba(0, 122, 255, 0.3);
   z-index: 100;
 }
+
 .plus-icon {
   font-size: 40rpx;
   margin-right: 16rpx;

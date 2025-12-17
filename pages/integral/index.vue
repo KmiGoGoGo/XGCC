@@ -114,6 +114,7 @@
 import {getIntegral, getMemberGradeRule, getIntegralDetail, getIntegralSum} from '@/api/integral.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -154,7 +155,22 @@ export default {
   onLoad() {
     this.loadPageData();
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     openCalendar() {
       this.$refs.calendar.open();
     },

@@ -304,6 +304,18 @@ export default {
       return this.balance;
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   onLoad() {
     console.log('my页面 onLoad 被触发');
     // 如果是微信小程序
@@ -339,6 +351,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     /**
      * @description 同步token状态到响应式数据
      */

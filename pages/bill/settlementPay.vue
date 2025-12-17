@@ -178,6 +178,7 @@
 import {getDelayPayBill, delayDeductionCharge} from '@/api/bill.js'
 import {getMemberInfo} from '@/api/member.js'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   name: 'SettlementPay',
@@ -258,6 +259,18 @@ export default {
       return '立即支付';
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   async onLoad(options) {
     // 从路由参数中获取busId
     if (options.busId && options.billId) {
@@ -302,6 +315,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     copyOrderNo() {
       uni.setClipboardData({
         data: this.orderData.orderNo,

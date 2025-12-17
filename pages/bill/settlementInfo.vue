@@ -374,6 +374,7 @@
 import {getBillDetailById} from '@/api/bill.js'
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   name: 'SettlementInfo',
@@ -457,7 +458,18 @@ export default {
       this.fetchBillDetail();
     }
   },
-
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   // 拦截返回键
   onBackPress() {
     // 获取当前页面栈
@@ -485,6 +497,9 @@ export default {
     return false;
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

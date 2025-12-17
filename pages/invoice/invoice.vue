@@ -18,7 +18,7 @@
           <text class="tip-icon">ℹ️</text>
           <text class="tip-title">温馨提示</text>
         </view>
-        <text class="tip-content">若遇发票开具失败（自动开票系统繁忙）等情况的相关说明。</text>
+        <text class="tip-content">若遇发票开具失败（自动开票系统繁忙）等情况，请联系客服解决。</text>
       </view>
     </view>
 
@@ -59,6 +59,7 @@ import UnInvoiceList from '@/components/invoice/UnInvoiceList.vue'
 import InvoiceRecordList from '@/components/invoice/InvoiceRecordList.vue'
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   name: 'InvoicePage',
@@ -77,8 +78,22 @@ export default {
       currentTab: 0
     }
   },
-
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

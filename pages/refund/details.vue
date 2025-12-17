@@ -1,6 +1,15 @@
 <template>
   <view class="details-page">
-    <uv-navbar :border="false" autoBack title="退款详情" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack title="退款详情" placeholder safeAreaInsetTop>
+      <template v-slot:right>
+        <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
+          <CustomerServiceButton
+              session-from="refund_details_page"
+              custom-class="server-icon-wrapper"
+          />
+        </view>
+      </template>
+    </uv-navbar>
     <!-- 顶部卡片 -->
     <view class="top-card">
       <view class="card-header">
@@ -47,8 +56,13 @@ import {getRefundRecordById} from '@/api/member.js';
 // I will assume getStyleContent exists in member.js for simplicity now, to avoid the refactoring mistake.
 // In a real scenario, I'd create api/style.js and import from there.
 // For now, I will just mock the data for instruction and customer service.
+import globalData from '@/globalData';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
+  components: {
+    CustomerServiceButton
+  },
   data() {
     return {
       details: {},
@@ -77,7 +91,22 @@ export default {
       uni.hideLoading();
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     formatRefundRoad(refundRoad) {
       const refundRoadMap = {
         'WeChatPay': '微信',

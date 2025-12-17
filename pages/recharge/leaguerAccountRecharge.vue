@@ -181,6 +181,7 @@ import {getRechargeDiscounts, getRechargeAwardExplain} from '../../api/member';
 import StatusTag from '../../components/common/StatusTag.vue';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -286,6 +287,18 @@ export default {
       this.loadRechargeAwardExplain(defaultAmount);
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   beforeDestroy() {
     // 页面销毁时清除定时器
     this.clearPollingTimer();
@@ -296,6 +309,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

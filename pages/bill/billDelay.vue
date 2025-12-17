@@ -86,20 +86,21 @@
 
     <!-- 底部按钮 -->
     <view class="bottom-section">
-      <uv-button 
-        type="primary" 
-        @click="goHome" 
-        shape="circle" 
-        text="前往首页"
-        :customStyle="buttonStyle"
+      <uv-button
+          type="primary"
+          @click="goHome"
+          shape="circle"
+          text="前往首页"
+          :customStyle="buttonStyle"
       ></uv-button>
     </view>
   </view>
 </template>
 
 <script>
-import { getBillDetailById } from '@/api/bill.js'
-import { getStyleConfig } from '@/api/style.js'
+import {getBillDetailById} from '@/api/bill.js'
+import {getStyleConfig} from '@/api/style.js'
+import globalData from '@/globalData';
 
 export default {
   name: 'BillDelay',
@@ -110,7 +111,7 @@ export default {
       billId: null
     }
   },
-  
+
   computed: {
     buttonStyle() {
       return {
@@ -126,7 +127,18 @@ export default {
       return '176rpx'
     }
   },
-  
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   onLoad(options) {
     // 从路由参数获取id
     this.billId = options.id
@@ -134,32 +146,35 @@ export default {
       this.startPolling()
     }
   },
-  
+
   onUnload() {
     // 页面卸载时清除定时器
     this.clearTimer()
   },
-  
+
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     // 开始轮询
     startPolling() {
       // 立即执行一次
       this.checkBillStatus()
-      
+
       // 设置定时器，每3秒执行一次
       this.timer = setInterval(() => {
         this.checkBillStatus()
       }, 3000)
     },
-    
+
     // 检查账单状态
     async checkBillStatus() {
       try {
         const response = await getBillDetailById(this.billId)
-        
+
         if (response.code === 0 && response.data) {
           this.billData = response.data
-          
+
           // 如果billStatus == 11，跳转到settlementPay页面
           if (response.data.billStatus === 11) {
             this.clearTimer()
@@ -172,7 +187,7 @@ export default {
         console.error('获取账单详情失败:', error)
       }
     },
-    
+
     // 清除定时器
     clearTimer() {
       if (this.timer) {
@@ -180,7 +195,7 @@ export default {
         this.timer = null
       }
     },
-    
+
     // 复制订单号
     copyOrderNo() {
       const orderNo = this.billData.busShowNo || '--'
@@ -194,7 +209,7 @@ export default {
         }
       })
     },
-    
+
     // 前往首页
     goHome() {
       uni.switchTab({
@@ -486,19 +501,19 @@ page {
   page {
     background-color: #1C1C1E;
   }
-  
+
   .page-container {
     background-color: #1C1C1E;
   }
-  
+
   .info-card {
     background-color: #2C2C2E;
   }
-  
+
   .help-link {
     background-color: #2C2C2E;
   }
-  
+
   .status-title,
   .card-title,
   .info-value,
@@ -507,7 +522,7 @@ page {
   .help-title {
     color: #000;
   }
-  
+
   .status-subtitle,
   .info-label,
   .help-icon,
@@ -516,7 +531,7 @@ page {
   .help-arrow {
     color: #A0A0A0;
   }
-  
+
   .bottom-section {
     background-color: #1C1C1E;
     box-shadow: 0 -4rpx 20rpx rgba(255, 255, 255, 0.1);

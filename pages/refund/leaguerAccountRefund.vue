@@ -87,6 +87,7 @@ import {getLeaguerAccountRefundAmount, getLeaguerAccountRefundList} from '@/api/
 import {getStyleContent, getStyleConfig} from '@/api/style.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -121,7 +122,22 @@ export default {
       uni.hideLoading();
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

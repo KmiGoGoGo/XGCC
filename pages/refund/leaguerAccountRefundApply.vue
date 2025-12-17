@@ -90,6 +90,7 @@
 import {getLeaguerAccountRefundList, leaguerAccountRefundApply} from '../../api/refund';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -128,6 +129,18 @@ export default {
     }
   },
 
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   computed: {
     formatCurrency() {
       return (amount) => {
@@ -153,6 +166,9 @@ export default {
     this.refreshData();
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

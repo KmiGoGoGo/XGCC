@@ -72,7 +72,7 @@
 
 <script>
 import {loginBeforeCheck, alipayLoginBeforeCheck, getMemberInfo, changeUser, loginOther} from '@/api/member';
-import globalData from '../../globalData.js';
+import globalData from '@/globalData';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
 
 export default {
@@ -90,6 +90,18 @@ export default {
   },
   onLoad() {
     // 页面加载时调用
+  },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
   },
   onReady() {
     // 页面渲染完成后启动logo动画

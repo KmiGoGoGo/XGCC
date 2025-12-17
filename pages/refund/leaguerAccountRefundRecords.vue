@@ -28,6 +28,7 @@
 
 <script>
 import {getLeaguerAccountRefundRecordList} from '@/api/refund.js';
+import globalData from '@/globalData';
 
 export default {
   data() {
@@ -54,7 +55,22 @@ export default {
       uni.hideLoading();
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     formatCurrency(amount) {
       if (amount === null || amount === undefined) return '0.00';
       return (amount / 100).toFixed(2);

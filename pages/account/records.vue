@@ -102,6 +102,7 @@ import {
 } from '@/api/member.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -146,6 +147,18 @@ export default {
       return `${startDate} 至 ${endDate}`;
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/account/records'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/account/records'
+    }
+  },
   async onLoad() {
     this.startTime = this.getDefaultStartTime();
     this.endTime = this.getDefaultEndTime();
@@ -153,6 +166,9 @@ export default {
     await this.fetchRecords();
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     async fetchRecords() {
       uni.showLoading({title: '加载中...'});
       try {

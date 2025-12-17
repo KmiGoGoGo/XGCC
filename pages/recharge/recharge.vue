@@ -175,6 +175,7 @@ import {getRechargeDiscounts, getRechargeAwardExplain} from '../../api/member';
 import StatusTag from '../../components/common/StatusTag.vue';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -278,6 +279,18 @@ export default {
     const defaultAmount = Number(this.rechargeAmount) || 0;
     if (defaultAmount > 0) {
       this.loadRechargeAwardExplain(defaultAmount);
+    }
+  },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
     }
   },
   beforeDestroy() {
@@ -960,6 +973,9 @@ export default {
     // 联系客服
     contactCustomerService() {
       contactCustomerServiceFn();
+    },
+    getWxAppName() {
+      return globalData.wxAppName;
     }
   }
 }

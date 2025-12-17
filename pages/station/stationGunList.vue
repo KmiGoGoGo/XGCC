@@ -61,6 +61,7 @@ import {
 } from '@/api/stationGun.js'
 import stationGunListItem from '@/components/station/stationGunListItem.vue'
 import SafeArea from '@/components/safe-area/safe-area.vue'
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -151,7 +152,22 @@ export default {
     }
     this.fetchStationGunData()
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/station/stationGunList?stationId=' + this.stationId
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/station/stationGunList?stationId=' + this.stationId
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     async fetchStationGunData() {
       const params = {
         stationId: this.stationId,

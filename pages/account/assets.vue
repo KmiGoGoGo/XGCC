@@ -133,6 +133,7 @@ import {
 } from '@/api/member.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -182,6 +183,18 @@ export default {
     },
     formattedCardUnavailable() {
       return this.accountInfo ? this.formatCurrency(this.accountInfo.unAvailablePersonBalance) : '0.00';
+    }
+  },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/account/assets'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/account/assets'
     }
   },
   // onShow时刷新页面
@@ -258,6 +271,9 @@ export default {
     }
   },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     contactCustomerService() {
       contactCustomerServiceFn()
     },

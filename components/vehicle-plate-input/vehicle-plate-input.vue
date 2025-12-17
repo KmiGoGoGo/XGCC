@@ -3,27 +3,27 @@
     <!-- 车牌号输入框 -->
     <view class="plate-container" :class="{ 'keyboard-active': showKeyboard }">
       <!-- 前7位车牌号 -->
-      <view 
-        v-for="index in 7" 
-        :key="index"
-        class="plate-char-box"
-        :class="{ 
+      <view
+          v-for="index in 7"
+          :key="index"
+          class="plate-char-box"
+          :class="{
           'active': currentIndex === index - 1,
           'has-value': plateChars[index - 1] !== ''
         }"
-        @click="focusInput(index - 1)"
+          @click="focusInput(index - 1)"
       >
         <text class="plate-char">{{ plateChars[index - 1] || (index === 1 ? '省' : '') }}</text>
       </view>
       <!-- 新能源车牌第8位（可选） -->
-      <view 
-        v-if="showNewEnergySlot"
-        class="plate-char-box"
-        :class="{ 
+      <view
+          v-if="showNewEnergySlot"
+          class="plate-char-box"
+          :class="{
           'active': currentIndex === 7,
           'has-value': plateChars[7] !== ''
         }"
-        @click="focusInput(7)"
+          @click="focusInput(7)"
       >
         <text class="plate-char">{{ plateChars[7] }}</text>
       </view>
@@ -35,15 +35,15 @@
         <text class="keyboard-title">{{ keyboardTitle }}</text>
         <text class="keyboard-close" @click="closeKeyboard">完成</text>
       </view>
-      
+
       <!-- 省份键盘 -->
       <view class="keyboard-content province-keyboard" v-if="currentIndex === 0">
         <view class="keyboard-row" v-for="(row, rowIndex) in provinceKeyboard" :key="rowIndex">
-          <view 
-            v-for="(key, keyIndex) in row" 
-            :key="keyIndex"
-            class="keyboard-key province-key"
-            @click="onKeyPress(key)"
+          <view
+              v-for="(key, keyIndex) in row"
+              :key="keyIndex"
+              class="keyboard-key province-key"
+              @click="onKeyPress(key)"
           >
             <text>{{ key }}</text>
           </view>
@@ -53,12 +53,12 @@
       <!-- 字母数字键盘 -->
       <view class="keyboard-content char-keyboard" v-else>
         <view class="keyboard-row" v-for="(row, rowIndex) in charKeyboard" :key="rowIndex">
-          <view 
-            v-for="(key, keyIndex) in row" 
-            :key="keyIndex"
-            class="keyboard-key"
-            :class="{ 'delete-key': key === 'del' }"
-            @click="onKeyPress(key)"
+          <view
+              v-for="(key, keyIndex) in row"
+              :key="keyIndex"
+              class="keyboard-key"
+              :class="{ 'delete-key': key === 'del' }"
+              @click="onKeyPress(key)"
           >
             <text v-if="key !== 'del'">{{ key }}</text>
             <text v-else class="delete-icon">⌫</text>
@@ -144,10 +144,10 @@ export default {
         if (this.isUpdatingFromParent) {
           return;
         }
-        
+
         if (newVal !== undefined && newVal !== null && newVal !== this.fullPlateNumber) {
           this.isUpdatingFromParent = true;
-          
+
           if (newVal === '') {
             // 如果是空值，清空所有输入
             this.plateChars = ['', '', '', '', '', '', '', ''];
@@ -161,7 +161,7 @@ export default {
             // 默认显示新能源车牌位（只接收新能源车牌）
             this.showNewEnergySlot = true;
           }
-          
+
           this.$nextTick(() => {
             this.isUpdatingFromParent = false;
           });
@@ -183,7 +183,7 @@ export default {
     focusInput(index) {
       this.currentIndex = index;
       this.showKeyboard = true;
-      
+
       // 延迟一点，等待键盘动画完成后再滚动
       this.$nextTick(() => {
         setTimeout(() => {
@@ -209,14 +209,14 @@ export default {
       // 输入字符
       if (this.currentIndex < 8) {
         this.$set(this.plateChars, this.currentIndex, key);
-        
+
         // 在 nextTick 中触发 emit，确保 fullPlateNumber 已经更新
         this.$nextTick(() => {
           const newPlateNumber = this.fullPlateNumber;
           this.$emit('input', newPlateNumber);
           this.$emit('change', newPlateNumber);
         });
-        
+
         // 自动跳转到下一位
         if (this.currentIndex < 7) {
           // 前7位，直接跳转到下一位
@@ -244,7 +244,7 @@ export default {
         // 保持显示第8位输入框（默认只接收新能源车牌）
         this.showNewEnergySlot = true;
       }
-      
+
       // 在 nextTick 中触发 emit，确保 fullPlateNumber 已经更新
       this.$nextTick(() => {
         const newPlateNumber = this.fullPlateNumber;
@@ -256,7 +256,7 @@ export default {
     // 提交车牌号
     submit() {
       const plateNumber = this.fullPlateNumber;
-      
+
       if (!plateNumber || plateNumber.length < 8) {
         uni.showToast({
           title: '请输入完整的新能源车牌号（8位）',

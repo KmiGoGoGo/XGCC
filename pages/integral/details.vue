@@ -55,6 +55,7 @@
 import {getIntegralDetail, getIntegralSum} from '@/api/integral.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -83,7 +84,22 @@ export default {
   onLoad() {
     this.loadData();
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     /**
      * @description 切换筛选标签
      * @param {number|null} type - 标签类型

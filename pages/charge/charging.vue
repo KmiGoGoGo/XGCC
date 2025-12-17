@@ -278,6 +278,18 @@ export default {
       }
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   async onLoad(options) {
     console.log('充电中参数', options);
     // 校验参数

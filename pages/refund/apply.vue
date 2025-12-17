@@ -93,10 +93,16 @@
           3. 退款将原路返回到您的支付账户。
         </text>
         <view class="footer-divider"></view>
-        <view class="contact-service" @click="contactCustomerService">
-          <uv-icon name="server-fill" size="24" color="#13a4ec"></uv-icon>
-          <text class="service-text">联系客服</text>
-        </view>
+        <button
+            open-type="contact"
+            session-from="refund_apply_page"
+            style="opacity: 1; background-color: transparent; border: none; padding: 0; margin: 0;"
+        >
+          <view class="contact-service">
+            <uv-icon name="server-fill" size="24" color="#13a4ec"></uv-icon>
+            <text class="service-text">联系客服</text>
+          </view>
+        </button>
       </view>
     </view>
   </view>
@@ -105,8 +111,8 @@
 <script>
 import {getRefundAmount, getRefundList} from '@/api/refund.js';
 import {getStyleContent, getStyleConfig} from '@/api/style.js';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   components: {
@@ -147,9 +153,21 @@ export default {
       uni.hideLoading();
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
-    contactCustomerService() {
-      contactCustomerServiceFn()
+    getWxAppName() {
+      return globalData.wxAppName;
     },
     // 加载退款列表数据
     async loadRefundList(isRefresh = false) {
@@ -219,45 +237,6 @@ export default {
         title: '退款说明',
         content: this.refundInstruction || '暂无说明',
         showCancel: false
-      });
-    },
-    async contactCustomerService() {
-      const res = await getStyleConfig()
-      if (res.code !== 0) {
-        uni.showToast({
-          title: res.msg || '获取客服信息失败',
-          icon: 'none'
-        });
-        return;
-      }
-      const telephone = res.data.telephone || '4006331838';
-      const serviceTime = res.data.serviceTime || '09:00-18:00';
-      console.log('telephone', res);
-      uni.showModal({
-        title: '联系客服',
-        content: `客服电话：${telephone || ''}\n客服工作时间：${serviceTime || ''}`,
-        showCancel: true,
-        cancelText: '取消',
-        confirmText: '呼叫客服',
-        confirmColor: '#007AFF',
-        success: (res1) => {
-          if (res1.confirm) {
-            // 用户点击了呼叫客服按钮
-            uni.makePhoneCall({
-              phoneNumber: telephone,
-              success: () => {
-                console.log('呼叫成功');
-              },
-              fail: (err) => {
-                console.log('呼叫失败', err);
-                uni.showToast({
-                  title: '呼叫失败',
-                  icon: 'none'
-                });
-              }
-            });
-          }
-        }
       });
     },
     goToRecordsPage() {

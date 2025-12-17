@@ -1,19 +1,19 @@
 <template>
   <view class="container">
     <uv-navbar :border="false" title="我的卡券" autoBack placeholder safeAreaInsetTop></uv-navbar>
-    
+
     <!-- 顶部标签切换 -->
     <view class="tab-switch-wrapper">
       <view class="tab-switch-container">
-        <view 
-          :class="['tab-switch-item', activeTab === 'my' ? 'active' : '']"
-          @click="switchTab('my')"
+        <view
+            :class="['tab-switch-item', activeTab === 'my' ? 'active' : '']"
+            @click="switchTab('my')"
         >
           <text class="tab-switch-text">我的卡券</text>
         </view>
-        <view 
-          :class="['tab-switch-item', activeTab === 'history' ? 'active' : '']"
-          @click="switchTab('history')"
+        <view
+            :class="['tab-switch-item', activeTab === 'history' ? 'active' : '']"
+            @click="switchTab('history')"
         >
           <text class="tab-switch-text">历史卡券</text>
         </view>
@@ -25,14 +25,14 @@
       <!-- 优惠券列表 -->
       <template v-if="coupons.length > 0">
         <CouponCard
-          v-for="coupon in coupons"
-          :key="coupon.id"
-          :coupon="coupon"
-          @use="handleUseCoupon"
-          @show-site-info="handleShowSiteInfo"
+            v-for="coupon in coupons"
+            :key="coupon.id"
+            :coupon="coupon"
+            @use="handleUseCoupon"
+            @show-site-info="handleShowSiteInfo"
         />
       </template>
-      
+
       <!-- 空状态 -->
       <view v-else class="empty-state">
         <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { myCouponPage } from '@/api/coupon.js';
+import {myCouponPage} from '@/api/coupon.js';
 import CouponCard from '@/components/coupon/CouponCard.vue';
 
 export default {
@@ -59,7 +59,22 @@ export default {
   onLoad() {
     this.fetchCoupons();
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName() || '十万伏特',
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     async fetchCoupons() {
       uni.showLoading({
         title: '加载中...'
@@ -72,7 +87,7 @@ export default {
         });
         if (res.code === 0) {
           this.coupons = res.data.records;
-        } else if(res.code === 4) {
+        } else if (res.code === 4) {
 
         } else {
           uni.showToast({
@@ -83,10 +98,10 @@ export default {
       } catch (error) {
         console.error('获取优惠券失败:', error);
         if (error.code === 2) {
-          uni.showToast({ title: '请先登录', icon: 'none' });
+          uni.showToast({title: '请先登录', icon: 'none'});
           return;
         } else {
-          uni.showToast({ title: '网络错误', icon: 'none' });
+          uni.showToast({title: '网络错误', icon: 'none'});
           return;
         }
       } finally {

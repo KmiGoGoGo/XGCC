@@ -227,6 +227,72 @@ export default {
       return false;
     }
   },
+  onShareAppMessage() {
+    // 构建分享路径，包含必要的参数
+    const params = [];
+
+    // 添加桩编号参数（必需）
+    if (this.pileNo) {
+      params.push(`pileNum=${encodeURIComponent(this.pileNo)}`);
+    }
+
+    // 添加枪编号参数（必需）
+    if (this.gunParams.gunNo) {
+      params.push(`gunNo=${encodeURIComponent(this.gunParams.gunNo)}`);
+    }
+
+    // 如果有平台编号，也添加到分享路径中
+    if (this.platformNo) {
+      params.push(`platformNo=${encodeURIComponent(this.platformNo)}`);
+    }
+
+    // 构建完整的分享路径
+    let sharePath = '/pages/charge/gunStartingCharge';
+    if (params.length > 0) {
+      sharePath += '?' + params.join('&');
+    }
+
+    // 使用小程序名称作为分享标题
+    const shareTitle = this.getWxAppName();
+
+    return {
+      title: shareTitle,
+      path: sharePath
+    };
+  },
+  onShareTimeline() {
+    // 构建分享路径，包含必要的参数
+    const params = [];
+
+    // 添加桩编号参数（必需）
+    if (this.pileNo) {
+      params.push(`pileNum=${encodeURIComponent(this.pileNo)}`);
+    }
+
+    // 添加枪编号参数（必需）
+    if (this.gunParams.gunNo) {
+      params.push(`gunNo=${encodeURIComponent(this.gunParams.gunNo)}`);
+    }
+
+    // 如果有平台编号，也添加到分享路径中
+    if (this.platformNo) {
+      params.push(`platformNo=${encodeURIComponent(this.platformNo)}`);
+    }
+
+    // 构建完整的分享路径
+    let sharePath = '/pages/charge/gunStartingCharge';
+    if (params.length > 0) {
+      sharePath += '?' + params.join('&');
+    }
+
+    // 使用小程序名称作为分享标题
+    const shareTitle = this.getWxAppName();
+
+    return {
+      title: shareTitle,
+      path: sharePath
+    };
+  },
   onLoad(options) {
     console.log('gunStartingCharge onLoad', options)
     // 只接收 pileNo 和 gunNo 参数，其他数据通过 getPileDTOByNo 接口获取
@@ -264,6 +330,11 @@ export default {
     this.clearAllTimers();
   },
   methods: {
+    // 获取小程序名称
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
+
     handlePresetAmountChange(value) {
       console.log('handlePresetAmountChange', value)
       this.presetAmount = value;

@@ -79,6 +79,18 @@ export default {
       smoothProgress: 100 // 用于平滑动画的进度值
     }
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   onLoad(options) {
     // 从路由参数中获取账单ID
     console.log('停止充电参数', options);

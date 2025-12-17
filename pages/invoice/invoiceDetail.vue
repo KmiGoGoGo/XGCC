@@ -109,6 +109,7 @@ import {queryInvoiceDetailById} from '@/api/invoice.js'
 import OrderListModal from '@/components/invoice/OrderListModal.vue'
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import globalData from '@/globalData';
 
 export default {
   name: 'InvoiceDetail',
@@ -132,7 +133,22 @@ export default {
     }
   },
 
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     // 加载发票详情
     async loadInvoiceDetail() {
       if (!this.invoiceId) return

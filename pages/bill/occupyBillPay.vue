@@ -111,23 +111,25 @@
 </template>
 
 <script>
-import { getOccupyBillById } from '@/api/bill.js';
-import { getStyleConfig } from '@/api/style.js';
+import {getOccupyBillById} from '@/api/bill.js';
+import {getStyleConfig} from '@/api/style.js';
 // #ifdef MP-ALIPAY
-import { 
-  alipayDisposableUnifiedOrders, 
-  alipayDisposableOrderResultQuery, 
-  alipayDisposableCancelRecharge 
+import {
+  alipayDisposableUnifiedOrders,
+  alipayDisposableOrderResultQuery,
+  alipayDisposableCancelRecharge
 } from '@/api/pay.js';
 // #endif
 
 // #ifdef MP-WEIXIN
-import { 
-  wechatDisposableUnifiedOrders, 
-  wechatDisposableOrderResultQuery, 
-  wechatDisposableCancelRecharge 
+import {
+  wechatDisposableUnifiedOrders,
+  wechatDisposableOrderResultQuery,
+  wechatDisposableCancelRecharge
 } from '@/api/pay.js';
 // #endif
+
+import globalData from '@/globalData';
 
 export default {
   data() {
@@ -145,47 +147,47 @@ export default {
       }
     };
   },
-  
+
   computed: {
     // 总占位时长
     totalDuration() {
       return this.billData?.duration || '0';
     },
-    
-    // 超时占位时长  
+
+    // 超时占位时长
     overTimeDuration() {
       return this.billData?.actualDuration || '0';
     },
-    
+
     // 免费时长
     freeDuration() {
       return this.billData?.freeDuration || '0';
     },
-    
+
     // 格式化费用
     formatFee() {
       if (!this.billData?.busBalance) return '0.00';
       return (this.billData.busBalance / 100).toFixed(2);
     },
-    
+
     // 计费详情
     billingDetail() {
       if (!this.billData?.occupyCostModelDTO?.occupyPhraseRules?.length) {
         return '计费信息异常，请联系客服处理';
       }
-      
+
       const rule = this.billData.occupyCostModelDTO.occupyPhraseRules[0];
       const price = (rule.price / 100).toFixed(2);
-      const limitAmount = this.billData.occupyCostModelDTO.limitAmount ? 
-        (this.billData.occupyCostModelDTO.limitAmount / 100).toFixed(2) : '--';
-      
+      const limitAmount = this.billData.occupyCostModelDTO.limitAmount ?
+          (this.billData.occupyCostModelDTO.limitAmount / 100).toFixed(2) : '--';
+
       return `00:00~23:59, ${price}元/分钟;\n(单次封顶${limitAmount}元)`;
     },
-    
+
     // 支付状态文本
     statusText() {
       if (!this.billData?.billStatus) return '待支付';
-      
+
       switch (this.billData.billStatus) {
         case 11:
           return '待支付';
@@ -195,11 +197,11 @@ export default {
           return '待支付';
       }
     },
-    
+
     // 状态徽章样式类
     statusBadgeClass() {
       if (!this.billData?.billStatus) return 'status-unpaid';
-      
+
       switch (this.billData.billStatus) {
         case 11:
           return 'status-unpaid';
@@ -209,12 +211,12 @@ export default {
           return 'status-unpaid';
       }
     },
-    
+
     // 是否显示支付按钮
     showPaymentButton() {
       return this.billData?.billStatus === 11;
     },
-    
+
     // 付款时间
     paymentTime() {
       if (this.billData?.billStatus === 14 && this.billData?.payTime) {
@@ -222,7 +224,7 @@ export default {
       }
       return '-';
     },
-    
+
     // 实付金额
     actualAmount() {
       if (this.billData?.billStatus === 14 && this.billData?.actualBalance) {
@@ -231,7 +233,18 @@ export default {
       return '-';
     }
   },
-  
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   onLoad(options) {
     if (options.id) {
       this.billId = options.id;
@@ -244,19 +257,23 @@ export default {
     }
   },
 
+
   onUnload() {
     // 页面卸载时清理定时器
     this.clearPaymentPolling();
   },
-  
+
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     // 加载账单数据
     async loadBillData() {
       try {
-        uni.showLoading({ title: '加载中...' });
-        
+        uni.showLoading({title: '加载中...'});
+
         const response = await getOccupyBillById(this.billId);
-        
+
         if (response && response.code === 0) {
           this.billData = response.data;
           console.log('账单数据:', this.billData);
@@ -279,18 +296,18 @@ export default {
         this.loading = false;
       }
     },
-    
+
     // 格式化时间
     formatTime(timeStr) {
       if (!timeStr) return '--';
       return timeStr;
     },
-    
+
     // 返回上一页
     goBack() {
       uni.navigateBack();
     },
-    
+
     // 复制订单号
     copyOrderNo() {
       const orderNo = this.billData?.busId || '--';
@@ -304,10 +321,10 @@ export default {
         }
       });
     },
-    
+
     // 显示费用疑问
     async showQuestion() {
-      
+
       const res = await getStyleConfig()
       if (res.code !== 0) {
         uni.showToast({
@@ -335,7 +352,7 @@ export default {
         }
       });
     },
-    
+
     // 处理支付
     handlePayment() {
       uni.showModal({
@@ -361,13 +378,13 @@ export default {
       try {
         // 防止重复提交
         if (this.paymentOrderInfo.isProcessing) {
-          uni.showToast({ title: '正在处理中，请稍候...', icon: 'none' });
+          uni.showToast({title: '正在处理中，请稍候...', icon: 'none'});
           return;
         }
-        
+
         this.paymentOrderInfo.isProcessing = true;
-        uni.showLoading({ title: '正在生成支付参数...' });
-        
+        uni.showLoading({title: '正在生成支付参数...'});
+
         // 第1步：支付宝统一下单
         console.log('开始支付宝支付流程 - 统一下单');
         const unifiedOrderRes = await alipayDisposableUnifiedOrders({
@@ -376,25 +393,25 @@ export default {
           openId: uni.getStorageSync('openId'),
           occupydBillId: this.billData.id
         });
-        
+
         if (unifiedOrderRes.code !== 0) {
           throw new Error(unifiedOrderRes.msg || '生成支付参数失败');
         }
-        
+
         uni.hideLoading();
         console.log('支付参数生成成功，准备调起支付宝支付', unifiedOrderRes.data);
         this.paymentOrderInfo.orderNo = unifiedOrderRes.data.outTradeNo;
-        
+
         // 第2步：调起支付宝支付
         await this.invokePayment(unifiedOrderRes.data.tradeNo);
-        
+
       } catch (error) {
         console.error('支付宝支付流程失败:', error);
         setTimeout(() => {
           uni.hideLoading();
         }, 1000);
-        uni.showToast({ title: error.message || '支付失败', icon: 'none' });
-        
+        uni.showToast({title: error.message || '支付失败', icon: 'none'});
+
         // 发生错误时取消订单
         if (this.paymentOrderInfo.orderNo) {
           this.cancelPaymentOrder('支付流程异常');
@@ -412,13 +429,13 @@ export default {
       try {
         // 防止重复提交
         if (this.paymentOrderInfo.isProcessing) {
-          uni.showToast({ title: '正在处理中，请稍候...', icon: 'none' });
+          uni.showToast({title: '正在处理中，请稍候...', icon: 'none'});
           return;
         }
-        
+
         this.paymentOrderInfo.isProcessing = true;
-        uni.showLoading({ title: '正在生成支付参数...' });
-        
+        uni.showLoading({title: '正在生成支付参数...'});
+
         // 第1步：微信统一下单
         console.log('开始微信支付流程 - 统一下单');
         const unifiedOrderRes = await wechatDisposableUnifiedOrders({
@@ -428,25 +445,25 @@ export default {
           occupydBillId: this.billData.id,
           tradeType: "JSAPI"
         });
-        
+
         if (unifiedOrderRes.code !== 0) {
           throw new Error(unifiedOrderRes.msg || '生成支付参数失败');
         }
-        
+
         uni.hideLoading();
         console.log('支付参数生成成功，准备调起微信支付', unifiedOrderRes.data);
         this.paymentOrderInfo.orderNo = unifiedOrderRes.data.outTradeNo;
-        
+
         // 第2步：调起微信支付
         await this.invokePayment(unifiedOrderRes.data);
-        
+
       } catch (error) {
         console.error('微信支付流程失败:', error);
         setTimeout(() => {
           uni.hideLoading();
         }, 1000);
-        uni.showToast({ title: error.message || '支付失败', icon: 'none' });
-        
+        uni.showToast({title: error.message || '支付失败', icon: 'none'});
+
         // 发生错误时取消订单
         if (this.paymentOrderInfo.orderNo) {
           this.cancelPaymentOrder('支付流程异常');
@@ -465,72 +482,72 @@ export default {
         // #ifdef MP-ALIPAY
         // 支付宝小程序使用 my.tradePay
         my.tradePay({
-            tradeNO: paymentParams, // 支付宝：后端返回的支付参数字符串（tradeNo）
-            success: (res) => {
-                console.log('支付宝支付调用成功：', res);
-                // 注意：这里的success只是表示调起支付成功，不是支付成功
-                // 真正的支付结果需要通过轮询查询接口获取
-                if (res.resultCode === '6001') {
-                  uni.showToast({
-                    title: '支付已取消',
-                    icon: 'none'
-                  });
-                  reject(res);
-                } else if (res.resultCode === '9000') {
-                  this.startPaymentResultPolling();
-                  uni.showToast({
-                    title: '支付成功，请勿离开页面，等待处理结果',
-                    icon: 'success'
-                  });
-                  resolve(res);
-                }
-            },
-            fail: (err) => {
-                console.error('支付宝支付调用失败：', err);
-                uni.showToast({
-                    title: '支付调用失败',
-                    icon: 'none'
-                });
-                reject(err);
+          tradeNO: paymentParams, // 支付宝：后端返回的支付参数字符串（tradeNo）
+          success: (res) => {
+            console.log('支付宝支付调用成功：', res);
+            // 注意：这里的success只是表示调起支付成功，不是支付成功
+            // 真正的支付结果需要通过轮询查询接口获取
+            if (res.resultCode === '6001') {
+              uni.showToast({
+                title: '支付已取消',
+                icon: 'none'
+              });
+              reject(res);
+            } else if (res.resultCode === '9000') {
+              this.startPaymentResultPolling();
+              uni.showToast({
+                title: '支付成功，请勿离开页面，等待处理结果',
+                icon: 'success'
+              });
+              resolve(res);
             }
+          },
+          fail: (err) => {
+            console.error('支付宝支付调用失败：', err);
+            uni.showToast({
+              title: '支付调用失败',
+              icon: 'none'
+            });
+            reject(err);
+          }
         });
         // #endif
-        
+
         // #ifdef MP-WEIXIN
         // 微信小程序使用 wx.requestPayment
         uni.requestPayment({
-            provider: "wxpay",
-            timeStamp: paymentParams.timeStamp,
-            nonceStr: paymentParams.nonceStr,
-            package: paymentParams.package,
-            signType: paymentParams.signType || 'RSA',
-            paySign: paymentParams.sign,
-            success: (res) => {
-                console.log('微信支付调用成功：', res);
-                // 微信支付成功后需要轮询查询结果
-                // this.startPaymentResultPolling();
-                uni.showToast({
-                    title: '支付成功',
-                    icon: 'success'
-                });
-                this.loadBillData();
-                resolve(res);
-            },
-            fail: (err) => {
-                console.error('微信支付调用失败：', err);
-                if (err.errMsg === 'requestPayment:fail cancel') {
-                  uni.showToast({
-                    title: '支付已取消',
-                    icon: 'none'
-                  });
-                } else {
-                  uni.showToast({
-                    title: '支付调用失败',
-                    icon: 'none'
-                  });
-                }
-                reject(err);
+          provider: "wxpay",
+          timeStamp: paymentParams.timeStamp,
+          nonceStr: paymentParams.nonceStr,
+          package: paymentParams.package,
+          signType: paymentParams.signType || 'RSA',
+          paySign: paymentParams.sign,
+          success: (res) => {
+            console.log('微信支付调用成功：', res);
+            // 微信支付成功后需要轮询查询结果
+            // this.startPaymentResultPolling();
+            uni.showToast({
+              title: '支付成功',
+              icon: 'success'
+            });
+            this.loadBillData();
+            resolve(res);
+          },
+          fail: (err) => {
+            console.error('微信支付调用失败：', err);
+            if (err.errMsg === 'requestPayment:fail cancel') {
+              uni.showToast({
+                title: '支付已取消',
+                icon: 'none'
+              });
+            } else {
+              uni.showToast({
+                title: '支付调用失败',
+                icon: 'none'
+              });
             }
+            reject(err);
+          }
         });
         // #endif
       });
@@ -539,30 +556,30 @@ export default {
     // 开始轮询支付结果
     startPaymentResultPolling() {
       this.paymentOrderInfo.pollCount = 0;
-      
+
       const pollInterval = 3000; // 3秒轮询一次
       const maxPollCount = 20; // 最多轮询20次（60秒）
-      
+
       this.paymentOrderInfo.pollTimer = setInterval(async () => {
         this.paymentOrderInfo.pollCount++;
         console.log(`第${this.paymentOrderInfo.pollCount}次查询支付结果`);
-        
+
         try {
           console.log('订单号:', this.paymentOrderInfo.orderNo);
-          
+
           let queryRes;
           // #ifdef MP-ALIPAY
           queryRes = await alipayDisposableOrderResultQuery({
             orderNo: this.paymentOrderInfo.orderNo
           });
           // #endif
-          
+
           // #ifdef MP-WEIXIN
           queryRes = await wechatDisposableOrderResultQuery({
             orderNo: this.paymentOrderInfo.orderNo
           });
           // #endif
-          
+
           if (queryRes.code === 0) {
             // 支付成功，清除轮询并刷新页面
             this.clearPaymentPolling();
@@ -573,15 +590,15 @@ export default {
             });
             // 重新加载账单数据
             await this.loadBillData();
-            
+
           } else if (this.paymentOrderInfo.pollCount >= maxPollCount) {
             // 轮询超时，取消订单
             this.clearPaymentPolling();
-            uni.showToast({ title: '支付结果查询超时，订单已取消', icon: 'none' });
+            uni.showToast({title: '支付结果查询超时，订单已取消', icon: 'none'});
             this.cancelPaymentOrder('支付结果查询超时');
           }
           // 其他情况继续轮询
-          
+
         } catch (error) {
           console.error('查询支付结果失败:', error);
           if (this.paymentOrderInfo.pollCount >= maxPollCount) {
@@ -595,10 +612,10 @@ export default {
     // 取消支付订单（支持支付宝和微信）
     async cancelPaymentOrder(reason = '用户取消') {
       if (!this.paymentOrderInfo.orderNo) return;
-      
+
       try {
         console.log(`正在取消订单: ${this.paymentOrderInfo.orderNo}, 原因: ${reason}`);
-        
+
         let cancelRes;
         // #ifdef MP-ALIPAY
         cancelRes = await alipayDisposableCancelRecharge({
@@ -606,17 +623,17 @@ export default {
           cancelReason: reason
         });
         // #endif
-        
+
         // #ifdef MP-WEIXIN
         cancelRes = await wechatDisposableCancelRecharge({
           orderNo: this.paymentOrderInfo.orderNo,
           cancelReason: reason
         });
         // #endif
-        
+
         if (cancelRes.code === 0) {
           console.log('订单取消成功');
-          uni.showToast({ title: '订单已取消，款项将原路退回', icon: 'none' });
+          uni.showToast({title: '订单已取消，款项将原路退回', icon: 'none'});
         } else {
           console.error('订单取消失败:', cancelRes.msg);
         }
@@ -651,7 +668,7 @@ export default {
   min-height: 100vh;
   background-color: #f6f7f8;
   padding-bottom: 120rpx;
-  
+
   &.no-payment-btn {
     padding-bottom: 40rpx;
   }
@@ -686,12 +703,12 @@ export default {
   border-radius: 40rpx;
   font-size: 28rpx;
   font-weight: 500;
-  
+
   &.status-unpaid {
     background-color: #fed7aa;
     color: #ea580c;
   }
-  
+
   &.status-paid {
     background-color: #d1fae5;
     color: #059669;
@@ -728,7 +745,7 @@ export default {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  
+
   .iconfont {
     font-size: 40rpx;
     color: #007AFF;
@@ -770,7 +787,7 @@ export default {
   gap: 0;
   text-align: center;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -780,7 +797,7 @@ export default {
     width: 2rpx;
     background-color: #e5e7eb;
   }
-  
+
   &::after {
     content: '';
     position: absolute;
@@ -835,7 +852,7 @@ export default {
   align-items: center;
   margin-bottom: 32rpx;
   font-size: 32rpx;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -902,7 +919,7 @@ export default {
   color: #8E8E93;
   font-size: 24rpx;
   transition: transform 0.3s ease;
-  
+
   &.expanded {
     transform: rotate(180deg);
   }
@@ -998,7 +1015,7 @@ export default {
   border: none;
   box-shadow: 0 8rpx 32rpx rgba(0, 122, 255, 0.3);
   transition: all 0.3s ease;
-  
+
   &:active {
     transform: translateY(2rpx);
     box-shadow: 0 4rpx 16rpx rgba(0, 122, 255, 0.3);

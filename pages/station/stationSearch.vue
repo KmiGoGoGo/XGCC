@@ -5,20 +5,21 @@
     <view class="search-header">
       <view class="search-content">
         <view class="city-picker" @click="goToCityPicker">
-          <text style="color: #333;">{{ currentCityName }}</text><uv-icon style="margin-top: 5rpx;" name="arrow-down" color="#333" size="14"></uv-icon>
+          <text style="color: #333;">{{ currentCityName }}</text>
+          <uv-icon style="margin-top: 5rpx;" name="arrow-down" color="#333" size="14"></uv-icon>
         </view>
         <view class="search-input-container">
-          <uv-search 
-            v-model="searchKeyword" 
-            :showAction="true" 
-            placeholder="请输入站点名称" 
-            @search="onSearch"
-            @custom="onSearch"
-            actionText="搜索"
-            :actionStyle="{
+          <uv-search
+              v-model="searchKeyword"
+              :showAction="true"
+              placeholder="请输入站点名称"
+              @search="onSearch"
+              @custom="onSearch"
+              actionText="搜索"
+              :actionStyle="{
               color: '#000',
             }"
-            :boxStyle="{
+              :boxStyle="{
               borderRadius: '20rpx'
             }"
           ></uv-search>
@@ -28,10 +29,10 @@
 
     <view style="padding: 20rpx;">
       <!-- 主内容区域 -->
-      <scroll-view 
-        class="content-container" 
-        scroll-y="true" 
-        @scrolltolower="loadMore"
+      <scroll-view
+          class="content-container"
+          scroll-y="true"
+          @scrolltolower="loadMore"
       >
         <!-- 历史搜索 -->
         <view class="history-section">
@@ -40,11 +41,11 @@
             <text class="clear-history" v-if="searchHistory.length > 0" @click="clearHistory">清空</text>
           </view>
           <view class="history-tags" v-if="searchHistory.length > 0">
-            <view 
-              class="history-tag" 
-              v-for="(item, index) in searchHistory" 
-              :key="index"
-              @click="selectHistoryKeyword(item)"
+            <view
+                class="history-tag"
+                v-for="(item, index) in searchHistory"
+                :key="index"
+                @click="selectHistoryKeyword(item)"
             >
               <text>{{ item }}</text>
             </view>
@@ -61,10 +62,10 @@
           </view>
           <view class="station-list">
             <StationListItem
-              v-for="(station, index) in stationList"
-              :key="station.id"
-              :stationData="formatStationData(station)"
-              @click="onStationClick"
+                v-for="(station, index) in stationList"
+                :key="station.id"
+                :stationData="formatStationData(station)"
+                @click="onStationClick"
             />
           </view>
         </view>
@@ -82,8 +83,8 @@
 
 <script>
 import StationListItem from '../../components/station/StationListItem.vue'
-import { getStationPage } from '../../api/station.js'
-import  globalData  from '../../globalData.js'
+import {getStationPage} from '../../api/station.js'
+import globalData from '@/globalData';
 
 export default {
   name: 'StationSearch',
@@ -142,14 +143,29 @@ export default {
     // 城市信息初始化完成后执行搜索
     await this.searchStations()
   },
+  onShareAppMessage() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: this.getWxAppName(),
+      path: '/pages/index/index'
+    }
+  },
   methods: {
+    getWxAppName() {
+      return globalData.wxAppName;
+    },
     // 跳转到城市选择页面
     goToCityPicker() {
-        uni.navigateTo({
-            url: `/pages/common/cityPicker`
-        });
+      uni.navigateTo({
+        url: `/pages/common/cityPicker`
+      });
     },
-    
+
     // 初始化城市信息
     async initCityInfo() {
       try {
@@ -160,7 +176,7 @@ export default {
         } else {
           console.log('使用默认城市名称:', this.currentCityName);
         }
-        
+
         // 同时更新currentLocation中的areaName
         this.currentLocation.areaName = this.currentCityName;
         const currentCity = uni.getStorageSync('currentCity');
@@ -171,29 +187,29 @@ export default {
         console.error('初始化城市信息失败:', error);
       }
     },
-    
+
     // 搜索方法
     async onSearch() {
       if (this.searchKeyword.trim()) {
         // 保存搜索历史
         this.saveToHistory(this.searchKeyword)
       }
-      
-      
+
+
       // 重置分页
       this.pageNo = 1
       this.stationList = []
       this.hasMoreData = true
-      
+
       await this.searchStations()
     },
-    
+
     // 执行搜索
     async searchStations() {
       if (this.loading) return
-      
+
       this.loading = true
-      
+
       try {
         const requestData = {
           keyword: this.searchKeyword || '', // 允许空关键词搜索
@@ -210,20 +226,20 @@ export default {
           idle: false,
           memberQueryPreferenceDto: {}
         }
-        
+
         const response = await getStationPage(requestData)
-        
+
         if (response && response.code === 0) {
           const data = response.data
           this.totalCount = data.totalCount
           this.totalPages = data.pages || Math.ceil(data.totalCount / this.pageSize)
-          
+
           if (this.pageNo === 1) {
             this.stationList = data.data || []
           } else {
             this.stationList.push(...(data.data || []))
           }
-          
+
           // 检查是否还有更多数据
           this.hasMoreData = this.pageNo < this.totalPages
         } else {
@@ -243,7 +259,7 @@ export default {
         this.refreshing = false
       }
     },
-    
+
     // 格式化站点数据以适配StationListItem组件
     formatStationData(station) {
       return {
@@ -279,55 +295,55 @@ export default {
         longitude: station.longitude
       }
     },
-    
+
     // 加载更多
     async loadMore() {
       if (!this.hasMoreData || this.loading || !this.searchKeyword) {
         return
       }
-      
+
       this.pageNo += 1
       await this.searchStations()
     },
-    
+
     // 下拉刷新
     async onRefresh() {
       if (!this.searchKeyword) {
         this.refreshing = false
         return
       }
-      
+
       this.refreshing = true
       this.pageNo = 1
       this.stationList = []
       this.hasMoreData = true
       await this.searchStations()
     },
-    
+
     // 选择历史关键词
     selectHistoryKeyword(keyword) {
       this.searchKeyword = keyword
       this.onSearch()
     },
-    
+
     // 保存搜索历史
     saveToHistory(keyword) {
       if (!keyword || !keyword.trim()) return
-      
+
       // 去重并限制历史记录数量
       const history = this.searchHistory.filter(item => item !== keyword)
       history.unshift(keyword)
-      
+
       // 最多保存5条历史记录
       this.searchHistory = history.slice(0, 5)
-      
+
       // 保存到本地存储
       uni.setStorage({
         key: 'stationSearchHistory',
         data: this.searchHistory
       })
     },
-    
+
     // 加载搜索历史
     loadSearchHistory() {
       try {
@@ -348,7 +364,7 @@ export default {
         this.searchHistory = []
       }
     },
-    
+
     // 清空历史
     clearHistory() {
       uni.showModal({
@@ -368,7 +384,7 @@ export default {
         }
       })
     },
-    
+
     // 加载位置信息
     async loadLocationInfo() {
       // 这里可以从全局状态、页面参数或存储中获取位置信息
@@ -384,24 +400,24 @@ export default {
         console.error('加载位置信息失败:', error)
       }
     },
-    
+
     // 站点点击事件
     onStationClick(stationData) {
-        // 跳转到站点详情页
-        let tagList = '';
+      // 跳转到站点详情页
+      let tagList = '';
+      if (stationData.tag1) {
+        tagList += stationData.tag1.map(item => item.tagName).join(',');
+      }
+      if (stationData.tag2) {
         if (stationData.tag1) {
-            tagList += stationData.tag1.map(item => item.tagName).join(',');
+          tagList += ',';
         }
-        if (stationData.tag2) {
-            if (stationData.tag1) {
-                tagList += ',';
-            }
-            tagList += stationData.tag2.map(item => item.tagName).join(',');
-        }
-        console.log(`/pages/station/stationDetails?id=${stationData.id}&tagList=${tagList}`)
-        uni.navigateTo({
-            url: `/pages/station/stationDetails?id=${stationData.id}&tagList=${tagList}`
-        });
+        tagList += stationData.tag2.map(item => item.tagName).join(',');
+      }
+      console.log(`/pages/station/stationDetails?id=${stationData.id}&tagList=${tagList}`)
+      uni.navigateTo({
+        url: `/pages/station/stationDetails?id=${stationData.id}&tagList=${tagList}`
+      });
     }
   }
 }
@@ -434,12 +450,12 @@ export default {
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   background-color: #f8f9fa;
-  
+
   text {
     font-size: 28rpx;
     font-weight: 500;
   }
-  
+
   &:active {
     background-color: #e9ecef;
   }
@@ -466,13 +482,13 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20rpx;
-  
+
   text {
     font-size: 32rpx;
     font-weight: bold;
     color: #333;
   }
-  
+
   .clear-history {
     font-size: 24rpx !important;
     color: #999 !important;
@@ -491,12 +507,12 @@ export default {
   border: 1rpx solid #e9ecef;
   border-radius: 24rpx;
   padding: 12rpx 24rpx;
-  
+
   text {
     font-size: 26rpx;
     color: #666;
   }
-  
+
   &:active {
     background-color: #e9ecef;
   }
@@ -507,7 +523,7 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 40rpx;
-  
+
   .empty-history-text {
     font-size: 28rpx;
     color: #999;
@@ -532,13 +548,13 @@ export default {
   align-items: center;
   justify-content: center;
   padding: 120rpx 40rpx;
-  
+
   .empty-icon {
     font-size: 120rpx;
     margin-bottom: 20rpx;
     opacity: 0.5;
   }
-  
+
   .empty-text {
     font-size: 28rpx;
     color: #999;
@@ -552,7 +568,7 @@ export default {
   justify-content: center;
   padding: 40rpx;
   gap: 16rpx;
-  
+
   .load-text {
     font-size: 26rpx;
     color: #999;
