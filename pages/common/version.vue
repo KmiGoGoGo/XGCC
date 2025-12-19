@@ -7,21 +7,21 @@
                   <image class="logo-svg" src="/static/X.svg" mode="aspectFit"></image>
               </view>
             <text class="app-name">{{ getWxAppName() }}</text>
-            <text class="app-version">v1.0.0</text>
+            <text class="app-version">v{{ getWxAppVersion() }}</text>
         </view>
-        
+
         <!-- 功能卡片 -->
         <view class="card-list">
             <view class="card-item" @click="goToService">
                 <text class="card-text">服务协议</text>
                 <uv-icon name="arrow-right" color="#333" size="22"></uv-icon>
-            </view> 
+            </view>
             <view class="card-item" @click="goToPrivacy">
                 <text class="card-text">隐私政策</text>
                 <uv-icon name="arrow-right" color="#333" size="22"></uv-icon>
             </view>
         </view>
-        
+
         <!-- 退出登录按钮 -->
         <view class="bottom-button">
             <!-- 在有token的情况下才显示退出登录按钮 -->
@@ -44,6 +44,9 @@ export default {
         console.log('hasToken',this.hasToken)
     },
     methods: {
+        getWxAppVersion() {
+          return globalData.appVersion;
+        },
         getWxAppName() {
             return globalData.wxAppName;
         },

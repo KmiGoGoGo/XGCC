@@ -34,6 +34,7 @@
           v-else
           :pile-info="pileInfo"
           :main-gun-state="mainGunState"
+          :gun-no="gunParams.gunNo"
       />
     </template>
 
@@ -221,7 +222,7 @@ export default {
       if ((this.presetAmount == 0 || this.presetAmount == '0') && this.currentPaymentType == 1) {
         return true;
       }
-      if (this.currentPaymentType == -1 && this.presetAmount < 300) {
+      if ((this.currentPaymentType == -1 || this.currentPaymentType == 1) && this.presetAmount < 300) {
         return true;
       }
       return false;
@@ -431,9 +432,15 @@ export default {
               }
             } else {
               // 未找到指定的枪
-              uni.showToast({
-                title: `未找到枪编号为 ${this.gunParams.gunNo} 的充电枪`,
-                icon: 'none'
+              uni.showModal({
+                title: '提示',
+                content: `未找到枪编号为 ${this.gunParams.gunNo} 的充电枪`,
+                showCancel: false,
+                success: (res) => {
+                  if (res.confirm) {
+                    uni.navigateBack();
+                  }
+                }
               });
               return;
             }
@@ -441,7 +448,7 @@ export default {
         } else if (pileRes.code === 4) {
           uni.showModal({
             title: '提示',
-            content: '桩未上线投运，请选择其他充电桩',
+            content: pileRes.msg || '桩未上线投运，请选择其他充电桩',
             showCancel: false,
             success: (res) => {
               if (res.confirm) {

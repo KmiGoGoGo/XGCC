@@ -18,6 +18,10 @@
         <text class="label">充电桩名称</text>
         <text class="value">{{ pileInfo.pileName }}</text>
       </view>
+      <view class="info-row">
+        <text class="label">枪编号</text>
+        <text class="value">{{ gunNo }}</text>
+      </view>
       <view class="info-row last-row">
         <text class="label">充电桩编号</text>
         <text class="value">{{ pileInfo.pileNo }}</text>
@@ -43,6 +47,10 @@ export default {
     mainGunState: {
       type: Number,
       required: true
+    },
+    gunNo: {
+      type: String,
+      required: true
     }
   },
   computed: {
@@ -50,14 +58,14 @@ export default {
       switch (this.mainGunState) {
         case 3:
           return '充电中';
-        case 4: // 假设4为离线状态
+        case 5: // 假设4为离线状态
           return '离线';
         default:
           return '设备占用';
       }
     },
     statusDescription() {
-      console.log(this.mainGunState);
+      console.log(this.pileInfo);
       switch (this.mainGunState) {
         case 3:
           return '当前设备正在使用中，暂时无法使用，请更换其他电枪或电桩！';

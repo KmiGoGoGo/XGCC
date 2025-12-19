@@ -114,8 +114,9 @@ export default {
       provinceKeyboard: [
         ['京', '津', '冀', '晋', '蒙', '辽', '吉', '黑'],
         ['沪', '苏', '浙', '皖', '闽', '赣', '鲁', '豫'],
-        ['鄂', '湘', '粤', '桂', '琼', '渝', '川', '黔'],
-        ['滇', '藏', '陕', '甘', '青', '宁', '新']
+        ['鄂', '湘', '粤', '桂', '琼', '渝', '川', '贵'],
+        ['云', '藏', '陕', '甘', '青', '宁', '新'],
+        ['使', '领', '警', '学', '港', '澳']
       ],
       // 字母数字键盘布局
       charKeyboard: [
@@ -204,6 +205,20 @@ export default {
       if (key === 'del') {
         this.handleDelete();
         return;
+      }
+
+      // 特殊字符（学、警、港、澳、领）只能在第一位（索引0）和倒数两位（索引6和7）输入
+      const specialChars = ['学', '警', '港', '澳', '领'];
+      if (specialChars.includes(key)) {
+        if (this.currentIndex !== 0 && this.currentIndex !== 6 && this.currentIndex !== 7) {
+          // 不在允许的位置，不允许输入
+          uni.showToast({
+            title: '特殊字符只能在第一位或最后两位输入',
+            icon: 'none',
+            duration: 2000
+          });
+          return;
+        }
       }
 
       // 输入字符
