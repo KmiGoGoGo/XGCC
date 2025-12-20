@@ -431,7 +431,7 @@ export default {
   },
   async onLoad(options) {
     // this.initCityInfo();
-    this.getLocation();
+    // this.getLocation();
     // this.queryDynamicsActivity();
     uni.hideTabBar();
     console.log("打印数据1q", options, options.q)
@@ -1280,6 +1280,23 @@ export default {
     getLocation() {
       return new Promise((resolve, reject) => {
         const that = this;
+
+        // 检查时间限制：10秒内只能调用一次
+        const lastCallTime = uni.getStorageSync('getLocationLastCallTime');
+        const currentTime = Date.now();
+
+        if (lastCallTime) {
+          const timeDiff = currentTime - lastCallTime;
+          if ((timeDiff < 180000 && uni.getStorageSync('currentCityName') && uni.getStorageSync('cityName'))) { // 3分钟 = 180000毫秒
+            console.log(`getLocation调用被限制，currentCityName和cityName都存在，距离上次调用仅${Math.round(timeDiff / 1000)}秒，需要等待${Math.round((180000 - timeDiff) / 1000)}秒`);
+            resolve(); // 直接返回，不执行定位
+            return;
+          }
+        }
+
+        // 更新调用时间戳
+        uni.setStorageSync('getLocationLastCallTime', currentTime);
+
         uni.getLocation({
           isHighAccuracy: true,
           type: 'gcj02', // 使用国测局坐标系
@@ -1313,63 +1330,67 @@ export default {
             console.log("url", `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`)
 
             // 调用天地图逆地址解析API获取城市名称
-            uni.request({
-              url: `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`,
-              method: "post",
-              data: obj,
-              header: {
-                Accept: "application/json"
-              },
-              success: function (res2) {
-                console.log('逆地址解析结果:', res2);
-                if (res2.data.status === '0') {
-                  const data = res2.data.result;
-                  // 获取当前所在城市
-                  const cityName = data.addressComponent.city;
-                  console.log('解析到的城市名称:', cityName);
+            if (!uni.getStorageSync('currentCityName') || !uni.getStorageSync('cityName')) {
+              uni.request({
+                url: `https://api.tianditu.gov.cn/geocoder?postStr=${obj.postStr}&type=geocode&tk=${obj.tk}`,
+                method: "post",
+                data: obj,
+                header: {
+                  Accept: "application/json"
+                },
+                success: function (res2) {
+                  console.log('逆地址解析结果:', res2);
+                  if (res2.data.status === '0') {
+                    const data = res2.data.result;
+                    const cityName = data.addressComponent.city;
+                    console.log('解析到的城市名称:', cityName);
 
-                  // 保存当前所在城市信息到storage
-                  uni.setStorageSync('currentCityName', cityName);
+                    // 保存城市信息到storage
+                    uni.setStorageSync('currentCityName', cityName);
 
-                  // 判断有没有主动请求过获取其他城市的站点列表，如果没有的话就请求当前所在城市的站点列表
-                  if (!uni.getStorageSync('cityName')) {
-                    uni.setStorageSync('cityName', cityName);
-                  }
-                  // 请求stationArea
-                  getStationArea().then(areaRes => {
-                    const area = areaRes.data.find(item => item.cityName === cityName);
-                    if (area) {
-                      uni.setStorageSync('currentCity', {
-                        cityId: area.cityId,
-                        cityName: cityName,
-                        latitude: latitude,
-                        longitude: longitude
-                      });
+                    // 判断有没有主动请求过获取其他城市的站点列表，如果没有的话就请求当前所在城市的站点列表
+                    if (!uni.getStorageSync('cityName')) {
+                      uni.setStorageSync('cityName', cityName);
                     }
-                    // 更新页面显示的城市名称
-                    // that.currentCityName = cityName;
-                    // 定位和解析都完成，resolve Promise
-                    resolve();
-                  }).catch(err => {
-                    console.error('获取stationArea失败:', err);
-                    // 即使获取area失败，也resolve，因为位置信息已经保存
-                    that.cityName = cityName;
-                    resolve();
-                  });
-                } else {
-                  console.error('逆地址解析失败:', res2.data);
-                  // 解析失败时使用默认城市
+                    // 请求stationArea
+                    getStationArea().then(areaRes => {
+                      const area = areaRes.data.find(item => item.cityName === cityName);
+                      if (area) {
+                        uni.setStorageSync('currentCity', {
+                          cityId: area.cityId,
+                          cityName: cityName,
+                          latitude: latitude,
+                          longitude: longitude
+                        });
+                      }
+                      // 更新页面显示的城市名称
+                      // that.currentCityName = cityName;
+                      // 定位和解析都完成，resolve Promise
+                      resolve();
+                    }).catch(err => {
+                      console.error('获取stationArea失败:', err);
+                      // 即使获取area失败，也resolve，因为位置信息已经保存
+                      that.cityName = cityName;
+                      resolve();
+                    });
+                  } else {
+                    console.error('逆地址解析失败:', res2.data);
+                    // 解析失败时使用默认城市
+                    that.setDefaultCity(latitude, longitude);
+                    resolve(); // 即使解析失败也resolve，使用默认位置
+                  }
+                },
+                fail: function (err) {
+                  console.error('逆地址解析请求失败:', err);
+                  // 请求失败时使用默认城市
                   that.setDefaultCity(latitude, longitude);
-                  resolve(); // 即使解析失败也resolve，使用默认位置
+                  resolve(); // 即使请求失败也resolve，使用默认位置
                 }
-              },
-              fail: function (err) {
-                console.error('逆地址解析请求失败:', err);
-                // 请求失败时使用默认城市
-                that.setDefaultCity(latitude, longitude);
-                resolve(); // 即使请求失败也resolve，使用默认位置
-              }
-            });
+              });
+            } else {
+              console.log("同时包含currentCityName和cityName不调用天地图")
+              resolve();
+            }
           },
           fail: function (err) {
             console.error('获取位置失败', err);
@@ -1388,7 +1409,10 @@ export default {
 
     // 设置默认城市信息
     setDefaultCity(latitude = 23.070147, longitude = 114.105585) {
-      const defaultCityName = '东莞市';
+      latitude = globalData.defaultCity.latitude;
+      longitude = globalData.defaultCity.longitude;
+      this.currentCityName = globalData.defaultCity.cityName;
+      const defaultCityName = globalData.defaultCity.cityName;
       uni.setStorageSync('currentCityName', defaultCityName);
       console.log('使用默认城市:', defaultCityName);
 
@@ -1450,9 +1474,11 @@ export default {
       const area = stationArea.data.find(item => item.cityName === uni.getStorageSync('cityName'));
 
       if (!area) {
-        uni.showToast({
-          title: '当前城市暂无站点，请选择其他城市',
-          icon: 'none'
+        uni.showModal({
+          title: '提示',
+          content: '当前城市暂无站点，请选择其他城市',
+          confirmText: '确定',
+          showCancel: false
         });
         return
       }
