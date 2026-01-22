@@ -91,8 +91,8 @@
         <!-- 中心内容 -->
         <view class="circle-content">
           <text class="battery-percent">{{ batteryData.percent || '--' }}
-            <text class="battery-percent-unit">%</text>
           </text>
+          <text class="battery-percent-unit">%</text>
         </view>
       </view>
     </view>
@@ -1167,6 +1167,8 @@ export default {
 
 .battery-percent-unit {
   font-size: 48rpx !important;
+  margin-left: 10rpx;
+  margin-top: 10rpx;
   color: #e6f1ff;
 }
 

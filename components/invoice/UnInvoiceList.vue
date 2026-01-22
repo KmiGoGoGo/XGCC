@@ -325,14 +325,14 @@ export default {
 
       // 判断选中的item中是否有unitId == 26的订单，如果有，则提示不能开票
       console.log('选中的订单:', this.selectedItems)
-      const hasUnitId26 = this.selectedItems.some(item => item.unitId === 26)
-      if (hasUnitId26) {
-        uni.showToast({
-          title: '小桔订单暂时无法开票，请取消选择小桔订单后再次提交',
-          icon: 'none'
-        })
-        return
-      }
+      // const hasUnitId26 = this.selectedItems.some(item => item.unitId === 26)
+      // if (hasUnitId26) {
+      //   uni.showToast({
+      //     title: '小桔订单暂时无法开票，请取消选择小桔订单后再次提交',
+      //     icon: 'none'
+      //   })
+      //   return
+      // }
       
       // 这里可以跳转到下一步页面，传递选中的订单ID
       console.log('选中的订单:', this.selectedItems)
