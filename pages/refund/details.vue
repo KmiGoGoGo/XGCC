@@ -134,7 +134,7 @@ export default {
       });
     },
     contactCustomerService() {
-      const phone = this.details.customerTelephone || '4000110328';
+      const phone = this.details.customerTelephone;
       uni.makePhoneCall({
         phoneNumber: phone
       });
