@@ -66,6 +66,14 @@
       <text :class="['footer-text', couponClass]">查看适用站点</text>
       <text class="footer-arrow">›</text>
     </view>
+
+    <!-- 不可用原因提示（仅在可选择模式且禁用时显示） -->
+    <view v-if="selectable && disabled && statusDesc" class="status-desc">
+      <view class="desc">
+        <text>不可用原因：</text>
+        {{ statusDesc }}
+      </view>
+    </view>
   </view>
 </template>
 
@@ -106,6 +114,13 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    /**
+     * 不可用原因描述（仅在 selectable 为 true 且 disabled 为 true 时显示）
+     */
+    statusDesc: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -424,6 +439,20 @@ export default {
 .footer-arrow {
   font-size: 36rpx;
   color: #cbd5e1;
+}
+
+/* 不可用原因提示 */
+.status-desc {
+  margin-top: -12rpx;
+  margin-bottom: 12rpx;
+  padding: 0 32rpx 20rpx 32rpx;
+}
+
+.desc {
+  font-size: 24rpx;
+  color: #3E2723;
+  opacity: 0.7;
+  line-height: 1.5;
 }
 
 /* 单选框容器 */

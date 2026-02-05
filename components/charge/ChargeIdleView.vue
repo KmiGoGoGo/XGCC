@@ -144,18 +144,25 @@
                 @tap="selectPaymentMethod(item.payType)">
             <view class="payment-left">
               <view class="payment-icon" :class="getPaymentIconClass(item.payType)">
-                <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>
+                <image v-if="item.payType == -2" src="../../static/zhifufen_icon.png" mode="widthFix" style="width: 30rpx; height: 30rpx"></image>
+<!--                <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>-->
+                <uv-icon v-else size="18" :name="getPaymentIconText(item.payType)"></uv-icon>
               </view>
               <view class="payment-info">
                 <view style="display: flex; align-items: center; gap: 8rpx;">
                   <text class="payment-name-new">{{ item.accountName }}</text>
-                  <uv-icon name="question-circle" size="18" v-if="item.payType == -1"
-                           @click.stop="showPaymentHelp"
+                  <uv-icon name="question-circle" size="18" v-if="item.payType == -1 || item.payType == -2"
+                           @click.stop="showPaymentHelp(item.payType)"
                   ></uv-icon>
                 </view>
-                <text v-if="item.balance" class="balance-text-new">余额 {{
+                <text v-if="item.balance && item.payType != -2" class="balance-text-new">余额 {{
                     (parseInt(item.balance) / 100).toFixed(2)
                   }}元
+                </text>
+                <text v-if="item.balance && item.payType == -2" class="balance-text-new-credit">
+                  {{
+                    item.balance
+                  }}
                 </text>
               </view>
             </view>
@@ -518,13 +525,22 @@ export default {
       });
     },
     // 显示支付帮助信息
-    showPaymentHelp() {
-      uni.showModal({
-        title: '支付说明',
-        content: '充电需预先支付费用，充电结束后，剩余费用将在 1-3 个工作日内自动退回至原支付账户。因充电桩信息传输存在时差，可能出现实际费用超出预付金额的情况，届时将默认优先从你的个人账户余额中补足差额。',
-        showCancel: false,
-        confirmText: '我知道了'
-      });
+    showPaymentHelp(payType) {
+      if (payType == -2) {
+        uni.showModal({
+          title: '支付说明',
+          content: '微信信用分达到550分以上，可以先充电后付款。微信信用分由微信官方授权评分。',
+          showCancel: false,
+          confirmText: '我知道了'
+        })
+      } else {
+        uni.showModal({
+          title: '支付说明',
+          content: '充电需预先支付费用，充电结束后，剩余费用将在 1-3 个工作日内自动退回至原支付账户。因充电桩信息传输存在时差，可能出现实际费用超出预付金额的情况，届时将默认优先从你的个人账户余额中补足差额。',
+          showCancel: false,
+          confirmText: '我知道了'
+        });
+      }
     },
     // 处理双枪状态变化
     handleDualGunChange(gunData) {
@@ -641,13 +657,13 @@ export default {
     getPaymentIconText(payType) {
       switch (payType) {
         case -1: // 充完即退
-          return '↻';
+          return 'reload';
         case 1: // 个人账户
-          return '💳';
+          return 'account';
         case 2: // 车队账户
-          return '👥';
+          return 'account-fill';
         default:
-          return '💰';
+          return 'empty-coupon';
       }
     }
   },
@@ -1459,5 +1475,12 @@ export default {
   font-size: 24rpx;
   color: #007AFF;
   font-weight: bold;
+}
+
+.balance-text-new-credit {
+  font-size: 24rpx;
+  /* 灰色 */
+  color: #999;
+  font-weight: 600;
 }
 </style>

@@ -1,10 +1,10 @@
 <template>
   <view class="page-container">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop bgColor="transparent" title="使用优惠券"></uv-navbar>
     <!-- 可滚动的主内容区域 -->
-    <scroll-view 
-      class="scroll-content" 
-      scroll-y 
+    <scroll-view
+      class="scroll-content"
+      scroll-y
       :style="'height: calc(100vh - ' + footerHeight + 'px);'"
       @scrolltolower="onReachBottom"
     >
@@ -20,19 +20,10 @@
             :selectable="true"
             :selected="item.status === 0"
             :disabled="item.status > 1"
+            :status-desc="item.statusDesc"
             @select="handleSelectCoupon(item)"
           />
 
-          <!-- 不可用原因提示 -->
-          <template v-for="(item, index) in couponList" :key="'desc-' + index">
-            <view class="status-desc" v-if="item.status > 1">
-              <view class="desc">
-                <text>不可用原因：</text>
-                {{ item.statusDesc }}
-              </view>
-            </view>
-          </template>
-          
           <!-- 底部安全区域占位 -->
           <view class="bottom-safe-area" :style="'height: ' + footerHeight + 'px;'"></view>
         </main>
@@ -100,7 +91,7 @@ export default {
     if (options.couponIdStr) {
       this.cIdStr = options.couponIdStr
     }
-    
+
     // 获取底部安全区域高度
     this.getSystemInfo()
   },
@@ -121,7 +112,7 @@ export default {
       // footer-content约160rpx（转px约107px）+ 安全区域 + 额外边距
       this.footerHeight = 120 + safeAreaBottom + 20
     },
-    
+
     // 滚动到底部（分页加载）
     onReachBottom() {
       if (!this.hasMore) {
@@ -130,7 +121,7 @@ export default {
       this.pageNum++
       this.loadMoreCoupons()
     },
-    
+
     // 加载更多优惠券（示例方法）
     loadMoreCoupons() {
       // 这里添加分页加载逻辑
@@ -149,7 +140,7 @@ export default {
           const cIdStr = that.cIdStr
           let num = 0
           let deductionAmount = 0
-          
+
           data.forEach(element => {
             if (cIdStr == element.id) {
               element.status = 0
@@ -168,7 +159,7 @@ export default {
               num++
             }
           })
-          
+
           that.couponList = res.data
           that.num = num
           that.deductionAmount = deductionAmount
@@ -197,7 +188,7 @@ export default {
       } else if (item.couponType === 'XianJin') {
         couponTypeStr = '现金券'
       }
-      
+
       return {
         id: item.id,
         couponBalance: (item.couponBalance / 100).toFixed(2),
@@ -219,9 +210,9 @@ export default {
       if (item.status > 1) {
         return
       }
-      
+
       const list = this.couponList
-      
+
       list.forEach(element => {
         if (element.id == item.id) {
           element.status = 0
@@ -231,7 +222,7 @@ export default {
           }
         }
       })
-      
+
       let num = 0
       let deductionAmount = 0
       list.forEach(element => {
@@ -240,7 +231,7 @@ export default {
           num++
         }
       })
-      
+
       this.couponList = list
       this.num = num
       this.deductionAmount = deductionAmount
@@ -255,7 +246,7 @@ export default {
       let couponType = ''
       const list = this.couponList
       let noCheck = false
-      
+
       list.forEach(element => {
         if (element.status == 0) {
           couponIdStr += element.id + ','
@@ -263,7 +254,7 @@ export default {
           couponType = element.couponType
         }
       })
-      
+
       list.forEach(e => {
         if (e.status <= 1) {
           if (couponIdStr == '') {
@@ -283,25 +274,25 @@ export default {
 
       const reg = /,$/gi
       couponIdStr = couponIdStr.replace(reg, '')
-      
+
       uni.showLoading({
         title: '加载中...',
         mask: true
       })
-      
+
       deductibleBalanceCoupon = money * 100
-      
+
       const selectedCouponData = {
         couponIdStr: couponIdStr,
         money: money,
         couponType: couponType,
         deductibleBalanceCoupon: (deductibleBalanceCoupon / 100).toFixed(2)
       }
-      
+
       uni.setStorageSync('selectedCoupon', JSON.stringify(selectedCouponData))
-      
+
       uni.hideLoading()
-      
+
       uni.navigateBack()
     }
   }
