@@ -89,7 +89,8 @@ export default {
       try {
         const params = {
           page: isLoadMore ? this.pagination.current + 1 : 1,
-          pageSize: this.pagination.size
+          pageSize: this.pagination.size,
+          invoiceBillType: "1"
         }
         
         const response = await queryInvoiceRecordList(params)

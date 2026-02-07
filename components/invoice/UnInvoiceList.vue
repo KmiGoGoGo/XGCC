@@ -167,7 +167,8 @@ export default {
       try {
         const params = {
           current: isLoadMore ? this.pagination.current + 1 : 1,
-          size: this.pagination.size
+          size: this.pagination.size,
+          billType: "1"
         }
         
         const response = await getUnInvoiceBillList(params)

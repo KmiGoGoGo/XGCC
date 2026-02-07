@@ -249,6 +249,7 @@ export default {
       formData: {
         invoiceRiseTypeEnum: '1', // 抬头类型: 1-企业单位, 2-个人或非企业单位
         invoiceRise: '', // 发票抬头
+        invoiceBillType: "1", // 订单类型: 1-充电订单, 2-停车订单
         totalBalance: 0, // 发票金额(分)
         invoiceApplyingNote: '', // 备注信息
         dutyParagraph: '', // 税号
@@ -663,6 +664,7 @@ export default {
         // 构建请求数据
         // 前端和API映射一致：1-邮箱接收, 2-手机号接收
         const requestData = {
+          invoiceBillType: this.formData.invoiceBillType, // 订单类型: 1-充电订单, 2-停车订单
           invoiceRiseTypeEnum: this.formData.invoiceRiseTypeEnum, // 抬头类型：1：企业 2：个人
           invoiceRise: this.formData.invoiceRise, // 发票抬头
           totalBalance: String(Math.round(Number(this.formData.totalBalance) * 100)), // 发票金额（转为字符串，避免精度丢失）
