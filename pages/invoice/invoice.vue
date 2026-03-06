@@ -78,6 +78,14 @@ export default {
       currentTab: 0
     }
   },
+  onShow() {
+    // 当从发票表单页面返回时，刷新未开发票列表数据
+    this.$nextTick(() => {
+      if (this.currentTab === 0 && this.$refs.unInvoiceRef) {
+        this.$refs.unInvoiceRef.refresh()
+      }
+    })
+  },
   onShareAppMessage() {
     return {
       title: this.getWxAppName(),
