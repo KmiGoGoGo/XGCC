@@ -131,7 +131,7 @@ export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            companyName: '光烨科技',  // 公司名称
+            companyName: '惠州星光超充技术有限公司',  // 公司名称
             customerServicePhone: '4006331838'  // 客服电话
         }
     },

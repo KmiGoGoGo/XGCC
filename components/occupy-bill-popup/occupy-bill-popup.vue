@@ -28,7 +28,7 @@
         
         <!-- 站点信息 -->
         <view class="station-info">
-          <text class="station-name">{{ billData?.stationName || '节能测试站' }}</text>
+          <text class="station-name">{{ billData?.stationName || '测试站' }}</text>
         </view>
         <!-- 费用信息 -->
         <view class="fee-info">

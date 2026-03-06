@@ -280,7 +280,7 @@
                         1、您对<text class="green">{{ getWxAppName() }}</text>企业版及本隐私政策有任何意见或建议联系客服，电话：{{ customerServicePhone }}，工作日时间09:00-18:00。
                     </view>
                     <view class="content-item">2、关于本用户服务条款的问题，您可以通过如下联络方式同我们联系：</view>
-                    <view class="content-item bold">{{ companyAddress }}</view>
+                    <view class="content-item bold">{{ customerServicePhone }}</view>
                     <view class="content-item">
                         为保障我们高效处理您的问题并及时向您反馈，需要您提交身份证明、有效联系方式和书面请求及相关证据，我们会在验证您身份的前提下处理您的请求。
                     </view>
@@ -299,9 +299,8 @@ export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            companyName: '光烨科技',  // 公司名称
-            customerServicePhone: '4006331838',  // 客服电话
-            companyAddress: '广东省东莞市石龙镇美能达路光华实业6-8号'  // 公司地址
+            companyName: '惠州星光超充技术有限公司',  // 公司名称
+            customerServicePhone: '4006331838'  // 客服电话
         }
     },
     methods: {
