@@ -469,13 +469,6 @@ export default {
             p.showTopUp = p.payType === 1;
             return p;
           });
-          // 临时增加微信信用分支付方式
-          this.paymentMethods.push({
-            payType: -2,
-            accountName: '微信支付分 | 先充后付',
-            balance: "(550分及以上优享)",
-            showTopUp: false
-          });
         }
 
         // 根据账户余额设置默认支付方式
@@ -697,7 +690,7 @@ export default {
             console.log('当前支付方式:', this.currentPaymentType);
 
             // 判断支付方式：个人余额充电 vs 充完即退
-            if (this.currentPaymentType === 1 || this.currentPaymentType === -2) {
+            if (this.currentPaymentType === 1) {
               // 个人余额充电逻辑
               await this.handleBalanceCharging(balanceRes);
             } else if (this.currentPaymentType === -1) {
@@ -781,7 +774,7 @@ export default {
           gunNo: this.gunParams.gunNo,
           hulianinterfaceId: null,
           isParallelCharge: 0,
-          payMode: parseInt(1),
+          payMode: parseInt(this.currentPaymentType),
           pileNo: this.gunParams.pileNum,
           platformNo: this.platformNo,
           preChargeAmount: this.presetAmount / 100 > 200 ? 200 : (this.presetAmount / 100).toFixed(2), // 单位为元
