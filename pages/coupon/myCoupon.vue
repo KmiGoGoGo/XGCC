@@ -61,7 +61,7 @@ export default {
   },
   onShareAppMessage() {
     return {
-      title: this.getWxAppName() || '十万伏特',
+      title: this.getWxAppName(),
       path: '/pages/index/index'
     }
   },
