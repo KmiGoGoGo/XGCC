@@ -112,6 +112,15 @@
       </view>
     </view>
 
+    <!-- 快速退款 -->
+    <view class="refund-card" @click="goToPage('/pages/refund/applyRefund')">
+      <image class="refund-card-icon" src="/static/X.svg" mode="aspectFit"></image>
+      <view class="card-content">
+        <text class="refund-title">快速退款</text>
+        <text class="refund-desc">点击进入处理</text>
+      </view>
+    </view>
+
     <!-- 6. 功能菜单 -->
     <view class="card function-menu-card">
       <view class="menu-item" v-for="item in filteredMenuItems" :key="item.name" @click="goToPage(item.navigateTo)">
@@ -929,6 +938,89 @@ export default {
   color: #999;
   margin-top: 8rpx;
   display: block;
+}
+
+// 快速退款
+.refund-card {
+  width: 100%;
+  height: 200rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 32rpx;
+  gap: 48rpx;
+  background-color: #ffffff;
+  border: 1rpx solid #f2f2f2;
+  border-radius: 16rpx;
+  position: relative;
+  overflow: hidden;
+  margin: 16rpx 0;
+  user-select: none;
+}
+
+.refund-card-icon {
+  width: 100rpx;
+  height: 100rpx;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.refund-card::before {
+  content: '';
+  position: absolute;
+  bottom: -40rpx;
+  left: -40rpx;
+  width: 180rpx;
+  height: 180rpx;
+  background-color: #E5F6FF;
+  border-radius: 50%;
+  filter: blur(30px);
+  z-index: 1;
+}
+
+.refund-card::after {
+  content: '';
+  position: absolute;
+  top: -20rpx;
+  right: -20rpx;
+  width: 160rpx;
+  height: 160rpx;
+  background-color: #E5F6FF;
+  border-radius: 50%;
+  filter: blur(20px);
+  z-index: 1;
+}
+
+.refund-card:active {
+  background-color: #fafafa;
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.refund-title {
+  // 斜体
+  font-style: italic;
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #333333;
+  margin-bottom: 12rpx;
+  letter-spacing: 0.5rpx;
+}
+
+.refund-desc {
+  // 斜体
+  font-style: italic;
+  font-size: 24rpx;
+  color: #999999;
 }
 
 // 5. 广告横幅
