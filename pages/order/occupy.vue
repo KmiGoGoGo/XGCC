@@ -58,6 +58,9 @@ export default {
     };
   },
   onShow() {
+    // 重置分页和列表数据，避免重复追加
+    this.pagination.current = 1;
+    this.orderList = [];
     this.loadData();
   },
   onShareAppMessage() {
