@@ -3,16 +3,16 @@
         <uv-navbar :border="false" title="隐私政策" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         <view class="content">
             <view class="title">{{ getWxAppName() }}隐私政策</view>
-            
+
             <view class="main-text bold">
-                欢迎您使用<text class="green">{{ companyName }}</text>服务！我们非常重视您的隐私保护和个人信息保护。本隐私政策适用于您通过任何方式对<text class="green">{{ companyName }}</text>企业版各项服务的访问和使用。
+                欢迎您使用<text class="green">{{ getCompanyName() }}</text>服务！我们非常重视您的隐私保护和个人信息保护。本隐私政策适用于您通过任何方式对<text class="green">{{ getCompanyName() }}</text>企业版各项服务的访问和使用。
             </view>
-            
+
             <view class="section">
                 <view class="section-title">一、重要须知</view>
                 <view class="section-content">
                     <view class="content-item">
-                        您可以利用<text class="green">{{ companyName }}{{ getWxAppName() }}产品或服务</text>（以下简称"<text class="green">{{ getWxAppName() }}</text>"）搜索充电桩、开启充电、定位您所在的位置，充值、充电等，您具体获得的<text class="green">{{ getWxAppName() }}</text>服务内容可能因为您使用的<text class="green">{{ getWxAppName() }}</text>的版本不同而有所差异。您可以通过多种不同的方式来使用我们的产品和服务，包括<text class="green">{{ getWxAppName() }}</text>的应用程序、微信小程序、微信公众号、等。
+                        您可以利用<text class="green">{{ getCompanyName() }}{{ getWxAppName() }}产品或服务</text>（以下简称"<text class="green">{{ getWxAppName() }}</text>"）搜索充电桩、开启充电、定位您所在的位置，充值、充电等，您具体获得的<text class="green">{{ getWxAppName() }}</text>服务内容可能因为您使用的<text class="green">{{ getWxAppName() }}</text>的版本不同而有所差异。您可以通过多种不同的方式来使用我们的产品和服务，包括<text class="green">{{ getWxAppName() }}</text>的应用程序、微信小程序、微信公众号、等。
                     </view>
                     <view class="content-item">
                         此隐私权政策旨在帮助您了解我们会收集哪些数据、为什么收集这些数据，会利用这些数据做些什么及如何保护这些数据。请您务必认真阅读本隐私政策，在确认充分了解并同意后使用<text class="green">{{ getWxAppName() }}</text>服务。<text class="bold">使用<text class="green">{{ getWxAppName() }}</text>，即表示您同意<text class="green">{{ getWxAppName() }}</text>隐私政策</text>。如果您或您的监护人不同意本隐私政策的任何内容，您应该立即停止使用。
@@ -33,7 +33,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">二、我们如何收集和使用您的个人信息</view>
                 <view class="section-content">
@@ -58,7 +58,7 @@
                             4)<text class="bold">车辆信息</text>。当您使用<text class="green">{{ getWxAppName() }}</text>车主服务时，您需向我们提供车辆信息（包括但不限于您的车辆品牌、车辆型号、车牌号码、车辆识别代码、发动机号码）。若您不提供上述信息或提供的信息有误，您可能将无法获得相关服务或功能，或者无法达到相关服务拟达到的效果。
                         </view>
                     </view>
-                    
+
                     <view class="content-item bold">2.事先征得授权同意的例外</view>
                     <view class="content-item">请注意：在以下情形中，收集、使用个人信息无需事先征得您的授权同意：</view>
                     <view class="sub-list">
@@ -72,16 +72,16 @@
                         <view class="sub-item">h)用于维护所提供的产品或服务的安全稳定运行所必需的，例如发现、处置产品或服务的故障；</view>
                         <view class="sub-item">i)法律法规规定的其他情形。</view>
                     </view>
-                    
+
                     <view class="content-item bold">3.个人信息的匿名化处理</view>
                     <view class="content-item">
                         在收集到您的个人信息后，我们将通过技术手段及时对数据进行匿名化处理。在不泄露您个人信息的前提下，<text class="green">{{ getWxAppName() }}</text>有权对匿名化处理后的用户数据库进行挖掘、分析和利用（包括商业性使用）。
                     </view>
-                    
+
                     <view class="content-item">
                         4.您授权我们在您使用<text class="green">{{ getWxAppName() }}</text>产品及服务的期间使用您的个人信息，若您注销帐号，我们将停止使用并删除您的个人信息。
                     </view>
-                    
+
                     <view class="content-item bold">5.设备权限调用</view>
                     <view class="content-item">
                         <text class="green">{{ getWxAppName() }}</text>在提供服务过程中，会调用您的一些设备权限。以下是<text class="green">{{ getWxAppName() }}</text>调用权限对应的业务功能、调用权限的目的以及调用权限前向您询问的情况。
@@ -89,7 +89,7 @@
                     <view class="content-item">
                         您可以在设备的设置功能中选择关闭部分或全部权限，从而拒绝<text class="green">{{ getWxAppName() }}</text>收集相应的个人信息。在不同设备中，权限显示方式及关闭方式可能有所不同，具体请参考设备及系统开发方说明或指引。
                     </view>
-                    
+
                     <view class="permission-table">
                         <view class="table-header">
                             <view class="table-cell">设备权限</view>
@@ -134,17 +134,17 @@
                             <view class="table-cell">可以</view>
                         </view>
                     </view>
-                    
+
                     <view class="content-item bold">
                         6.我们可能使用您的信息用于安全防范和诈骗监测等，以预防、发现、调查欺诈、危害安全、非法或违反与我们的协议、政策或规则的行为，以保护您、我们或我们的关联公司、合作伙伴及社会公众的合法权益。
                     </view>
-                    
+
                     <view class="content-item bold">
                         7.当我们要将信息用于本隐私政策未载明的其它用途时，会事先征求您的同意。当我们要将基于特定目的收集而来的信息用于其他目的时，会事先征求您的同意。
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">三、我们如何保存及保护您的个人信息</view>
                 <view class="section-content">
@@ -167,7 +167,7 @@
                             4)我们也请您理解，在互联网行业由于技术的限制和飞速发展以及可能存在的各种恶意攻击手段，即便我们竭尽所能加强安全措施，也不可能始终保证信息的百分之百安全。<text class="bold">请您了解，您使用我们的产品和/或服务时所用的系统和通讯网络，有可能在我们控制之外的其他环节而出现安全问题。根据我们的安全管理制度，个人信息泄露、毁损或丢失事件，一经发生将启动紧急预案，由多个部门组成联合应急响应小组处理。</text>
                         </view>
                     </view>
-                    
+
                     <view class="content-item bold">4.安全事件通知</view>
                     <view class="sub-list">
                         <view class="sub-item">
@@ -182,7 +182,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">四、您的权利</view>
                 <view class="section-content">
@@ -221,7 +221,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">五、未成年人的个人信息保护</view>
                 <view class="section-content">
@@ -236,7 +236,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">六、第三方网站和服务</view>
                 <view class="section-content">
@@ -254,7 +254,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">七、隐私政策的修订</view>
                 <view class="section-content">
@@ -272,7 +272,7 @@
                     <view class="content-item">6、个人信息安全影响评估报告表明存在高风险时。</view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">八、投诉处理</view>
                 <view class="section-content">
@@ -280,12 +280,12 @@
                         1、您对<text class="green">{{ getWxAppName() }}</text>企业版及本隐私政策有任何意见或建议联系客服，电话：{{ customerServicePhone }}，工作日时间09:00-18:00。
                     </view>
                     <view class="content-item">2、关于本用户服务条款的问题，您可以通过如下联络方式同我们联系：</view>
-                    <view class="content-item bold">{{ customerServicePhone }}</view>
+                    <view class="content-item bold">{{ companyAddress }}</view>
                     <view class="content-item">
                         为保障我们高效处理您的问题并及时向您反馈，需要您提交身份证明、有效联系方式和书面请求及相关证据，我们会在验证您身份的前提下处理您的请求。
                     </view>
                     <view class="content-item bold">
-                        再次感谢您对<text class="green">{{ companyName }}</text>的信任和使用！ 注：本隐私政策版本发布日期为 2025 年 12月 1 日，于 2025 年 12月 1 日起正式生效。
+                        再次感谢您对<text class="green">{{ getCompanyName() }}</text>的信任和使用！ 注：本隐私政策版本发布日期为 2025 年 12月 1 日，于 2025 年 12月 1 日起正式生效。
                     </view>
                 </view>
             </view>
@@ -294,18 +294,21 @@
 </template>
 
 <script>
-import globalData from '../../globalData.js'
+import globalData from '@/globalData';
 export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            companyName: '惠州星光超充技术有限公司',  // 公司名称
-            customerServicePhone: '4006331838'  // 客服电话
+            customerServicePhone: '4006331838',  // 客服电话
+            companyAddress: '4006331838'  // 公司地址
         }
     },
     methods: {
         getWxAppName() {
             return globalData.wxAppName;
+        },
+        getCompanyName() {
+            return globalData.companyName || '本公司';
         },
     }
 }

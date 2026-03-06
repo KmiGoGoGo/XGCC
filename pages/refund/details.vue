@@ -66,7 +66,7 @@ export default {
   data() {
     return {
       details: {},
-      refundInstruction: '充值赠券活动，优惠券抵扣后不接受退款。（注：1、若仍需退款将计算并扣除优惠券抵扣部分退回；2、仅支持一年内充值订单退款；3、充值优惠活动最终解释权归惠州星光超充技术有限公司所有）',
+      refundInstruction: '充值赠券活动，优惠券抵扣后不接受退款。（注：1、若仍需退款将计算并扣除优惠券抵扣部分退回；2、仅支持一年内充值订单退款；3、充值优惠活动最终解释权归 '+this.getCompanyName()+' 所有）',
     };
   },
   async onLoad(options) {
@@ -104,6 +104,9 @@ export default {
     }
   },
   methods: {
+    getCompanyName() {
+      return globalData.companyName || '本公司';
+    },
     getWxAppName() {
       return globalData.wxAppName;
     },

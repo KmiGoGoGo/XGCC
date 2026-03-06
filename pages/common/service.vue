@@ -3,16 +3,16 @@
         <uv-navbar :border="false" title="服务协议" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
         <view class="content">
             <view class="title">{{ getWxAppName() }}注册服务条款</view>
-            
+
             <view class="note">
-                注：本条款是用户与<text class="green">{{ companyName }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2025 年 12月 1 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
+                注：本条款是用户与<text class="green">{{ getCompanyName() }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2025 年 12月 1 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
             </view>
-            
+
             <view class="section">
                 <view class="section-title">一、重要须知</view>
                 <view class="section-content">
                     <view class="content-item">
-                        1、<text class="green">{{ companyName }}</text>在此特别提醒，用户在注册、使用"<text class="green">{{ getWxAppName() }}（Android &IOS）</text>"之前，请认真阅读本服务条款中的各项条款说明。通过进入注册程序并勾选"我同意<text class="green">{{ getWxAppName() }}</text>注册服务条款"，即表示用户与<text class="green">{{ companyName }}</text>已达成协议，自愿接受本服务条款的所有内容（未成年人审阅时应得到法定监护人的陪同）；
+                        1、<text class="green">{{ getCompanyName() }}</text>在此特别提醒，用户在注册、使用"<text class="green">{{ getWxAppName() }}（Android &IOS）</text>"之前，请认真阅读本服务条款中的各项条款说明。通过进入注册程序并勾选"我同意<text class="green">{{ getWxAppName() }}</text>注册服务条款"，即表示用户与<text class="green">{{ getCompanyName() }}</text>已达成协议，自愿接受本服务条款的所有内容（未成年人审阅时应得到法定监护人的陪同）；
                     </view>
                     <view class="content-item">
                         2、"<text class="green">{{ getWxAppName() }}</text>"有权在必要时修改本服务条款，请用户随时关注APP服务条款的修改。如果用户不同意所改动的内容，可以主动停止使用"<text class="green">{{ getWxAppName() }}</text>"提供的相关服务，并可注销此APP。
@@ -22,7 +22,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">二、服务简介</view>
                 <view class="section-content">
@@ -34,7 +34,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">三、用户同意</view>
                 <view class="section-content">
@@ -44,7 +44,7 @@
                     <view class="content-item">4、本APP内的所有文字、软件、图像等其它信息受版权、商标、标签和其它财产所有权法律的保护，用户不能擅自复制、再造这些内容、或创造与内容有关的派生产品。</view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">四、用户个人信息保护及授权</view>
                 <view class="section-content">
@@ -80,7 +80,7 @@
                     </view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">五、用户行为规范</view>
                 <view class="section-content">
@@ -106,7 +106,7 @@
                     <view class="content-item bold">3、您须对自己在网上的言论和行为承担法律责任，您若在本网站上散布和传播反动、色情或其它违反国家法律的信息，本网站的系统记录有可能作为您违反法律的证据。</view>
                 </view>
             </view>
-            
+
             <view class="section">
                 <view class="section-title">六、法律管辖与其他</view>
                 <view class="section-content">
@@ -126,18 +126,20 @@
 </template>
 
 <script>
-import globalData from '../../globalData.js'
+import globalData from '@/globalData';
 export default {
     data() {
         return {
             // 这里是需要您填写的变量
-            companyName: '惠州星光超充技术有限公司',  // 公司名称
             customerServicePhone: '4006331838'  // 客服电话
         }
     },
     methods: {
         getWxAppName() {
             return globalData.wxAppName;
+        },
+        getCompanyName() {
+            return globalData.companyName || '本公司';
         },
     }
 }
