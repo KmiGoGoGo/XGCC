@@ -66,5 +66,6 @@ export default {
     password: "e8263553ec4f17a28eeaf1d6d7d1cb0b",
     sellerNumber: "cy"
   },
+  companyName: '惠州星光超充技术有限公司',
   env: "development"
 }

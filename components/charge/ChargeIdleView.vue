@@ -138,25 +138,45 @@
       </view>
       <view v-show="memberInfo.tokenMemberType == 0">
         <view class="payment-methods-container">
-          <view v-for="item in filteredPaymentMethods" :key="item.payType"
+          <view class="payment-divider"></view>
+          <template v-for="(item, index) in filteredPaymentMethods" :key="item.payType">
+            <view v-if="index > 0" class="payment-divider"></view>
+            <view
                 class="payment-option-new"
-                :class="{ 'payment-option-selected': paymentType == item.payType }"
                 @tap="selectPaymentMethod(item.payType)">
-            <view class="payment-left">
+            <view v-if="item.payType != -2" class="payment-left">
               <view class="payment-icon" :class="getPaymentIconClass(item.payType)">
+                <!-- <image v-if="item.payType == -2" src="../../static/zhifufen_icon.png" mode="widthFix" style="width: 30rpx; height: 30rpx"></image> -->
+                <!--                <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>-->
                 <uv-icon size="18" :name="getPaymentIconText(item.payType)"></uv-icon>
               </view>
               <view class="payment-info">
                 <view style="display: flex; align-items: center; gap: 8rpx;">
                   <text class="payment-name-new">{{ item.accountName }}</text>
                   <uv-icon name="question-circle" size="18" v-if="item.payType == -1"
-                           @click.stop="showPaymentHelp"
+                           @click.stop="showPaymentHelp(item.payType)"
                   ></uv-icon>
                 </view>
-                <text v-if="item.balance" class="balance-text-new">余额 {{
+                <text v-if="item.balance && item.payType != -2" class="balance-text-new">余额 {{
                     (parseInt(item.balance) / 100).toFixed(2)
                   }}元
                 </text>
+                <text v-if="item.balance && item.payType == -2" class="balance-text-new-credit">
+                  {{
+                    item.balance
+                  }}
+                </text>
+              </view>
+            </view>
+            <view v-else-if="item.payType == -2" class="payment-left">
+              <view class="payment-info">
+                <view class="zhifufen-title-row">
+                  <image src="../../static/zhifufen_icon.png" mode="widthFix" style="width: 28rpx; height: 28rpx"></image>
+                  <text class="zhifufen-title">微信支付分</text>
+                  <view class="zhifufen-title-divider"></view>
+                  <text class="zhifufen-title">先充后付</text>
+                </view>
+                <text class="zhifufen-balance">{{ String(item.balance || '').replace(/[()]/g, '') }}</text>
               </view>
             </view>
             <view class="payment-right">
@@ -175,13 +195,15 @@
                 <view v-if="paymentType == item.payType" class="radio-inner"></view>
               </view>
             </view>
-          </view>
+            </view>
+          </template>
+          <view class="payment-divider"></view>
         </view>
       </view>
       <view v-if="memberInfo.tokenMemberType == 2" class="fleet-account-badge"> 车队账户</view>
-      <uv-divider v-if="memberInfo.tokenMemberType != 2"></uv-divider>
+      <uv-divider v-if="memberInfo.tokenMemberType != 2 && paymentType != -2"></uv-divider>
       <!-- 预设充电金额 -->
-      <view v-if="memberInfo.tokenMemberType == 0">
+      <view v-if="memberInfo.tokenMemberType == 0 && paymentType != -2">
         <text class="section-description-new">充电费用达到上限或者充满电量则自动停止充电</text>
         <view class="amount-input-container-new">
           <text class="currency-symbol-new">¥</text>
@@ -518,13 +540,22 @@ export default {
       });
     },
     // 显示支付帮助信息
-    showPaymentHelp() {
-      uni.showModal({
-        title: '支付说明',
-        content: '充电需预先支付费用，充电结束后，剩余费用将在 1-3 个工作日内自动退回至原支付账户。因充电桩信息传输存在时差，可能出现实际费用超出预付金额的情况，届时将默认优先从你的个人账户余额中补足差额。',
-        showCancel: false,
-        confirmText: '我知道了'
-      });
+    showPaymentHelp(payType) {
+      if (payType == -2) {
+        uni.showModal({
+          title: '支付说明',
+          content: '微信信用分达到550分以上，可以先充电后付款。微信信用分由微信官方授权评分。',
+          showCancel: false,
+          confirmText: '我知道了'
+        })
+      } else {
+        uni.showModal({
+          title: '支付说明',
+          content: '充电需预先支付费用，充电结束后，剩余费用将在 1-3 个工作日内自动退回至原支付账户。因充电桩信息传输存在时差，可能出现实际费用超出预付金额的情况，届时将默认优先从你的个人账户余额中补足差额。',
+          showCancel: false,
+          confirmText: '我知道了'
+        });
+      }
     },
     // 处理双枪状态变化
     handleDualGunChange(gunData) {
@@ -673,6 +704,30 @@ export default {
 </script>
 
 <style scoped>
+.zhifufen-balance {
+  font-size: 24rpx;
+  color: #666;
+} 
+.zhifufen-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  color: #000;
+}
+
+.zhifufen-title {
+  font-size: 28rpx;
+  font-weight: 400;
+  color: inherit;
+}
+
+.zhifufen-title-divider {
+  width: 2rpx;
+  height: 26rpx;
+  background-color: currentColor;
+  opacity: 0.6;
+}
+
 .section-title {
   font-size: 36rpx;
   font-weight: bold;
@@ -1245,6 +1300,12 @@ export default {
   gap: 0rpx;
 }
 
+.payment-divider {
+  height: 1rpx;
+  background-color: #e5e5e5;
+  margin: 0 16rpx;
+}
+
 .payment-option-new {
   display: flex;
   align-items: center;
@@ -1459,5 +1520,12 @@ export default {
   font-size: 24rpx;
   color: #007AFF;
   font-weight: bold;
+}
+
+.balance-text-new-credit {
+  font-size: 24rpx;
+  /* 灰色 */
+  color: #999;
+  font-weight: 600;
 }
 </style>
