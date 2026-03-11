@@ -1,6 +1,6 @@
 <template>
   <view class="login-container">
-    <uv-navbar :border="false" title="登录" bgColor="transparent" @leftClick="back" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" title="登录" bgColor="transparent" :autoBack="false" @leftClick="handleNavBack" placeholder safeAreaInsetTop>
     </uv-navbar>
     <!-- 主要内容区域 -->
     <view class="main-content">
@@ -73,7 +73,7 @@
 <script>
 import {loginBeforeCheck, alipayLoginBeforeCheck, getMemberInfo, changeUser, loginOther} from '@/api/member';
 import globalData from '@/globalData';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 
 export default {
   data() {
@@ -117,17 +117,7 @@ export default {
     getWxAppName() {
       return globalData.wxAppName;
     },
-    back() {
-      // 判断是否有上一页
-      const pages = getCurrentPages()
-      if (pages.length > 1) {
-        uni.navigateBack()
-      } else {
-        uni.switchTab({
-          url: '/pages/index/index'
-        })
-      }
-    },
+    handleNavBack,
     // 启动 logo 动画
     startLogoAnimation() {
       // 延迟500ms后开始动画

@@ -1,7 +1,7 @@
 <template>
   <view class="page-container">
 
-    <uv-navbar :border="false" autoBack title="充电枪详情" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" title="充电枪详情" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -106,7 +106,7 @@ import {
   alipayDisposableOrderResultQuery,
   alipayDisposableCancelRecharge
 } from '@/api/pay.js';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
@@ -331,6 +331,7 @@ export default {
     this.clearAllTimers();
   },
   methods: {
+    handleNavBack,
     // 获取小程序名称
     getWxAppName() {
       return globalData.wxAppName;
@@ -697,7 +698,7 @@ export default {
             console.log('当前支付方式:', this.currentPaymentType);
 
             // 判断支付方式：个人余额充电 vs 充完即退
-            if (this.currentPaymentType === 1) {
+            if (this.currentPaymentType === 1 || this.currentPaymentType === -2) {
               // 个人余额充电逻辑
               await this.handleBalanceCharging(balanceRes);
             } else if (this.currentPaymentType === -1) {
@@ -781,7 +782,7 @@ export default {
           gunNo: this.gunParams.gunNo,
           hulianinterfaceId: null,
           isParallelCharge: 0,
-          payMode: parseInt(this.currentPaymentType),
+          payMode: 1,
           pileNo: this.gunParams.pileNum,
           platformNo: this.platformNo,
           preChargeAmount: this.presetAmount / 100 > 200 ? 200 : (this.presetAmount / 100).toFixed(2), // 单位为元

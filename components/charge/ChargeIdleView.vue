@@ -170,12 +170,7 @@
             </view>
             <view v-else-if="item.payType == -2" class="payment-left">
               <view class="payment-info">
-                <view class="zhifufen-title-row">
-                  <image src="../../static/zhifufen_icon.png" mode="widthFix" style="width: 28rpx; height: 28rpx"></image>
-                  <text class="zhifufen-title">微信支付分</text>
-                  <view class="zhifufen-title-divider"></view>
-                  <text class="zhifufen-title">先充后付</text>
-                </view>
+                <ZhifufenTitle />
                 <text class="zhifufen-balance">{{ String(item.balance || '').replace(/[()]/g, '') }}</text>
               </view>
             </view>
@@ -285,6 +280,7 @@ import SelectedGun from '@/components/gun/SelectedGun.vue';
 import {changeUser} from '@/api/member';
 import {getStationGunDetails} from '@/api/station';
 import StatusTag from '@/components/common/StatusTag.vue';
+import ZhifufenTitle from '@/components/charge/ZhifufenTitle.vue';
 
 export default {
   // name: 'ChargeIdelView',
@@ -292,7 +288,8 @@ export default {
     PileGunCard,
     Card,
     SelectedGun,
-    StatusTag
+    StatusTag,
+    ZhifufenTitle
   },
   props: {
     pileInfo: Object,
@@ -707,25 +704,6 @@ export default {
 .zhifufen-balance {
   font-size: 24rpx;
   color: #666;
-} 
-.zhifufen-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  color: #000;
-}
-
-.zhifufen-title {
-  font-size: 28rpx;
-  font-weight: 400;
-  color: inherit;
-}
-
-.zhifufen-title-divider {
-  width: 2rpx;
-  height: 26rpx;
-  background-color: currentColor;
-  opacity: 0.6;
 }
 
 .section-title {

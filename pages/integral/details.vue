@@ -1,6 +1,6 @@
 <template>
   <view class="details-container">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -53,7 +53,7 @@
 
 <script>
 import {getIntegralDetail, getIntegralSum} from '@/api/integral.js';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -97,6 +97,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

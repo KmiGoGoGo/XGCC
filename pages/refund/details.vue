@@ -1,6 +1,6 @@
 <template>
   <view class="details-page">
-    <uv-navbar :border="false" autoBack title="退款详情" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" title="退款详情" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -57,6 +57,7 @@ import {getRefundRecordById} from '@/api/member.js';
 // In a real scenario, I'd create api/style.js and import from there.
 // For now, I will just mock the data for instruction and customer service.
 import globalData from '@/globalData';
+import { handleNavBack } from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
 export default {
@@ -104,6 +105,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getCompanyName() {
       return globalData.companyName || '本公司';
     },

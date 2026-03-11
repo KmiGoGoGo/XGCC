@@ -18,7 +18,7 @@
     </view>
     <!-- #endif -->
 
-    <uv-navbar :border="false" bgColor="transparent" autoBack :title="title" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" bgColor="transparent" :autoBack="false" :title="title" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -184,7 +184,7 @@ import {getStationGunDetails} from '@/api/stationGun.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 // #endif
 
 export default {
@@ -337,6 +337,7 @@ export default {
     this.getScreenInfo();
   },
   methods: {
+    handleNavBack,
     // 初始化开屏 LOGO lottie 动画（微信小程序）
     getWxAppName() {
       return globalData.wxAppName;

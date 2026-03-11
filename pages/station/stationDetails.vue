@@ -1,6 +1,6 @@
 <template>
   <view class="page-container">
-    <uv-navbar bgColor="transparent" @leftClick="() => uni.navigateBack()" leftIconColor="#ffffff">
+    <uv-navbar bgColor="transparent" :autoBack="false" @leftClick="handleNavBack" leftIconColor="#ffffff">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -206,7 +206,7 @@ import PriceInfo from '@/components/station/PriceInfo.vue';
 import globalData from '@/globalData';
 import StatusTag from '@/components/common/StatusTag.vue';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 
 export default {
   components: {
@@ -414,6 +414,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

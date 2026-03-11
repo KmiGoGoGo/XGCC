@@ -1,6 +1,6 @@
 <template>
     <view :style="objColor">
-      <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+      <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
       <view class="stopCon">
         <view class="title">若在小程序上结束充电后电桩仍在充电运行中：</view>
         <view class="textCon">
@@ -31,6 +31,8 @@
   </template>
   
 <script>
+import { handleNavBack } from '@/utils/utils';
+
 export default {
   /**
    * 用户点击右上角分享
@@ -39,6 +41,9 @@ export default {
   
   onPageScroll(e) {
     
+  },
+  methods: {
+    handleNavBack
   }
 };
   </script>

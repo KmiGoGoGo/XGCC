@@ -1,6 +1,6 @@
 <template>
     <view class="settings-page">
-        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
         <!-- 版本设置卡片 -->
         <view class="version-card" @click="goToVersion">
             <text class="version-text">关于【星光超充】</text>
@@ -11,8 +11,11 @@
 </template>
 
 <script>
+import { handleNavBack } from '@/utils/utils';
+
 export default {
     methods: {
+        handleNavBack,
         goToVersion() {
             uni.navigateTo({
                 url: '/pages/common/version'

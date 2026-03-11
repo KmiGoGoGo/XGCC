@@ -1,6 +1,6 @@
 <template>
   <view class="details-container" v-if="orderDetails">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <!-- 顶部站点信息 -->
     <view class="header-section">
       <text class="station-name">{{ orderDetails.stationName }}</text>
@@ -100,6 +100,8 @@
 
 <script>
 import { getBillDetailById } from '@/api/bill.js';
+import { handleNavBack } from '@/utils/utils';
+
 export default {
   data() {
     return {
@@ -126,6 +128,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     async fetchOrderDetails() {
       uni.showLoading({ title: '加载中...' });
       try {

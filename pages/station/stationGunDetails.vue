@@ -1,5 +1,5 @@
 <template>
-  <uv-navbar :border="false" autoBack="true" :title="gunDetails.gunName" placeholder safeAreaInsetTop></uv-navbar>
+  <uv-navbar :border="false" :autoBack="false" :title="gunDetails.gunName" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
   <view class="page-container" v-if="gunDetails">
     <view class="content-wrapper">
       <!-- 充电桩信息 -->
@@ -93,6 +93,7 @@ import {
   getStationGunDetails
 } from '@/api/stationGun.js';
 import StagePriceInfo from '@/components/station/StagePriceInfo.vue';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -166,6 +167,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

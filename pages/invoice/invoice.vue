@@ -1,6 +1,6 @@
 <template>
   <view class="invoice-page">
-    <uv-navbar :border="false" title="发票管理" autoBack placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" title="发票管理" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -57,7 +57,7 @@
 <script>
 import UnInvoiceList from '@/components/invoice/UnInvoiceList.vue'
 import InvoiceRecordList from '@/components/invoice/InvoiceRecordList.vue'
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -99,6 +99,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },
@@ -207,6 +208,7 @@ export default {
 
 .tab-content {
   flex: 1;
+  min-height: 0;
   overflow: hidden;
   padding: 0 32rpx;
 }

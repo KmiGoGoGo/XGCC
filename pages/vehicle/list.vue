@@ -1,6 +1,6 @@
 <template>
   <view class="vehicle-list-container">
-    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <!-- 车辆列表 -->
     <view class="card-list">
       <view class="vehicle-card" v-for="(vehicle, index) in vehicleList" :key="vehicle.id">
@@ -73,6 +73,7 @@
 <script>
 import {getVehicleList, addVehicle, updateVehicleInfo, delVehicleInfo, updateDefaultVehicle} from '@/api/vehicle.js';
 import VehiclePlateInput from '@/components/vehicle-plate-input/vehicle-plate-input.vue';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -105,6 +106,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

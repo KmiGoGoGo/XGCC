@@ -1,8 +1,8 @@
 <template>
   <view class="page-container">
     <safe-area>
-      <uv-navbar autoBack fixed title="充电枪列表" bgColor="transparent" :placeholder="true"
-                 :safeAreaInsetTop="true"></uv-navbar>
+      <uv-navbar :autoBack="false" fixed title="充电枪列表" bgColor="transparent" :placeholder="true"
+                 :safeAreaInsetTop="true" @leftClick="handleNavBack"></uv-navbar>
       <!-- 顶部Tab -->
       <view class="subsection-container">
         <uv-subsection
@@ -61,6 +61,7 @@ import {
 } from '@/api/stationGun.js'
 import stationGunListItem from '@/components/station/stationGunListItem.vue'
 import SafeArea from '@/components/safe-area/safe-area.vue'
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -165,6 +166,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

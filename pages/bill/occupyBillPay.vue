@@ -1,6 +1,6 @@
 <template>
   <view class="page-container" :class="{ 'no-payment-btn': !showPaymentButton }">
-    <uv-navbar :border="false" title="占位订单详情" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="占位订单详情" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <!-- 头部金额显示 -->
     <!-- <view class="amount-header">
       <view class="amount-display">
@@ -129,6 +129,7 @@ import {
 } from '@/api/pay.js';
 // #endif
 
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -264,6 +265,7 @@ export default {
   },
 
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

@@ -1,7 +1,7 @@
 <template>
   <view class="recharge-container">
 
-    <uv-navbar :border="false" title="余额充值" autoBack placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" title="余额充值" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -179,7 +179,7 @@ import {
 import {getStyleContent} from '../../api/style';
 import {getRechargeDiscounts, getRechargeAwardExplain} from '../../api/member';
 import StatusTag from '../../components/common/StatusTag.vue';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -309,6 +309,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

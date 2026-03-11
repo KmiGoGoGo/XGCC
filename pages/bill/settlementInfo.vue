@@ -1,6 +1,6 @@
 <template>
   <view class="settlement-container">
-    <uv-navbar :border="false" @leftClick="handleBack"
+    <uv-navbar :border="false" :autoBack="false" @leftClick="handleBack"
                :title="orderStatus === 2 ? '订单待支付 请及时支付订单' : '订单已完成 感谢使用'" placeholder
                safeAreaInsetTop></uv-navbar>
     <!-- 页面内容 -->
@@ -523,6 +523,11 @@ export default {
         } else {
           uni.navigateBack();
         }
+      } else {
+        // 无上一页时跳转首页
+        uni.switchTab({
+          url: '/pages/index/index'
+        });
       }
     },
     // 获取账单详情

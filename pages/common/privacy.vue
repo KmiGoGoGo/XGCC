@@ -1,6 +1,6 @@
 <template>
     <view class="privacy-page">
-        <uv-navbar :border="false" title="隐私政策" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" title="隐私政策" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
         <view class="content">
             <view class="title">{{ getWxAppName() }}隐私政策</view>
 
@@ -294,6 +294,7 @@
 </template>
 
 <script>
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 export default {
     data() {
@@ -304,6 +305,7 @@ export default {
         }
     },
     methods: {
+        handleNavBack,
         getWxAppName() {
             return globalData.wxAppName;
         },

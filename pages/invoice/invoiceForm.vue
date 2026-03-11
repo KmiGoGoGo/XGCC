@@ -1,6 +1,6 @@
 <template>
   <view class="invoice-form-container">
-    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -233,7 +233,7 @@
 
 <script>
 import {applyInvoice} from '@/api/invoice'
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -484,6 +484,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

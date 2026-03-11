@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <uv-navbar :border="false" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
 
     <view class="content">
       <!-- 头部信息 -->
@@ -31,6 +31,7 @@
 </template>
 
 <script>
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -179,6 +180,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     // 获取小程序名称
     getWxAppName() {
       return globalData.wxAppName;

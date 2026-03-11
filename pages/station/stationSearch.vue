@@ -1,6 +1,6 @@
 <template>
   <view class="page-container">
-    <uv-navbar :border="false" title="搜索站点" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="搜索站点" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <!-- 搜索头部 -->
     <view class="search-header">
       <view class="search-content">
@@ -84,6 +84,7 @@
 <script>
 import StationListItem from '../../components/station/StationListItem.vue'
 import {getStationPage} from '../../api/station.js'
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -156,6 +157,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

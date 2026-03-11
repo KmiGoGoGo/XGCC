@@ -1,6 +1,6 @@
 <template>
   <view class="refund-page">
-    <uv-navbar :border="false" autoBack title="退款" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" title="退款" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -85,7 +85,7 @@
 <script>
 import {getLeaguerAccountRefundAmount, getLeaguerAccountRefundList} from '@/api/refund.js';
 import {getStyleContent, getStyleConfig} from '@/api/style.js';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -135,6 +135,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

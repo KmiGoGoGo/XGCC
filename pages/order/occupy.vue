@@ -1,6 +1,6 @@
 <template>
   <view class="occupy-order-container">
-    <uv-navbar :border="false" title="超时占位订单" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="超时占位订单" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <view class="order-list">
       <!-- 订单列表 -->
       <template v-if="orderList.length > 0">
@@ -44,6 +44,7 @@
 
 <script>
 import {getMyOccupyBillPage} from '@/api/bill.js';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -76,6 +77,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

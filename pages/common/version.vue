@@ -1,6 +1,6 @@
 <template>
     <view class="version-page">
-        <uv-navbar :border="false" :title="`关于【${getWxAppName()}】`" autoBack placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" :title="`关于【${getWxAppName()}】`" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
         <!-- 应用信息 -->
         <view class="app-info">
             <view class="logo-wrapper">
@@ -32,6 +32,7 @@
 
 <script>
 import { logout } from '@/api/member.js'
+import { handleNavBack } from '@/utils/utils'
 import globalData from '../../globalData.js'
 export default {
     data() {
@@ -44,6 +45,7 @@ export default {
         console.log('hasToken',this.hasToken)
     },
     methods: {
+        handleNavBack,
         getWxAppVersion() {
           return globalData.appVersion;
         },

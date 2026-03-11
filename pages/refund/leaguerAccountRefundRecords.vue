@@ -1,6 +1,6 @@
 <template>
   <view class="records-page">
-    <uv-navbar :border="false" autoBack title="退款记录" placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" :autoBack="false" title="退款记录" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
     <view class="main-content">
       <view class="records-list">
         <view class="record-card" v-for="item in records" :key="item.id" @click="goToDetails(item.id)">
@@ -28,6 +28,7 @@
 
 <script>
 import {getLeaguerAccountRefundRecordList} from '@/api/refund.js';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -68,6 +69,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

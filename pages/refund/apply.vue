@@ -1,6 +1,6 @@
 <template>
   <view class="refund-page">
-    <uv-navbar :border="false" autoBack title="退款" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" title="退款" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -112,6 +112,7 @@
 import {getRefundAmount, getRefundList} from '@/api/refund.js';
 import {getStyleContent, getStyleConfig} from '@/api/style.js';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -166,6 +167,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

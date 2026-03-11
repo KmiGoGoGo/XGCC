@@ -1,4 +1,19 @@
 import { getStyleConfig } from '@/api/style';
+
+/**
+ * 导航栏返回处理：有上一页则返回，无上一页则跳转首页
+ */
+export function handleNavBack() {
+  const pages = getCurrentPages();
+  if (pages.length > 1) {
+    uni.navigateBack();
+  } else {
+    uni.switchTab({
+      url: '/pages/index/index'
+    });
+  }
+}
+
 export async function contactCustomerService() {
     const res = await getStyleConfig()
         if (res.code !== 0) {

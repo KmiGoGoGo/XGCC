@@ -17,7 +17,7 @@
     </view>
     <!-- #endif -->
 
-    <uv-navbar :border="false" bgColor="transparent" @leftClick="handleBack" title="停止充电中" placeholder
+    <uv-navbar :border="false" bgColor="transparent" :autoBack="false" @leftClick="handleNavBack" title="停止充电中" placeholder
                safeAreaInsetTop>
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
@@ -54,7 +54,7 @@ import globalData from '../../globalData.js'
 // #ifdef MP-WEIXIN
 import lottie from 'lottie-miniprogram'
 import logoAnimationData from '../../static/X2.json'
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 // #endif
 
@@ -174,12 +174,7 @@ export default {
       }, 1300);
     },
 
-    handleBack() {
-      // 回到首页
-      uni.switchTab({
-        url: '/pages/index/index'
-      });
-    },
+    handleNavBack,
     startCountdown() {
       // 主计时器：每秒更新数字
       this.timer = setInterval(() => {

@@ -1,5 +1,11 @@
 <template>
   <view class="invoice-record-container">
+    <scroll-view
+      class="record-scroll-view"
+      scroll-y
+      :show-scrollbar="false"
+      @scrolltolower="onLoadMore"
+    >
     <!-- 发票记录列表 -->
     <view v-if="recordList.length > 0" class="record-list">
       <view 
@@ -45,6 +51,7 @@
     <view v-if="loading" class="loading-container">
       <uv-loading-icon text="加载中..." textSize="28rpx"></uv-loading-icon>
     </view>
+    </scroll-view>
   </view>
 </template>
 
@@ -214,7 +221,16 @@ export default {
 <style lang="scss" scoped>
 .invoice-record-container {
   height: 100%;
+  display: flex;
+  flex-direction: column;
   background-color: #f6f7f8;
+}
+
+.record-scroll-view {
+  flex: 1;
+  height: 0;
+  width: 100%;
+  padding-bottom: 32rpx;
 }
 
 .record-list {

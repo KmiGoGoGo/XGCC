@@ -1,6 +1,6 @@
 <template>
   <view class="records-page">
-    <uv-navbar :border="false" title="账户账单" autoBack placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" title="账户账单" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -100,7 +100,7 @@
 import {
   getAccountFlowPage
 } from '@/api/member.js';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -166,6 +166,7 @@ export default {
     await this.fetchRecords();
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

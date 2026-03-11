@@ -1,6 +1,6 @@
 <template>
   <view class="page-container">
-    <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop bgColor="transparent" title="使用优惠券"></uv-navbar>
+    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop bgColor="transparent" title="使用优惠券" @leftClick="handleNavBack"></uv-navbar>
     <!-- 可滚动的主内容区域 -->
     <scroll-view
       class="scroll-content"
@@ -60,6 +60,7 @@
 <script>
 import { getCouponRecodeByBill } from '../../api/coupon.js'
 import CouponCard from '@/components/coupon/CouponCard.vue'
+import { handleNavBack } from '@/utils/utils'
 
 export default {
   name: 'UseCoupon',
@@ -104,6 +105,7 @@ export default {
   onPullDownRefresh: function () {},
   onShareAppMessage: function () {},
   methods: {
+    handleNavBack,
     // 获取系统信息（计算安全区域）
     getSystemInfo() {
       const systemInfo = uni.getSystemInfoSync()

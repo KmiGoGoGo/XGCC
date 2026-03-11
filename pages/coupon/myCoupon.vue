@@ -1,6 +1,6 @@
 <template>
   <view class="container">
-    <uv-navbar :border="false" title="我的卡券" autoBack placeholder safeAreaInsetTop></uv-navbar>
+    <uv-navbar :border="false" title="我的卡券" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
 
     <!-- 顶部标签切换 -->
     <view class="tab-switch-wrapper">
@@ -21,30 +21,50 @@
     </view>
 
     <!-- 优惠券列表 -->
-    <view class="coupon-list">
-      <!-- 优惠券列表 -->
-      <template v-if="coupons.length > 0">
-        <CouponCard
-            v-for="coupon in coupons"
-            :key="coupon.id"
-            :coupon="coupon"
-            @use="handleUseCoupon"
-            @show-site-info="handleShowSiteInfo"
-        />
-      </template>
+    <scroll-view
+      class="coupon-scroll"
+      scroll-y
+      :show-scrollbar="false"
+      @scrolltolower="onLoadMore"
+    >
+      <view class="coupon-list">
+        <!-- 优惠券列表 -->
+        <template v-if="coupons.length > 0">
+          <CouponCard
+              v-for="coupon in coupons"
+              :key="coupon.id"
+              :coupon="coupon"
+              @use="handleUseCoupon"
+              @show-site-info="handleShowSiteInfo"
+          />
+          <uv-load-more
+            :status="loadStatus"
+            @loadmore="onLoadMore"
+            loadmore-text="上拉或点击加载更多"
+            loading-text="正在加载..."
+            nomore-text="没有更多了"
+          />
+        </template>
 
-      <!-- 空状态 -->
-      <view v-else class="empty-state">
-        <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
-        <text class="empty-text">{{ activeTab === 'my' ? '暂无可用卡券' : '暂无历史卡券' }}</text>
+        <!-- 空状态 -->
+        <view v-else-if="!loading" class="empty-state">
+          <uv-icon name="empty-favor" size="200" color="#cbd5e1"></uv-icon>
+          <text class="empty-text">{{ activeTab === 'my' ? '暂无可用卡券' : '暂无历史卡券' }}</text>
+        </view>
+
+        <!-- 加载中 -->
+        <view v-else class="empty-state">
+          <uv-loading-icon text="加载中..." textSize="28rpx"></uv-loading-icon>
+        </view>
       </view>
-    </view>
+    </scroll-view>
   </view>
 </template>
 
 <script>
 import {myCouponPage} from '@/api/coupon.js';
 import CouponCard from '@/components/coupon/CouponCard.vue';
+import { handleNavBack } from '@/utils/utils';
 
 export default {
   components: {
@@ -53,7 +73,15 @@ export default {
   data() {
     return {
       coupons: [],
-      activeTab: 'my'
+      activeTab: 'my',
+      loading: false,
+      loadStatus: 'loadmore', // loadmore, loading, nomore
+      pagination: {
+        current: 1,
+        size: 10,
+        total: 0,
+        pages: 0
+      }
     };
   },
   onLoad() {
@@ -72,26 +100,42 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },
-    async fetchCoupons() {
-      uni.showLoading({
-        title: '加载中...'
-      });
+    async fetchCoupons(isLoadMore = false) {
+      if (this.loading) return;
+      this.loading = true;
+      if (!isLoadMore) {
+        this.loadStatus = 'loading';
+      }
       try {
+        const page = isLoadMore ? this.pagination.current + 1 : 1;
         const res = await myCouponPage({
           tab: this.activeTab === 'my' ? 1 : 2,
-          current: 1,
-          size: 10
+          current: page,
+          size: this.pagination.size
         });
         if (res.code === 0) {
-          this.coupons = res.data.records;
+          const { records = [], total = 0, current = 1, pages = 0 } = res.data || {};
+          if (isLoadMore) {
+            this.coupons = [...this.coupons, ...records];
+          } else {
+            this.coupons = records;
+          }
+          this.pagination = {
+            current,
+            size: this.pagination.size,
+            total,
+            pages
+          };
+          this.loadStatus = current >= pages ? 'nomore' : 'loadmore';
         } else if (res.code === 4) {
-
+          // 未登录等
         } else {
           uni.showToast({
-            title: '加载失败',
+            title: res.msg || '加载失败',
             icon: 'none'
           });
         }
@@ -99,13 +143,16 @@ export default {
         console.error('获取优惠券失败:', error);
         if (error.code === 2) {
           uni.showToast({title: '请先登录', icon: 'none'});
-          return;
         } else {
           uni.showToast({title: '网络错误', icon: 'none'});
-          return;
         }
       } finally {
-        uni.hideLoading();
+        this.loading = false;
+      }
+    },
+    onLoadMore() {
+      if (this.loadStatus === 'loadmore') {
+        this.fetchCoupons(true);
       }
     },
     /**
@@ -115,6 +162,8 @@ export default {
     switchTab(tab) {
       this.activeTab = tab;
       this.coupons = [];
+      this.pagination = { current: 1, size: 10, total: 0, pages: 0 };
+      this.loadStatus = 'loadmore';
       this.fetchCoupons();
     },
     /**
@@ -165,8 +214,15 @@ export default {
 /* 页面容器 */
 .container {
   background: linear-gradient(180deg, #f0f8ff 0%, #ffffff 100%);
-  min-height: 100vh;
-  padding-bottom: 32rpx;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.coupon-scroll {
+  flex: 1;
+  height: 0;
+  width: 100%;
 }
 
 /* 顶部标签切换 */
@@ -215,7 +271,7 @@ export default {
 
 /* 优惠券列表 */
 .coupon-list {
-  padding: 16rpx 32rpx;
+  padding: 16rpx 32rpx 32rpx;
   display: flex;
   flex-direction: column;
   gap: 32rpx;

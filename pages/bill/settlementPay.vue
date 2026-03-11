@@ -1,6 +1,6 @@
 <template>
   <view class="settlement-pay-container">
-    <uv-navbar :border="false" title="感谢使用!请支付订单" autoBack placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" title="感谢使用!请支付订单" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -59,10 +59,8 @@
           <view class="price-row">
             <text class="price-label">支付方式</text>
             <!-- 微信支付分显示 -->
-            <view class="price-value flex-row-start" v-if="orderData.wxppOrder">
-              <image src="https://oos-cn.ctyunapi.cn/front-end/static/zhifufen_icon.png"
-                     class='zhifufen_icon'></image>
-              微信支付分
+            <view class="price-value flex-row-start" v-if="true">
+              <ZhifufenTitle color="green" />
             </view>
             <view class="price-value" v-else-if="orderData.payMode == 6">电卡支付</view>
             <view class="price-value" v-else-if="orderData.payMode == 5">储值卡支付</view>
@@ -178,12 +176,15 @@
 import {getDelayPayBill, delayDeductionCharge} from '@/api/bill.js'
 import {getMemberInfo} from '@/api/member.js'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
+import ZhifufenTitle from '@/components/charge/ZhifufenTitle.vue';
 
 export default {
   name: 'SettlementPay',
   components: {
-    CustomerServiceButton
+    CustomerServiceButton,
+    ZhifufenTitle
   },
   data() {
     return {
@@ -315,6 +316,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

@@ -3,9 +3,10 @@
     <uv-navbar
         :title="billDetail.commentStatus == 0 ? '评价' : '已评价'"
         :border="false"
-        :autoBack="true"
+        :autoBack="false"
         :placeholder="true"
         :safeAreaInsetTop="true"
+        @leftClick="handleNavBack"
     />
     <!-- 订单信息卡片 -->
     <view class="order-info-card">
@@ -149,6 +150,7 @@
 
 <script>
 import {getBillDetailById, billComment, getDetailsByBusId} from '@/api/bill.js'
+import { handleNavBack } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -211,6 +213,7 @@ export default {
     }
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },

@@ -1,6 +1,6 @@
 <template>
     <view class="city-picker-container">
-        <uv-navbar :border="false" autoBack="true" placeholder safeAreaInsetTop></uv-navbar>
+        <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
         <!-- 加载状态 -->
         <view class="loading-container" v-if="loading">
             <view class="loading-text">正在加载城市数据...</view>
@@ -30,6 +30,7 @@
 <script>
 import citySelect from '@/components/city-select/city-select.vue'
 import { getStationArea } from '@/api/station.js'
+import { handleNavBack } from '@/utils/utils'
 
 export default {
     data() {
@@ -62,6 +63,7 @@ export default {
         this.loadCityData();
     },
     methods: {
+        handleNavBack,
         /**
          * 从API加载城市数据
          */

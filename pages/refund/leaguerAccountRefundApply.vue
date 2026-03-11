@@ -1,6 +1,6 @@
 <template>
   <view class="refund-apply-container">
-    <uv-navbar :border="false" autoBack title="退款" placeholder safeAreaInsetTop>
+    <uv-navbar :border="false" :autoBack="false" title="退款" placeholder safeAreaInsetTop @leftClick="handleNavBack">
       <template v-slot:right>
         <view style="margin-right: 200rpx; margin-bottom: 5rpx;">
           <CustomerServiceButton
@@ -88,7 +88,7 @@
 
 <script>
 import {getLeaguerAccountRefundList, leaguerAccountRefundApply} from '../../api/refund';
-import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils'
+import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils'
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 import globalData from '@/globalData';
 
@@ -166,6 +166,7 @@ export default {
     this.refreshData();
   },
   methods: {
+    handleNavBack,
     getWxAppName() {
       return globalData.wxAppName;
     },
