@@ -471,12 +471,12 @@ export default {
             return p;
           });
           // 临时增加微信信用分支付方式
-          this.paymentMethods.push({
-            payType: -2,
-            accountName: '微信支付分 | 先充后付',
-            balance: "(550分及以上优享)",
-            showTopUp: false
-          });
+          // this.paymentMethods.push({
+          //   payType: -2,
+          //   accountName: '微信支付分 | 先充后付',
+          //   balance: "(550分及以上优享)",
+          //   showTopUp: false
+          // });
         }
 
         // 根据账户余额设置默认支付方式

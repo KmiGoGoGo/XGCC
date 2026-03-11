@@ -59,8 +59,10 @@
           <view class="price-row">
             <text class="price-label">支付方式</text>
             <!-- 微信支付分显示 -->
-            <view class="price-value flex-row-start" v-if="true">
-              <ZhifufenTitle color="green" />
+            <view class="price-value flex-row-start" v-if="orderData.wxppOrder">
+              <image src="https://oos-cn.ctyunapi.cn/front-end/static/zhifufen_icon.png"
+                     class='zhifufen_icon'></image>
+              微信支付分
             </view>
             <view class="price-value" v-else-if="orderData.payMode == 6">电卡支付</view>
             <view class="price-value" v-else-if="orderData.payMode == 5">储值卡支付</view>
