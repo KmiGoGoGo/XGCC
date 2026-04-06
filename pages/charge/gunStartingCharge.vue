@@ -109,6 +109,9 @@ import {
 import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
 
+/** 个人余额启动、充完即退预充金额上限（元） */
+const MAX_PRE_CHARGE_YUAN = 1000;
+
 export default {
   components: {
     ChargeIdleView,
@@ -785,7 +788,9 @@ export default {
           payMode: 1,
           pileNo: this.gunParams.pileNum,
           platformNo: this.platformNo,
-          preChargeAmount: this.presetAmount / 100 > 200 ? 200 : (this.presetAmount / 100).toFixed(2), // 单位为元
+          preChargeAmount: this.presetAmount / 100 > MAX_PRE_CHARGE_YUAN
+            ? MAX_PRE_CHARGE_YUAN
+            : (this.presetAmount / 100).toFixed(2), // 单位为元
           qrCode: "undefined",
           valtageType: 0
         });
@@ -876,7 +881,7 @@ export default {
         const createOrderRes = await disposableStartCharge({
           pileNo: this.gunParams.pileNum,
           gunNo: this.gunParams.gunNo,
-          preChargeAmount: (parseFloat(this.presetAmount) / 100).toFixed(2), // 单位为元
+          preChargeAmount: Math.min(parseFloat(this.presetAmount) / 100, MAX_PRE_CHARGE_YUAN).toFixed(2), // 单位为元
           carNum: null,
           chargeMode: 0,
           valtageType: 0,
@@ -899,7 +904,7 @@ export default {
         // #ifdef MP-WEIXIN
         // 微信统一下单
         let unifiedOrderRes = await disposableUnifiedOrders({
-          totalFee: parseFloat(this.presetAmount),
+          totalFee: Math.min(parseFloat(this.presetAmount), MAX_PRE_CHARGE_YUAN * 100),
           openId: uni.getStorageSync('openId'),
           gunId: this.gunParams.gunId,
           tradeType: 'JSAPI'
@@ -920,7 +925,7 @@ export default {
         // #ifdef MP-ALIPAY
         // 支付宝统一下单
         let unifiedOrderRes = await alipayDisposableUnifiedOrders({
-          totalFee: parseFloat(this.presetAmount),
+          totalFee: Math.min(parseFloat(this.presetAmount), MAX_PRE_CHARGE_YUAN * 100),
           openId: uni.getStorageSync('openId'),
         });
 
@@ -1096,7 +1101,7 @@ export default {
         const startChargeRes = await disposableStartCharge({
           pileNo: this.gunParams.pileNum,
           gunNo: this.gunParams.gunNo,
-          preChargeAmount: parseFloat(this.presetAmount) / 100, // 单位为元
+          preChargeAmount: Math.min(parseFloat(this.presetAmount) / 100, MAX_PRE_CHARGE_YUAN), // 单位为元
           carNum: this.memberInfo.plateNo,
           chargeMode: 0,
           valtageType: 0,
