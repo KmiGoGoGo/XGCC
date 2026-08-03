@@ -38,7 +38,7 @@
     </uv-navbar>
 
     <!-- 充电状态栏 -->
-    <ChargingStatusBar
+    <ChargingStatusBarV2
         :chargeData="currentChargeData"
     />
     <!-- 可滚动内容区域 -->
@@ -204,7 +204,7 @@ import {getStationArea, getIndexStationNew, getIndexStationNoAuth} from '@/api/s
 import FilterOptions from '@/components/FilterOptions/FilterOptions.vue';
 import FloatingBillReminder from '@/components/floating-bill-reminder/floating-bill-reminder.vue';
 import OccupyBillPopup from '@/components/occupy-bill-popup/occupy-bill-popup.vue';
-import ChargingStatusBar from '@/components/charging-status-bar/ChargingStatusBar.vue';
+import ChargingStatusBarV2 from '@/components/charging-status-bar/ChargingStatusBarV2.vue';
 import {getMyNotPayBillNumber, queryDynamicsActivity} from '@/api/member.js';
 import {getMyOccupyBillPage} from '@/api/bill.js';
 import {pageChargeServiceMonitor} from '@/api/charge.js';
@@ -218,7 +218,7 @@ export default {
     FilterOptions,
     FloatingBillReminder,
     OccupyBillPopup,
-    ChargingStatusBar
+    ChargingStatusBarV2
   },
   data() {
     return {
