@@ -5,7 +5,7 @@
             <view class="title">{{ getWxAppName() }}注册服务条款</view>
 
             <view class="note">
-                注：本条款是用户与<text class="green">{{ getCompanyName() }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2025 年 12月 1 日</text>，生效日期为<text class="bold">2021 年 8月 9 日</text>。
+                注：本条款是用户与<text class="green">{{ getCompanyName() }}</text>旗下"<text class="green">{{ getWxAppName() }}</text>"之间的协议。版本发布日期为<text class="bold">2025 年 12月 1 日</text>，生效日期为<text class="bold">2025 年 12月 1 日</text>。
             </view>
 
             <view class="section">
