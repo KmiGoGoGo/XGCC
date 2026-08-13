@@ -604,7 +604,43 @@ export default {
         this.presetAmount = value;
       }
     },
+    // 非车队会员启动充电前，提示订阅微信一次性消息
+    requestStartChargeSubscribeMessage() {
+      const storageMemberInfo = uni.getStorageSync('memberInfo');
+      if (storageMemberInfo && storageMemberInfo.memberType == 2) {
+        return Promise.resolve();
+      }
+
+      // #ifdef MP-WEIXIN
+      return new Promise((resolve) => {
+        try {
+          uni.requestSubscribeMessage({
+            tmplIds: globalData.startChargeSubscribeTemplateIds,
+            success: (res) => {
+              console.log('启动充电订阅消息操作结果:', res);
+            },
+            fail: (error) => {
+              console.warn('启动充电订阅消息请求失败，继续启动充电:', error);
+            },
+            complete: () => {
+              // 无论用户接受、拒绝或请求失败，都继续原有启动充电流程
+              resolve();
+            }
+          });
+        } catch (error) {
+          console.warn('启动充电订阅消息调用异常，继续启动充电:', error);
+          resolve();
+        }
+      });
+      // #endif
+
+      // #ifndef MP-WEIXIN
+      return Promise.resolve();
+      // #endif
+    },
     async startCharging() {
+      await this.requestStartChargeSubscribeMessage();
+
       if (!this.gunParams.pileNum || !this.gunParams.gunId) {
         uni.showToast({title: '枪信息未加载完成无法启动充电', icon: 'none'});
         return;

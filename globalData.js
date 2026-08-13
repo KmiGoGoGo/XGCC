@@ -41,6 +41,10 @@ export default {
   wxOId: "gh_77c2bc2b3348",
   appVersion: "1.0.1",
   wxAppName: "星光超充",
+  /** 启动充电时申请的一次性订阅消息模板 */
+  startChargeSubscribeTemplateIds: [
+    "MztxsE8QXJF4Fd_-d_3teV5riOVsgscvyFNmNhdJ3nY"
+  ],
   mapkey: "183d9e251da0eaf107b88fe205d15920",
   defaultCity: {
     cityId: "100293",
