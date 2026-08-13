@@ -607,7 +607,7 @@ export default {
     // 非车队会员启动充电前，提示订阅微信一次性消息
     requestStartChargeSubscribeMessage() {
       const storageMemberInfo = uni.getStorageSync('memberInfo');
-      if (storageMemberInfo && storageMemberInfo.memberType == 2) {
+      if (storageMemberInfo && storageMemberInfo.tokenMemberType == 2) {
         return Promise.resolve();
       }
 
