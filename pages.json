@@ -1,5 +1,5 @@
 {
-	"pages": [
+  "pages": [
     {
       "path": "pages/index/index",
       "style": {
@@ -18,313 +18,383 @@
       }
     },
     {
-      "path": "pages/station/stationDetails",
-      "style": {
-        "navigationBarTitleText": "站点详情",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/station/stationGunList",
-      "style": {
-        "navigationBarTitleText": "充电枪列表",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/station/stationGunDetails",
-      "style": {
-        "navigationBarTitleText": "充电枪详情",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/charge/gunStartingCharge",
-      "style": {
-        "navigationBarTitleText": "启动充电",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/account/assets",
-      "style": {
-        "navigationBarTitleText": "个人资产",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/account/records",
-      "style": {
-        "navigationBarTitleText": "收支记录"
-      }
-    },
-    {
-      "path": "pages/refund/apply",
-      "style": {
-        "navigationBarTitleText": "申请退款"
-      }
-    },
-    {
-      "path": "pages/refund/records",
-      "style": {
-        "navigationBarTitleText": "退款记录"
-      }
-    },
-    {
-      "path": "pages/refund/details",
-      "style": {
-        "navigationBarTitleText": "退款详情"
-      }
-    },
-    {
-      "path": "pages/coupon/myCoupon",
-      "style": {
-        "navigationBarTitleText": "我的卡券"
-      }
-    },
-    {
-      "path": "pages/integral/index",
-      "style": {
-        "navigationBarTitleText": "我的积分"
-      }
-    },
-    {
-      "path": "pages/integral/details",
-      "style": {
-        "navigationBarTitleText": "积分明细"
-      }
-    },
-    {
-      "path": "pages/order/list",
-      "style": {
-        "navigationBarTitleText": "我的订单"
-      }
-    },
-    {
-      "path": "pages/order/occupy",
-      "style": {
-        "navigationBarTitleText": "占位订单"
-      }
-    },
-    {
-      "path": "pages/order/details",
-      "style": {
-        "navigationBarTitleText": "占位订单详情"
-      }
-    },
-    {
-      "path": "pages/vehicle/list",
-      "style": {
-        "navigationBarTitleText": "我的车辆"
-      }
-    },
-    {
-      "path": "pages/charge/charging",
-      "style": {
-        "navigationBarTitleText": "充电中"
-      }
-    },
-    {
-      "path": "pages/login/login",
-      "style": {
-        "navigationBarTitleText": "登录"
-      }
-    },
-    {
-      "path": "pages/advertisDetail/advertisDetail",
-      "style": {
-        "navigationStyle": "custom",
-        "navigationBarTextStyle": "black",
-        "enablePullDownRefresh": false
-      }
-    },
-    {
       "path": "components/webView/webView",
       "style": {
         "navigationBarTitleText": "加载中...",
         "navigationBarTextStyle": "black",
         "enablePullDownRefresh": false
       }
-    },
-    {
-      "path": "pages/invoice/invoice",
-      "style": {
-        "navigationBarTitleText": "发票开具"
-      }
-    },
-    {
-      "path": "pages/invoice/invoiceForm",
-      "style": {
-        "navigationBarTitleText": "发票开具"
-      }
-    },
-    {
-      "path": "pages/invoice/invoiceDetail",
-      "style": {
-        "navigationBarTitleText": "发票详情"
-      }
-    },
-    {
-      "path": "pages/recharge/recharge",
-      "style": {
-        "navigationBarTitleText": "充值"
-      }
-    },
-    {
-      "path": "pages/refund/applyRefund",
-      "style": {
-        "navigationBarTitleText": "申请退款"
-      }
-    },
-    {
-      "path": "pages/common/cityPicker",
-      "style": {
-        "navigationBarTitleText": "城市选择"
-      }
-    },
-    {
-      "path": "pages/bill/settlementInfo",
-      "style": {
-        "navigationBarTitleText": "订单已完成",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/bill/settlementPay",
-      "style": {
-        "navigationBarTitleText": "订单结算",
-        "navigationBarTextStyle": "black",
-        "navigationBarBackgroundColor": "#007AFF"
-      }
-    },
-    {
-      "path": "pages/refund/leaguerAccountRefund",
-      "style": {
-        "navigationBarTitleText": "车队子成员退款"
-      }
-    },
-    {
-      "path": "pages/refund/leaguerAccountRefundRecords",
-      "style": {
-        "navigationBarTitleText": "车队子成员退款记录"
-      }
-    },
-    {
-      "path": "pages/refund/leaguerAccountRefundApply",
-      "style": {
-        "navigationBarTitleText": "车队子成员退款申请"
-      }
-    },
-    {
-      "path": "pages/recharge/leaguerAccountRecharge",
-      "style": {
-        "navigationBarTitleText": "车队子成员充值"
-      }
-    },
-    {
-      "path": "pages/charge/stopping",
-      "style": {
-        "navigationBarTitleText": "停止充电"
-      }
-    },
-    {
-      "path": "pages/bill/occupyBillPay",
-      "style": {
-        "navigationBarTitleText": "占位订单"
-      }
-    },
-    {
-      "path": "pages/bill/billDelay",
-      "style": {
-        "navigationBarTitleText": "订单结算中"
-      }
-    },
-    {
-      "path": "pages/common/howToStopPile",
-      "style": {
-        "navigationBarTitleText": "如何停止充电"
-      }
-    },
-    {
-      "path": "pages/station/stationSearch",
-      "style": {
-        "navigationBarTitleText": "站点搜索"
-      }
-    },
-    {
-      "path": "pages/common/settings",
-      "style": {
-        "navigationBarTitleText": "设置",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/common/version",
-      "style": {
-        "navigationBarTitleText": "关于",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/common/service",
-      "style": {
-        "navigationBarTitleText": "服务协议",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/common/privacy",
-      "style": {
-        "navigationBarTitleText": "隐私政策",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/bill/comment",
-      "style": {
-        "navigationBarTitleText": "评价",
-        "navigationStyle": "custom"
-      }
-    },
-    {
-      "path": "pages/coupon/useCoupon",
-      "style": {
-        "navigationBarTitleText": "使用卡券",
-        "navigationStyle": "custom"
-      }
     }
   ],
-	"tabBar": {
-	  "customize": true,
-	  "color": "#999999",
-	  "selectedColor": "#1890FF",
-	  "borderStyle": "black",
-	  "backgroundColor": "#ffffff",
-	  "list": [
-		{
-		  "pagePath": "pages/index/index",
-		  "text": "首页"
-		},
-		{
-		  "pagePath": "pages/my/my",
-		  "text": "我的"
-		}
-  
-	  ]
-	},
-	"globalStyle": {
+  "tabBar": {
+    "customize": true,
+    "color": "#999999",
+    "selectedColor": "#1890FF",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/my/my",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
     "navigationBarTextStyle": "black",
-	  "pageOrientation": "portrait",
-	  "navigationStyle": "custom",
-	  "backgroundColor": "#F8F8F8",
-	  "backgroundColorTop": "#F4F5F6",
-	  "backgroundColorBottom": "#F4F5F6",
-	  "enablePullDownRefresh": false
-	}
+    "pageOrientation": "portrait",
+    "navigationStyle": "custom",
+    "backgroundColor": "#F8F8F8",
+    "backgroundColorTop": "#F4F5F6",
+    "backgroundColorBottom": "#F4F5F6",
+    "enablePullDownRefresh": false
+  },
+  "subPackages": [
+    {
+      "root": "pages/station",
+      "pages": [
+        {
+          "path": "stationDetails",
+          "style": {
+            "navigationBarTitleText": "站点详情",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "stationGunList",
+          "style": {
+            "navigationBarTitleText": "充电枪列表",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "stationGunDetails",
+          "style": {
+            "navigationBarTitleText": "充电枪详情",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "stationSearch",
+          "style": {
+            "navigationBarTitleText": "站点搜索"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/charge",
+      "pages": [
+        {
+          "path": "gunStartingCharge",
+          "style": {
+            "navigationBarTitleText": "启动充电",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "charging",
+          "style": {
+            "navigationBarTitleText": "充电中"
+          }
+        },
+        {
+          "path": "stopping",
+          "style": {
+            "navigationBarTitleText": "停止充电"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/account",
+      "pages": [
+        {
+          "path": "assets",
+          "style": {
+            "navigationBarTitleText": "个人资产",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "records",
+          "style": {
+            "navigationBarTitleText": "收支记录"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/refund",
+      "pages": [
+        {
+          "path": "apply",
+          "style": {
+            "navigationBarTitleText": "申请退款"
+          }
+        },
+        {
+          "path": "records",
+          "style": {
+            "navigationBarTitleText": "退款记录"
+          }
+        },
+        {
+          "path": "details",
+          "style": {
+            "navigationBarTitleText": "退款详情"
+          }
+        },
+        {
+          "path": "applyRefund",
+          "style": {
+            "navigationBarTitleText": "申请退款"
+          }
+        },
+        {
+          "path": "leaguerAccountRefund",
+          "style": {
+            "navigationBarTitleText": "车队子成员退款"
+          }
+        },
+        {
+          "path": "leaguerAccountRefundRecords",
+          "style": {
+            "navigationBarTitleText": "车队子成员退款记录"
+          }
+        },
+        {
+          "path": "leaguerAccountRefundApply",
+          "style": {
+            "navigationBarTitleText": "车队子成员退款申请"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/coupon",
+      "pages": [
+        {
+          "path": "myCoupon",
+          "style": {
+            "navigationBarTitleText": "我的卡券"
+          }
+        },
+        {
+          "path": "useCoupon",
+          "style": {
+            "navigationBarTitleText": "使用卡券",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/integral",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "我的积分"
+          }
+        },
+        {
+          "path": "details",
+          "style": {
+            "navigationBarTitleText": "积分明细"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/order",
+      "pages": [
+        {
+          "path": "list",
+          "style": {
+            "navigationBarTitleText": "我的订单"
+          }
+        },
+        {
+          "path": "occupy",
+          "style": {
+            "navigationBarTitleText": "占位订单"
+          }
+        },
+        {
+          "path": "details",
+          "style": {
+            "navigationBarTitleText": "占位订单详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/vehicle",
+      "pages": [
+        {
+          "path": "list",
+          "style": {
+            "navigationBarTitleText": "我的车辆"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/login",
+      "pages": [
+        {
+          "path": "login",
+          "style": {
+            "navigationBarTitleText": "登录"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/advertisDetail",
+      "pages": [
+        {
+          "path": "advertisDetail",
+          "style": {
+            "navigationStyle": "custom",
+            "navigationBarTextStyle": "black",
+            "enablePullDownRefresh": false
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/invoice",
+      "pages": [
+        {
+          "path": "invoice",
+          "style": {
+            "navigationBarTitleText": "发票开具"
+          }
+        },
+        {
+          "path": "invoiceForm",
+          "style": {
+            "navigationBarTitleText": "发票开具"
+          }
+        },
+        {
+          "path": "invoiceDetail",
+          "style": {
+            "navigationBarTitleText": "发票详情"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/recharge",
+      "pages": [
+        {
+          "path": "recharge",
+          "style": {
+            "navigationBarTitleText": "充值"
+          }
+        },
+        {
+          "path": "leaguerAccountRecharge",
+          "style": {
+            "navigationBarTitleText": "车队子成员充值"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/common",
+      "pages": [
+        {
+          "path": "cityPicker",
+          "style": {
+            "navigationBarTitleText": "城市选择"
+          }
+        },
+        {
+          "path": "howToStopPile",
+          "style": {
+            "navigationBarTitleText": "如何停止充电"
+          }
+        },
+        {
+          "path": "settings",
+          "style": {
+            "navigationBarTitleText": "设置",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "version",
+          "style": {
+            "navigationBarTitleText": "关于",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "service",
+          "style": {
+            "navigationBarTitleText": "服务协议",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "privacy",
+          "style": {
+            "navigationBarTitleText": "隐私政策",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages/bill",
+      "pages": [
+        {
+          "path": "settlementInfo",
+          "style": {
+            "navigationBarTitleText": "订单已完成",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "settlementPay",
+          "style": {
+            "navigationBarTitleText": "订单结算",
+            "navigationBarTextStyle": "black",
+            "navigationBarBackgroundColor": "#007AFF"
+          }
+        },
+        {
+          "path": "occupyBillPay",
+          "style": {
+            "navigationBarTitleText": "占位订单"
+          }
+        },
+        {
+          "path": "billDelay",
+          "style": {
+            "navigationBarTitleText": "订单结算中"
+          }
+        },
+        {
+          "path": "comment",
+          "style": {
+            "navigationBarTitleText": "评价",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    }
+  ]
 }
-  
