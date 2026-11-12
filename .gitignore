@@ -46,3 +46,6 @@ Thumbs.db
 # uni-app 相关
 .hbuilderx/
 
+
+# 工作目录
+.workbuddy/

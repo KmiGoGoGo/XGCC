@@ -1,7 +1,8 @@
 <template>
   <view class="my-container" v-if="initialized || !hasToken">
     <!-- 1. 顶部用户信息区域 -->
-    <view class="user-info-card">
+    <!-- 上内边距清零，靠 marginTop 把手机号/按钮的中线对齐到微信胶囊中线 -->
+    <view class="user-info-card" :style="{ marginTop: (statusBarHeight - 3) + 'px' }">
       <!-- <view class="avatar-placeholder" @click="login">[头像]</view> -->
       <view class="info">
         <view class="info-content">
@@ -39,6 +40,8 @@
             </view>
           </view>
         </view>
+        <!-- 联系客服：与手机号同一行，靠右显示 -->
+        <ServiceEntryButton class="my-service-btn" sessionFrom="my_page"/>
         <!-- <text class="change-user" @click="changeUser" v-if="memberInfo.groupName">切换身份</text> -->
       </view>
     </view>
@@ -113,12 +116,9 @@
     </view>
 
     <!-- 快速退款 -->
-    <view class="refund-card" @click="goToPage('/pages/refund/applyRefund')">
-      <image class="refund-card-icon" src="/static/X.svg" mode="aspectFit"></image>
-      <view class="card-content">
-        <text class="refund-title">快速退款</text>
-        <text class="refund-desc">点击进入处理</text>
-      </view>
+    <view class="refund-card" hover-class="refund-card-hover" :hover-stay-time="80"
+          @click="goToPage('/pages/refund/applyRefund')">
+      <image class="refund-banner-img" src="/static/refund-banner.jpg" mode="widthFix"></image>
     </view>
 
     <!-- 6. 功能菜单 -->
@@ -143,6 +143,7 @@
 import globalData from '@/globalData.js';
 import Tabbar from '@/components/tabbar/tabbar';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import ServiceEntryButton from '@/components/common/ServiceEntryButton.vue';
 import {getStyleConfig} from '@/api/style.js';
 import {
   getMemberInfo,
@@ -158,10 +159,13 @@ import {
 export default {
   components: {
     Tabbar,
-    CustomerServiceButton
+    CustomerServiceButton,
+    ServiceEntryButton
   },
   data() {
     return {
+      // 真实状态栏高度（px），用于顶部客服按钮避开刘海/灵动岛
+      statusBarHeight: 20,
       // 授权码
       authCode: null,
       //  登录标识
@@ -327,6 +331,15 @@ export default {
   },
   onLoad() {
     console.log('my页面 onLoad 被触发');
+
+    // 取真实状态栏高度，避免顶部客服按钮被灵动岛挡住
+    try {
+      const sysInfo = uni.getSystemInfoSync();
+      this.statusBarHeight = sysInfo.statusBarHeight || 20;
+    } catch (e) {
+      console.error('获取状态栏高度失败', e);
+    }
+
     // 如果是微信小程序
     // #ifdef MP-WEIXIN
     uni.hideTabBar();
@@ -733,8 +746,7 @@ export default {
 // 1. 顶部用户信息
 .user-info-card {
   display: flex;
-  padding: 32rpx 0rpx 30rpx 0rpx;
-  margin-top: 60rpx;
+  padding: 0 0 30rpx 0;
   flex-direction: column;
   margin-left: 24rpx;
 }
@@ -831,12 +843,16 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16rpx;
+  /* 让出右上角微信胶囊的横向空间，按钮停在胶囊左侧同一水平线上 */
+  padding-right: 186rpx;
 }
 
 .info-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
 }
 
 .phone {
@@ -940,87 +956,34 @@ export default {
   display: block;
 }
 
-// 快速退款
+// 快速退款（整张 banner 图，文案与人物都在图内）
 .refund-card {
   width: 100%;
-  height: 200rpx;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 0 32rpx;
-  gap: 48rpx;
-  background-color: #ffffff;
-  border: 1rpx solid #f2f2f2;
   border-radius: 16rpx;
-  position: relative;
   overflow: hidden;
   margin: 16rpx 0;
-  user-select: none;
-}
-
-.refund-card-icon {
-  width: 100rpx;
-  height: 100rpx;
-  flex-shrink: 0;
   position: relative;
-  z-index: 2;
+  background-color: #EAF4FF;
 }
 
-.refund-card::before {
-  content: '';
-  position: absolute;
-  bottom: -40rpx;
-  left: -40rpx;
-  width: 180rpx;
-  height: 180rpx;
-  background-color: #E5F6FF;
-  border-radius: 50%;
-  filter: blur(30px);
-  z-index: 1;
+.refund-card-hover {
+  transform: scale(0.98);
 }
 
-.refund-card::after {
-  content: '';
-  position: absolute;
-  top: -20rpx;
-  right: -20rpx;
-  width: 160rpx;
-  height: 160rpx;
-  background-color: #E5F6FF;
-  border-radius: 50%;
-  filter: blur(20px);
-  z-index: 1;
+.refund-banner-img {
+  display: block;
+  width: 100%;
+  animation: refund-banner-breathe 7s ease-in-out infinite;
 }
 
-.refund-card:active {
-  background-color: #fafafa;
-}
-
-.card-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.refund-title {
-  // 斜体
-  font-style: italic;
-  font-size: 44rpx;
-  font-weight: 600;
-  color: #333333;
-  margin-bottom: 12rpx;
-  letter-spacing: 0.5rpx;
-}
-
-.refund-desc {
-  // 斜体
-  font-style: italic;
-  font-size: 24rpx;
-  color: #999999;
+/* 极缓慢的呼吸缩放，避免整张大图显得呆板 */
+@keyframes refund-banner-breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 // 5. 广告横幅

@@ -19,19 +19,8 @@
       </template>
 
       <template v-slot:center>
-        <view class="navbar-center">
-          <uv-search
-              :showAction="false"
-              placeholder="请输入站点名称"
-              disabled
-              bgColor="#FFFFFF"
-              custom-style="width: 330rpx;"
-              @click="goToSearch"
-              :boxStyle="{
-							borderRadius: '40rpx',
-							height: '50rpx'
-						}"
-          ></uv-search>
+        <view class="navbar-center" :style="{ left: serviceBtnOffsetX + 'px' }">
+          <ServiceEntryButton class="index-service-btn" sessionFrom="index_navbar"/>
         </view>
       </template>
 
@@ -56,7 +45,13 @@
                            :data-link="item.advertisingLink" :data-type="item.connectionType"
                            :data-path="item.mobilePath" :data-details="item.details" :data-id="item.id"
                            :data-mid="item.marketingId">
-                <image :src="item.image" mode="aspectFill" class="swiper-item-images"/>
+                <view class="swiper-item-wrapper">
+                  <image :src="item.image" mode="aspectFill" class="swiper-item-images"/>
+                  <!-- 客服类 banner：透明客服按钮铺满整张图，点击直接进入微信客服会话（open-type="contact"） -->
+                  <view v-if="isCustomerServiceBanner(item)" class="customer-service-overlay">
+                    <CustomerServiceButton :sessionFrom="'index_banner'" :customClass="'transparent-overlay'"/>
+                  </view>
+                </view>
               </swiper-item>
               <!-- </view> -->
             </swiper>
@@ -89,6 +84,10 @@
               custom-style="height: 75rpx;border-radius: 40rpx;"
               custom-item-style="border-radius: 40rpx; background-color: #3B82F6;"
           ></uv-subsection>
+        </view>
+        <view class="head-search" @click="goToSearch">
+          <uv-icon name="search" color="#9AA1AC" size="15"></uv-icon>
+          <text class="head-search-text">搜索站点</text>
         </view>
         <view class="filter" @click="openFilterPopup">
           <image class="filter-img" src="https://oos-cn.ctyunapi.cn/front-end/static/static/screening.png"></image>
@@ -210,6 +209,15 @@ import {getMyOccupyBillPage} from '@/api/bill.js';
 import {pageChargeServiceMonitor} from '@/api/charge.js';
 import globalData from '@/globalData.js';
 import {contactCustomerService as contactCustomerServiceFn} from '@/utils/utils';
+import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import ServiceEntryButton from '@/components/common/ServiceEntryButton.vue';
+
+/**
+ * 点击后直接进入微信客服会话（而不是打开内部富文本详情页）的轮播图 id 列表。
+ * 后端轮播图只提供 1外链/2详情页/4营销/5小程序路径 四类跳转，没有"客服"类型，
+ * 因此需要在端上按 id 指定：新增此类 banner 时把它的 id 加进这个数组即可。
+ */
+const CUSTOMER_SERVICE_BANNER_IDS = [12];
 
 export default {
   components: {
@@ -218,7 +226,9 @@ export default {
     FilterOptions,
     FloatingBillReminder,
     OccupyBillPopup,
-    ChargingStatusBarV2
+    ChargingStatusBarV2,
+    CustomerServiceButton,
+    ServiceEntryButton
   },
   data() {
     return {
@@ -235,6 +245,8 @@ export default {
       currentChargeData: null,
       bar_Height: uni.getSystemInfoSync().statusBarHeight,
       widnowH: uni.getSystemInfoSync().screenHeight,
+      // 客服按钮的水平位移（px），由 adjustServiceButton 按微信胶囊实测位置算出
+      serviceBtnOffsetX: 0,
       tabMenu: [{
         name: '全部站场',
         value: 2
@@ -637,6 +649,7 @@ export default {
   },
   onReady() {
     // 页面准备完成
+    this.adjustServiceButton();
   },
   // 页面触底时触发
   onReachBottom() {
@@ -760,6 +773,14 @@ export default {
       }
     },
 
+    // 是否为"点击进客服"的轮播图
+    isCustomerServiceBanner(item) {
+      if (!item || item.id === null || item.id === undefined) {
+        return false;
+      }
+      return CUSTOMER_SERVICE_BANNER_IDS.indexOf(Number(item.id)) > -1;
+    },
+
     // 轮播跳转详情
     advertisingLink: function (e) {
       console.log('轮播图点击事件:', e);
@@ -775,8 +796,15 @@ export default {
       const marketingId = e.currentTarget.dataset.mid;
 
       // 从 lunbao 数组中获取完整的轮播图数据
-      const itemData = this.lunbao.find(item => item.id === id) || {};
+      const itemData = this.lunbao.find(item => String(item.id) === String(id)) || {};
       const activityType = itemData.activityType || null;
+
+      // 客服类 banner：点击由覆盖层上的 CustomerServiceButton(open-type="contact") 打开客服会话，
+      // 这里直接终止，避免事件冒泡后又跳到内部富文本详情页
+      if (this.isCustomerServiceBanner(itemData)) {
+        console.log('客服类轮播图：进入客服会话，不跳转详情页');
+        return;
+      }
 
       console.log('轮播图参数:', {
         connectionType,
@@ -1814,6 +1842,27 @@ export default {
     },
 
     // 导航栏右侧点击事件
+    /**
+     * 把客服按钮右边缘停在微信胶囊左侧 10px。
+     * 胶囊尺寸/位置各机型不同，用 rpx 写死位移在宽屏机型上会顶到胶囊，
+     * 这里按实测 rect 反算位移，任何屏幕都不会重叠。
+     */
+    adjustServiceButton() {
+      // #ifdef MP-WEIXIN
+      setTimeout(() => {
+        try {
+          const menu = uni.getMenuButtonBoundingClientRect();
+          uni.createSelectorQuery().in(this).select('.navbar-center').boundingClientRect(rect => {
+            if (!rect || !menu || !menu.left) return;
+            const offset = Math.round(menu.left - 10 - rect.right);
+            this.serviceBtnOffsetX = offset;
+          }).exec();
+        } catch (e) {
+          console.error('计算客服按钮位置失败', e);
+        }
+      }, 120);
+      // #endif
+    },
     onNavbarRightClick() {
       console.log('导航栏右侧点击');
       // 这里可以添加右侧点击的逻辑
@@ -1856,9 +1905,15 @@ page {
 }
 
 .navbar-center {
-  width: 51%;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  /* 水平位置由 adjustServiceButton 按实测胶囊位置决定，这里只做垂直微调 */
+  transform: translateY(-2px);
 }
 
+/* 按钮样式与动效已抽到 components/common/ServiceEntryButton.vue，两处页面共用 */
 
 .city-text {
   color: #0F172A;
@@ -1912,6 +1967,39 @@ page {
   border-radius: 20rpx;
 }
 
+/* 轮播图内容容器（承载客服覆盖层） */
+.swiper-item-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 客服类 banner 的透明按钮覆盖层：视觉上不可见，点击直接进微信客服 */
+.customer-service-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.customer-service-overlay :deep(.customer-service-btn) {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 20rpx;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 /* 可滚动内容区域 */
 .content-container {
   flex: 1;
@@ -1963,6 +2051,37 @@ page {
 
 .content {
   margin-top: 100rpx;
+}
+
+/* 搜索框移入 tab 行，吃掉中间剩余空间 */
+.head-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  height: 60rpx;
+  margin: 0 12rpx;
+  padding: 0 18rpx;
+  background-color: #FFFFFF;
+  border-radius: 30rpx;
+  box-shadow: 0 2rpx 8rpx rgba(15, 23, 42, 0.06);
+}
+
+.head-search-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #9AA1AC;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* tab 开关与筛选按钮不参与压缩，避免搜索框把文字挤变形 */
+.head-nav .nav,
+.head-nav .filter {
+  flex-shrink: 0;
 }
 
 .head-nav {
@@ -2147,5 +2266,7 @@ page {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
 }
 </style>
