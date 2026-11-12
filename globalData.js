@@ -43,7 +43,7 @@ export default {
   wxAppName: "星光超充",
   /** 启动充电时申请的一次性订阅消息模板 */
   startChargeSubscribeTemplateIds: [
-    "MztxsE8QXJF4Fd_-d_3teV5riOVsgscvyFNmNhdJ3nY"
+    "T-vr-gf8_n2B_FRuGiwLNaPnus706FeTa1Q-PVFd6jI"
   ],
   mapkey: "183d9e251da0eaf107b88fe205d15920",
   defaultCity: {
@@ -58,9 +58,9 @@ export default {
   // URL: "https://cy.gy-ev.com/api",
   URL: "https://xgcc.cc/api",
   // URL: "http://127.0.0.1:7100",
-  imgUrl: "https://1.12.53.66",
-  uploadUrl: "https://1.12.53.66/api/member-service/common/upload",
-  marketingUrl: "https://1.12.53.66/marketingApi",
+  imgUrl: "https://xgcc.cc",
+  uploadUrl: "https://xgcc.cc/api/member-service/common/upload",
+  marketingUrl: "https://xgcc.cc/marketingApi",
   devURL: "http://192.168.8.57/api",
   devimgUrl: "http://192.168.8.57",
   devuploadUrl: "http://192.168.8.57/api/member-service/common/upload",

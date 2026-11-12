@@ -126,7 +126,7 @@ export function queryDynamicsActivity(cityName) {
     }
     return new Promise((resolve, reject) => {
         uni.request({
-        url: `http://xgcc.cc/api/api-service/api/queryDynamicsActivity?sellerNo=${globalData.sellerNo}&address=${cityName}`,
+        url: `https://xgcc.cc/api/api-service/api/queryDynamicsActivity?sellerNo=${globalData.sellerNo}&address=${cityName}`,
         method: 'GET',
         success: (res) => {
             console.log('queryDynamicsActivity', res)

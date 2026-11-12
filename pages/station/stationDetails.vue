@@ -24,7 +24,7 @@
     <!-- 主内容区域 -->
     <view class="main-content">
       <!-- 顶部站点信息卡片 -->
-      <view class="station-card">
+      <view class="station-card" @click="goToStationGunList" hover-class="card-hover" :hover-stay-time="80">
         <view class="station-info">
           <!-- 站点名称和导航按钮 -->
           <view class="station-header">
@@ -33,7 +33,7 @@
             </view>
             <view
                 class="station-distance-info"
-                @click="goAddress"
+                @click.stop="goAddress"
                 :data-latitude="stationInfo.latitude"
                 :data-longitude="stationInfo.longitude"
                 :data-name="stationInfo.name"
@@ -112,7 +112,7 @@
       </view>
 
       <!-- 充电价格 -->
-      <view class="price-section" @click="goToStationGunList">
+      <view class="price-section" @click="goToStationGunList" hover-class="section-hover" :hover-stay-time="80">
         <view class="price-title">充电价格</view>
         <view class="price-cards">
           <!-- 慢充价格信息（如果有） -->
@@ -261,7 +261,8 @@ export default {
               } else if (pilePart.length === 14) {
                 // 14位桩号
                 pileNum = pilePart;
-                gunNo = gunPart;
+                // 枪号为 01/02 这类两位数字时，二维码里是 1-based，需转成 0-based 传参
+                gunNo = /^\d{2}$/.test(gunPart) ? (parseInt(gunPart, 10) - 1).toString() : gunPart;
               }
             } else {
               // 没有下划线的情况，长度为16位
@@ -710,6 +711,18 @@ export default {
   margin: 40rpx 32rpx 0 32rpx;
   overflow: hidden;
   box-shadow: 0 4rpx 24rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 站点卡片/价格区域整体可点，按下时给一点视觉反馈 */
+.card-hover {
+  background-color: #F5F7FA;
+  transition: background-color 0.15s ease;
+}
+
+/* 价格区域是透明背景，按下时整体变淡更自然 */
+.section-hover {
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
 }
 
 .station-images-container {

@@ -63,7 +63,8 @@ import globalData from '../../globalData';
 								} else if (pilePart.length === 14) {
 									// 14位桩号
 									pileNum = pilePart;
-									gunNo = gunPart;
+									// 枪号为 01/02 这类两位数字时，二维码里是 1-based，需转成 0-based 传参
+									gunNo = /^\d{2}$/.test(gunPart) ? (parseInt(gunPart, 10) - 1).toString() : gunPart;
 								}
 							} else {
 								// 没有下划线的情况，长度为16位

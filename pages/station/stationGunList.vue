@@ -170,6 +170,29 @@ export default {
     getWxAppName() {
       return globalData.wxAppName;
     },
+    /**
+     * @description 枪列表按 gunName 从小到大排序
+     * 取名称末尾的数字段按「数值」比较，避免 石停10 被排到 石停9 前面；
+     * 名称里没有数字的枪统一排到最后，同名保持接口原顺序（稳定排序）。
+     */
+    sortGunList(list) {
+      if (!Array.isArray(list)) return []
+      const weightOf = (name) => {
+        const matched = String(name === null || name === undefined ? '' : name).match(/\d+/g)
+        if (!matched || !matched.length) return Number.MAX_SAFE_INTEGER
+        return parseInt(matched[matched.length - 1], 10)
+      }
+      return list
+          .map((gun, index) => ({gun, index, weight: weightOf(gun && gun.gunName)}))
+          .sort((a, b) => {
+            if (a.weight !== b.weight) return a.weight - b.weight
+            const nameA = String((a.gun && a.gun.gunName) || '')
+            const nameB = String((b.gun && b.gun.gunName) || '')
+            if (nameA !== nameB) return nameA < nameB ? -1 : 1
+            return a.index - b.index
+          })
+          .map(item => item.gun)
+    },
     async fetchStationGunData() {
       const params = {
         stationId: this.stationId,
@@ -188,7 +211,8 @@ export default {
         }
 
         if (listRes.code === 0) {
-          this.gunList = listRes.data
+          // 接口返回顺序不固定，统一按枪名称从小到大排序后再渲染
+          this.gunList = this.sortGunList(listRes.data)
         }
       } catch (error) {
         console.error('获取充电枪数据失败', error)

@@ -82,6 +82,53 @@
           </view>
         </view>
       </view>
+
+      <!-- 超时占位说明（内嵌分区，默认收起为一行） -->
+      <template v-if="pileInfo.stationData.occupyCostModel">
+        <view class="price-divider"></view>
+        <view class="occupy-inline-header" @click="toggleOccupyCollapse">
+          <image
+              :src="parkingSvg"
+              mode="widthFix"
+              style="width: 26rpx; height: 26rpx; flex-shrink: 0;"
+          />
+          <text class="occupy-inline-summary">超时占位 {{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟</text>
+          <text class="occupy-inline-dot">·</text>
+          <text class="occupy-inline-summary">免费{{ pileInfo.stationData.occupyCostModel.freeDuration }}分钟</text>
+          <view class="occupy-inline-toggle">
+            <text class="occupy-inline-toggle-text">{{ isOccupyExpanded ? '收起' : '展开' }}</text>
+            <view class="occupy-inline-arrow" :class="{ 'is-up': isOccupyExpanded }">
+              <uv-icon name="arrow-down" color="#007AFF" size="12"></uv-icon>
+            </view>
+          </view>
+        </view>
+        <view class="occupy-inline-content" :class="{ 'is-expanded': isOccupyExpanded }">
+          <view class="occupy-inline-detail">
+            <view class="occupy-inline-item">
+              <text class="occupy-inline-key">超时占位费</text>
+              <text class="occupy-inline-value">
+                {{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟
+              </text>
+            </view>
+            <view class="occupy-inline-item">
+              <text class="occupy-inline-key">当前收费时段</text>
+              <text class="occupy-inline-value">{{
+                  pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00'
+                }}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59' }}
+              </text>
+            </view>
+            <view class="occupy-inline-desc">
+              充电结束后请于{{
+                pileInfo.stationData.occupyCostModel.freeDuration
+              }}分钟内拔枪驶离充电车位，若车辆充电结束{{
+                pileInfo.stationData.occupyCostModel.freeDuration
+              }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{
+                parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100
+              }}元
+            </view>
+          </view>
+        </view>
+      </template>
     </view>
 
     <!-- 充电车辆 -->
@@ -229,46 +276,7 @@
     </view>
 
 
-    <!-- 超时占位说明 -->
-    <view class="occupy-section-card" v-if="pileInfo.stationData.occupyCostModel">
-      <view class="occupy-header" @click="toggleOccupyCollapse">
-        <image
-            :src="parkingSvg"
-            mode="widthFix"
-            style="width: 30rpx; height: 30rpx;"
-        />
-        <text class="occupy-title">超时占位说明</text>
-        <view class="arrow-icon" :class="{ 'rotated': isOccupyExpanded }">
-          <uv-icon name="arrow-down" color="#999" size="14"></uv-icon>
-        </view>
-      </view>
-      <view class="occupy-content" :class="{ 'expanded': isOccupyExpanded }">
-        <view class="occupy-fee-details">
-          <view class="occupy-fee-item">
-            <text class="occupy-fee-label">超时占位费:</text>
-            <text class="occupy-fee-value">
-              {{ parseInt(pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].price) / 100 }}元/分钟
-            </text>
-          </view>
-          <view class="occupy-fee-item">
-            <text class="occupy-fee-label">当前收费时段:</text>
-            <text class="occupy-fee-value">{{
-                pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].stimeStr || '00:00'
-              }}-{{ pileInfo.stationData.occupyCostModel.occupyPhraseRules[0].etimeStr || '23:59' }}
-            </text>
-          </view>
-          <view class="occupy-fee-description">
-            充电结束后请于{{
-              pileInfo.stationData.occupyCostModel.freeDuration
-            }}分钟内拔枪驶离充电车位，若车辆充电结束{{
-              pileInfo.stationData.occupyCostModel.freeDuration
-            }}分钟后仍继续占用充电车位或充电设备，将收取占位费用，单次封顶{{
-              parseInt(pileInfo.stationData.occupyCostModel.limitAmount) / 100
-            }}元
-          </view>
-        </view>
-      </view>
-    </view>
+    <!-- 超时占位说明已内嵌到资费卡片底部，此处不再单独成卡 -->
 
   </view>
 </template>
@@ -868,6 +876,89 @@ export default {
   height: 1rpx;
   background-color: #f0f0f0;
   margin: 20rpx 0;
+}
+
+/* 内嵌超时占位说明：收起时只占一行，点击展开完整规则 */
+.occupy-inline-header {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 6rpx 0 4rpx 0;
+}
+
+.occupy-inline-summary {
+  font-size: 24rpx;
+  color: #8A8F99;
+}
+
+.occupy-inline-dot {
+  font-size: 24rpx;
+  color: #C2C7CF;
+}
+
+.occupy-inline-toggle {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  padding-left: 12rpx;
+}
+
+.occupy-inline-toggle-text {
+  font-size: 24rpx;
+  color: #007AFF;
+}
+
+.occupy-inline-arrow {
+  margin-left: 4rpx;
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.occupy-inline-arrow.is-up {
+  transform: rotate(180deg);
+}
+
+.occupy-inline-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.occupy-inline-content.is-expanded {
+  max-height: 500rpx;
+}
+
+.occupy-inline-detail {
+  background-color: #FAFBFD;
+  border-radius: 12rpx;
+  padding: 18rpx 20rpx;
+  margin-top: 14rpx;
+}
+
+.occupy-inline-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.occupy-inline-key {
+  font-size: 24rpx;
+  color: #8A8F99;
+}
+
+.occupy-inline-value {
+  font-size: 24rpx;
+  color: #3D434D;
+  font-weight: 500;
+}
+
+.occupy-inline-desc {
+  font-size: 22rpx;
+  color: #8A8F99;
+  line-height: 1.6;
+  margin-top: 10rpx;
 }
 
 /* 下一时段价格区域 */
