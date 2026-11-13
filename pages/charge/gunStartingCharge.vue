@@ -13,6 +13,14 @@
     </uv-navbar>
     <!-- 条件渲染视图 -->
     <template v-if="pileInfo && memberInfo">
+      <!-- 顶部广告轮播：与首页同款，随页面滚动 -->
+      <ad-banner
+          v-if="mainGunState === 1 || mainGunState === 2"
+          inset
+          margin-top="20rpx"
+          margin-bottom="4rpx"
+          session-from="gun_starting_charge_page"
+      />
       <charge-idle-view
           ref="chargeIdleView"
           v-if="mainGunState === 1 || mainGunState === 2"
@@ -108,6 +116,7 @@ import {
 } from '@/api/pay.js';
 import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from '@/utils/utils';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
+import AdBanner from '@/components/common/AdBanner.vue';
 
 /** 个人余额启动、充完即退预充金额上限（元） */
 const MAX_PRE_CHARGE_YUAN = 1000;
@@ -117,7 +126,8 @@ export default {
     ChargeIdleView,
     ChargeBusyView,
     StagePriceInfo,
-    CustomerServiceButton
+    CustomerServiceButton,
+    AdBanner
   },
   data() {
     return {

@@ -736,7 +736,7 @@ export default {
   display: flex;
   flex-direction: column;
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
   gap: 20rpx;
   margin-bottom: 24rpx;
@@ -745,10 +745,10 @@ export default {
 /* 价格卡片容器 */
 .price-section-card {
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 32rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
 /* 当前时段价格区域 */
@@ -1032,10 +1032,10 @@ export default {
 
 .vehicle-section-card {
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
 .vehicle-header {
@@ -1189,18 +1189,18 @@ export default {
 /* 停车费折叠组件样式 */
 .parking-section-card {
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
 .occupy-section-card {
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 30rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
 }
 
 .parking-header, .occupy-header {
