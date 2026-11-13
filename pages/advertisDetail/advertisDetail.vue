@@ -27,11 +27,28 @@
       </view>
 
     </view>
+
+    <!-- 底部浮动客服条：左侧拨打电话，右侧进入微信客服会话 -->
+    <view class="service-bar">
+      <view class="service-bar-item phone-item" hover-class="service-bar-hover" @click="handleCallService">
+        <uv-icon name="phone-fill" size="18" color="#1D6FE8"></uv-icon>
+        <text class="service-bar-text">客服电话</text>
+      </view>
+      <button
+          class="service-bar-item online-item"
+          open-type="contact"
+          session-from="advert_detail"
+          hover-class="service-bar-hover"
+      >
+        <uv-icon name="chat-fill" size="18" color="#FFFFFF"></uv-icon>
+        <text class="service-bar-text">在线客服</text>
+      </button>
+    </view>
   </view>
 </template>
 
 <script>
-import { handleNavBack } from '@/utils/utils';
+import { handleNavBack, contactCustomerService } from '@/utils/utils';
 import globalData from '@/globalData';
 
 export default {
@@ -181,6 +198,12 @@ export default {
   },
   methods: {
     handleNavBack,
+
+    // 拨打客服电话：复用全局客服信息弹窗（含工作时间与拨号）
+    handleCallService() {
+      contactCustomerService();
+    },
+
     // 获取小程序名称
     getWxAppName() {
       return globalData.wxAppName;
@@ -274,6 +297,68 @@ export default {
   width: 100%;
   min-height: 100vh;
   background-color: #f5f5f5;
+  /* 给底部浮动客服条留出空间，避免遮挡内容 */
+  padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+}
+
+/* 底部浮动客服条：左「客服电话」右「在线客服」 */
+.service-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background-color: #fff;
+  box-shadow: 0 -2rpx 16rpx rgba(15, 23, 42, 0.08);
+}
+
+.service-bar-item {
+  flex: 1;
+  height: 84rpx;
+  margin: 0;
+  padding: 0;
+  border-radius: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  line-height: 1;
+  overflow: hidden;
+
+  /* 小程序 button 默认带 ::after 边框，统一清掉 */
+  &::after {
+    border: none;
+  }
+}
+
+.service-bar-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  letter-spacing: 1rpx;
+}
+
+/* 左侧：客服电话，浅蓝底描边 */
+.phone-item {
+  color: #1D6FE8;
+  background-color: #EAF3FF;
+  border: 2rpx solid #BBD8FF;
+}
+
+/* 右侧：在线客服，主色渐变 */
+.online-item {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #4E9BFF 0%, #1D6FE8 62%, #1A5FD0 100%);
+  border: none;
+  box-shadow: 0 6rpx 16rpx rgba(29, 111, 232, 0.28);
+}
+
+.service-bar-hover {
+  transform: scale(0.97);
+  opacity: 0.92;
 }
 
 .content {
