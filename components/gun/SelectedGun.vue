@@ -180,7 +180,7 @@ export default {
 <style scoped>
 .selected-gun-section {
   background-color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: 20rpx;
   padding: 4rpx;
   margin-bottom: 24rpx;
 }

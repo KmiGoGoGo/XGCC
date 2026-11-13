@@ -1,6 +1,6 @@
 <template>
   <view v-if="gunInfo" class="gun-info-card">
-    <!-- 顶部区域：枪名称、标签和功率信息 -->
+    <!-- 顶部区域：枪名称、标签、功率信息与状态 -->
     <view class="gun-header">
       <view class="gun-title-section">
         <text class="gun-title">{{ stationName + '-' + gunTitle }}</text>
@@ -17,16 +17,14 @@
           <Tag backgroundColor="#F3F4F6" borderRadius="20rpx">
             <text class="tag-text" style="color: #000;">{{ gunInfo.maxPower }}kW</text>
           </Tag>
+          <!-- 插枪状态：与功率标签同款外观，用颜色区分 -->
+          <Tag :backgroundColor="plugStatusBackground(gunInfo.gunState)" borderRadius="20rpx">
+            <text class="tag-text" :class="plugStatusTextClass(gunInfo.gunState)">{{
+                plugStatusText(gunInfo.gunState)
+              }}
+            </text>
+          </Tag>
         </view>
-      </view>
-    </view>
-
-    <!-- 底部区域：充电状态 -->
-    <view class="status-section">
-      <view class="status-content">
-        <view class="status-icon">
-        </view>
-        <text class="status-text">{{ getGunStateText(gunInfo.gunState) }}</text>
       </view>
     </view>
   </view>
@@ -77,6 +75,43 @@ export default {
     console.log(this.gunInfo);
   },
   methods: {
+    // 插枪状态标签文案
+    plugStatusText(gunState) {
+      switch (parseInt(gunState)) {
+        case 2:
+          return '已插枪';
+        case 3:
+          return '充电中';
+        case 4:
+          return '充电完成';
+        default:
+          return '请插枪';
+      }
+    },
+    // 插枪状态标签底色
+    plugStatusBackground(gunState) {
+      switch (parseInt(gunState)) {
+        case 2:
+        case 3:
+          return '#EEF5FF';
+        case 4:
+          return '#F3F4F6';
+        default:
+          return '#FCEBEB';
+      }
+    },
+    // 插枪状态标签文字颜色类
+    plugStatusTextClass(gunState) {
+      switch (parseInt(gunState)) {
+        case 2:
+        case 3:
+          return 'tag-text-plug-ready';
+        case 4:
+          return 'tag-text-plug-done';
+        default:
+          return 'tag-text-plug-wait';
+      }
+    },
     // 获取枪类型文本
     getGunTypeText(gunType) {
       switch (parseInt(gunType)) {
@@ -127,17 +162,6 @@ export default {
           return 'status-tag-default';
       }
     },
-    // 获取状态文字颜色类名
-    getStatusTextClass(gunState) {
-      switch (parseInt(gunState)) {
-        case 1:
-          return 'status-text-blue';
-        case 2:
-          return 'status-text-green';
-        default:
-          return 'status-text-default';
-      }
-    },
     getGunStateText(gunState) {
       switch (parseInt(gunState)) {
         case 1:
@@ -164,9 +188,9 @@ export default {
 /* 枪信息卡片样式 */
 .gun-info-card {
   background-color: #ffffff;
-  border-radius: 24rpx;
+  border-radius: 20rpx;
   padding: 32rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 24rpx;
@@ -182,7 +206,8 @@ export default {
 
 .gun-title-section {
   display: flex;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
@@ -199,6 +224,7 @@ export default {
 .tags-container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 12rpx;
   align-items: center;
 }
@@ -288,38 +314,16 @@ export default {
   color: #333333;
 }
 
-/* 底部区域：充电状态 */
-.status-section {
-  background-color: #f8f9fa;
-  border-radius: 16rpx;
-  padding: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* 插枪状态标签配色：与功率标签同款，仅颜色区分 */
+.tag-text-plug-wait {
+  color: #E24B4A;
 }
 
-.status-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12rpx;
+.tag-text-plug-ready {
+  color: #1E6FE8;
 }
 
-.status-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.icon {
-  font-size: 32rpx;
-  color: #52c41a;
-}
-
-.status-text {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #52c41a;
-  line-height: 1.2;
+.tag-text-plug-done {
+  color: #8A8A8E;
 }
 </style>
