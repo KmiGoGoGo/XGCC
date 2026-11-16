@@ -133,16 +133,15 @@
       </template>
     </view>
 
-    <!-- 支付方式 -->
+    <!-- 支付方式（不显示标题，节省高度；仅车队身份才显示身份切换） -->
     <view class="section-card">
       <view
-          style="display: flex; flex-direction: row; justify-content: space-between; align-items: center; margin-bottom: 20rpx;">
-        <text class="section-title">支付方式</text>
+          v-if="memberInfo.motorcadeName"
+          style="display: flex; flex-direction: row; justify-content: flex-end; align-items: center; margin-bottom: 8rpx;">
         <view
-            style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx; margin-top: 10rpx;">
+            style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 5rpx; margin-left: 10rpx;">
           <view style="display: flex; align-items: center;">
             <view
-                v-if="memberInfo.motorcadeName"
                 :style="{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -161,7 +160,7 @@
             </view>
           </view>
           <view @click="changeUser" style="display: flex; align-items: center;">
-            <view v-if="memberInfo.motorcadeName"
+            <view
                   style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4rpx;">
               <view class="change-user">切换身份</view>
               <view>
@@ -172,86 +171,64 @@
         </view>
       </view>
       <view v-show="memberInfo.tokenMemberType == 0">
-        <view class="payment-methods-container">
-          <view class="payment-divider"></view>
-          <template v-for="(item, index) in filteredPaymentMethods" :key="item.payType">
-            <view v-if="index > 0" class="payment-divider"></view>
-            <view
-                class="payment-option-new"
-                @tap="selectPaymentMethod(item.payType)">
-            <view v-if="item.payType != -2" class="payment-left">
-              <view class="payment-icon" :class="getPaymentIconClass(item.payType)">
-                <!-- <image v-if="item.payType == -2" src="../../static/zhifufen_icon.png" mode="widthFix" style="width: 30rpx; height: 30rpx"></image> -->
-                <!--                <text class="icon-text">{{ getPaymentIconText(item.payType) }}</text>-->
-                <uv-icon size="18" :name="getPaymentIconText(item.payType)"></uv-icon>
+        <!-- 支付方式：左右并排卡片，节省纵向高度 -->
+        <view class="pay-methods-row">
+          <view
+              v-for="item in filteredPaymentMethods"
+              :key="item.payType"
+              class="pay-card"
+              :class="{ 'is-active': paymentType == item.payType }"
+              @tap="selectPaymentMethod(item.payType)"
+          >
+            <view class="pay-card-top">
+              <view class="pay-card-icon" :class="getPaymentIconClass(item.payType)">
+                <uv-icon size="16" :name="getPaymentIconText(item.payType)"></uv-icon>
               </view>
-              <view class="payment-info">
-                <view style="display: flex; align-items: center; gap: 8rpx;">
-                  <text class="payment-name-new">{{ item.accountName }}</text>
-                  <uv-icon name="question-circle" size="18" v-if="item.payType == -1"
-                           @click.stop="showPaymentHelp(item.payType)"
-                  ></uv-icon>
-                </view>
-                <text v-if="item.balance && item.payType != -2" class="balance-text-new">余额 {{
-                    (parseInt(item.balance) / 100).toFixed(2)
-                  }}元
+              <text class="pay-card-name">{{ item.accountName }}</text>
+              <uv-icon
+                  v-if="item.payType == -1"
+                  name="question-circle"
+                  size="16"
+                  color="#9AA1AC"
+                  @click.stop="showPaymentHelp(item.payType)"
+              ></uv-icon>
+              <view class="pay-card-check" :class="{ 'is-checked': paymentType == item.payType }">
+                <text v-if="paymentType == item.payType" class="pay-card-tick">✓</text>
+              </view>
+            </view>
+
+            <view class="pay-card-bottom">
+              <!-- 个人账户：显示余额，选中后出现去充值 -->
+              <block v-if="item.payType == 1">
+                <text class="pay-card-sub">
+                  余额<text class="pay-card-balance">{{ formatBalance(item.balance) }}</text>元
                 </text>
-                <text v-if="item.balance && item.payType == -2" class="balance-text-new-credit">
-                  {{
-                    item.balance
-                  }}
-                </text>
-              </view>
+                <view
+                    v-if="paymentType == item.payType"
+                    class="pay-topup-btn"
+                    @click.stop="goToTopUp(item)"
+                >去充值</view>
+              </block>
+              <!-- 其他方式：一句话说明 -->
+              <text v-else class="pay-card-sub">{{ getPayCardSubText(item.payType) }}</text>
             </view>
-            <view v-else-if="item.payType == -2" class="payment-left">
-              <view class="payment-info">
-                <ZhifufenTitle />
-                <text class="zhifufen-balance">{{ String(item.balance || '').replace(/[()]/g, '') }}</text>
-              </view>
-            </view>
-            <view class="payment-right">
-              <uv-button
-                  v-if="item.showTopUp"
-                  type="primary"
-                  plain
-                  size="mini"
-                  shape="circle"
-                  customStyle="background: linear-gradient(to right, #6099ff, #3a7dff); color: white; border: none; font-size: 24rpx; padding: 8rpx 24rpx;"
-                  @click.stop="goToTopUp(item)"
-              >
-                去充值
-              </uv-button>
-              <view class="radio-button" :class="{ 'radio-selected': paymentType == item.payType }">
-                <view v-if="paymentType == item.payType" class="radio-inner"></view>
-              </view>
-            </view>
-            </view>
-          </template>
-          <view class="payment-divider"></view>
+          </view>
         </view>
       </view>
       <view v-if="memberInfo.tokenMemberType == 2" class="fleet-account-badge"> 车队账户</view>
-      <uv-divider v-if="memberInfo.tokenMemberType != 2 && paymentType != -2"></uv-divider>
-      <!-- 预设充电金额 -->
+
+      <!-- 金额与提示：一行说明 + 当前金额，预设金额直接点选 -->
       <view v-if="memberInfo.tokenMemberType == 0 && paymentType != -2">
-        <text class="section-description-new">充电费用达到上限或者充满电量则自动停止充电</text>
-        <view class="amount-input-container-new">
-          <text class="currency-symbol-new">¥</text>
-          <input
-              class="amount-input-new"
-              placeholder="0.00"
-              type="digit"
-              inputmode="numeric"
-              :value="amountInputValue"
-              @input="handleAmountInput"
-              @focus="handleInputFocus"
-              @blur="handleInputBlur"
-              ref="amountInput"
-          />
+        <view class="pay-amount-row">
+          <text class="pay-amount-hint">{{ amountHint }}</text>
+          <view class="pay-amount-value">
+            <text class="pay-amount-cur">¥</text>
+            <text class="pay-amount-num">{{ amountDisplay }}</text>
+          </view>
         </view>
-        <view class="preset-options-new" v-if="paymentType == 1">
+        <view class="preset-options-new">
           <view
-              v-for="amount in presetOptions"
+              v-for="amount in visiblePresetOptions"
               :key="amount.value"
               class="preset-button"
               :class="{ 'preset-button-active': isPresetAmountActive(amount) }"
@@ -308,9 +285,9 @@ export default {
       // 先写死为非车队身份
       userType: 'individual',
       presetOptions: [
-        {label: '30元', value: 3000},
         {label: '50元', value: 5000},
         {label: '100元', value: 10000},
+        {label: '200元', value: 20000},
         {label: '全部余额', value: 'all'}
       ],
       // presetAmount: this.presetAmount,
@@ -381,11 +358,37 @@ export default {
         // 非车队身份：显示除车队和电卡6外的其他支付方式
         // 根据支付方式从小到大排序
         this.paymentMethods.sort((a, b) => a.payType - b.payType);
-        return this.paymentMethods.filter(item =>
+        const list = this.paymentMethods.filter(item =>
             (item.payType !== 3 && !item.accountName.includes('车队'))
             && (item.payType !== 6 && item.balance !== 'N/A')
         );
+        // 展示顺序：个人账户在左，「充完即退」固定放最右
+        const weight = item => (item.payType === 1 ? 0 : (item.payType === -1 ? 2 : 1));
+        return list.sort((a, b) => weight(a) - weight(b));
       }
+    },
+    // 可选预设金额：个人账户多一个「全部余额」，其他方式只选固定金额
+    visiblePresetOptions() {
+      if (this.paymentType == 1) {
+        return this.presetOptions;
+      }
+      return this.presetOptions.filter(option => option.value !== 'all');
+    },
+    // 当前预付金额展示（分为单位 -> 元，整数不带小数）
+    amountDisplay() {
+      const amount = parseInt(this.presetAmount);
+      if (isNaN(amount)) {
+        return '0';
+      }
+      const yuan = amount / 100;
+      return Number.isInteger(yuan) ? String(yuan) : yuan.toFixed(2);
+    },
+    // 金额区左侧提示：充完即退突出「多退」
+    amountHint() {
+      if (this.paymentType == -1) {
+        return '充电结束后，多扣金额自动退回原支付账户';
+      }
+      return '充电费用达到上限或充满电量则自动停止充电';
     }
   },
   onReady() {
@@ -673,24 +676,30 @@ export default {
         default:
           return 'empty-coupon';
       }
+    },
+    // 余额（分）转元，保留两位小数
+    formatBalance(balance) {
+      const amount = parseInt(balance);
+      if (isNaN(amount)) {
+        return '0.00';
+      }
+      return (amount / 100).toFixed(2);
+    },
+    // 支付卡片第二行副标题
+    getPayCardSubText(payType) {
+      if (payType == -1) {
+        return '多充自动退回';
+      }
+      return '';
     }
   },
   mounted() {
     console.log('ChargeIdleView mounted', this.memberInfo);
-    if (this.memberInfo && this.memberInfo.accountBalance) {
-      const accountBalance = parseInt(this.memberInfo.accountBalance);
-      if ((this.memberInfo.deductMode === 'LeaguerAccount' || this.memberInfo.deductMode == null) && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
-        this.$emit('payment-change', 1); // 个人账户
-        this.$emit('preset-amount-change', this.memberInfo.accountBalance);
-      } else if (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) {
-        this.$emit('payment-change', 2); // 车队账户
-      } else if (this.memberInfo.deductMode === 'LeaguerAccount' && this.memberInfo.tokenMemberType === 2) {
-        this.$emit('payment-change', 2); // 车队账户
-      } else {
-        this.$emit('payment-change', -1);
-      }
+    // 默认支付方式：车队身份走车队账户；个人身份统一默认「充完即退 + 100 元」
+    if (this.memberInfo && this.memberInfo.tokenMemberType === 2) {
+      this.$emit('payment-change', 2); // 车队账户
     } else {
-      this.$emit('payment-change', -1); // 没有账户信息时默认为-1
+      this.$emit('payment-change', -1); // 充完即退（父组件会同步把金额设为 100 元）
     }
   }
 }
@@ -1303,6 +1312,177 @@ export default {
 }
 
 /* 新的支付方式样式 */
+/* ===== 支付方式：左右并排卡片 ===== */
+.pay-methods-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 0;
+}
+
+.pay-card {
+  flex: 1 1 300rpx;
+  min-width: 0;
+  padding: 16rpx 18rpx 14rpx;
+  border: 3rpx solid #EDF0F4;
+  border-radius: 20rpx;
+  background-color: #FAFBFC;
+  box-sizing: border-box;
+}
+
+.pay-card.is-active {
+  border-color: #24A4EF;
+  background: linear-gradient(180deg, #F5FAFF 0%, #FBFDFF 100%);
+  box-shadow: 0 4rpx 16rpx rgba(36, 164, 239, 0.16);
+}
+
+.pay-card-top {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.pay-card-icon {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10rpx;
+  flex-shrink: 0;
+}
+
+.pay-card-icon.icon-wallet {
+  background-color: #E8F1FE;
+  color: #2E6BE6;
+}
+
+.pay-card-icon.icon-refresh {
+  background-color: #E9F7EE;
+  color: #2FA35C;
+}
+
+.pay-card-icon.icon-team {
+  background-color: #FFF3E0;
+  color: #FA8C16;
+}
+
+.pay-card-icon.icon-default {
+  background-color: #F1F4F8;
+  color: #6B7280;
+}
+
+.pay-card-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333333;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.pay-card-check {
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 2rpx solid #D8DCE3;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8rpx;
+}
+
+.pay-card-check.is-checked {
+  border-color: #24A4EF;
+  background-color: #24A4EF;
+}
+
+.pay-card-tick {
+  font-size: 20rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+.pay-card-bottom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10rpx;
+  min-height: 36rpx;
+}
+
+.pay-card-sub {
+  font-size: 22rpx;
+  color: #8B93A1;
+}
+
+.pay-card-balance {
+  margin: 0 2rpx;
+  color: #1B6EF3;
+  font-weight: bold;
+}
+
+.pay-topup-btn {
+  flex-shrink: 0;
+  height: 36rpx;
+  padding: 0 16rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(to right, #6099ff, #3a7dff);
+  color: #FFFFFF;
+  font-size: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8rpx;
+}
+
+/* ===== 金额与提示 ===== */
+.pay-amount-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22rpx;
+}
+
+.pay-amount-hint {
+  flex: 1;
+  min-width: 0;
+  font-size: 22rpx;
+  color: #9AA1AC;
+  line-height: 1.4;
+  margin-right: 16rpx;
+}
+
+.pay-amount-value {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+}
+
+.pay-amount-cur {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #1B6EF3;
+  margin-right: 2rpx;
+}
+
+.pay-amount-num {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #1B6EF3;
+}
+
 .payment-methods-container {
   display: flex;
   flex-direction: column;

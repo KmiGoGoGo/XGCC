@@ -30,8 +30,13 @@
               <text class="tag-text tag-text-parking">{{ parkingText }}</text>
             </Tag>
           </view>
-          <!-- 已绑定车牌：新能源绿牌样式；未绑定：虚线「绑定车牌」 -->
-          <view v-if="plateNo" class="plate-badge" @click="handleManageVehicle">{{ plateNo }}</view>
+          <!-- 已绑定车牌：新能源绿牌样式（粤B·88888）；未绑定：虚线「绑定车牌」 -->
+          <view v-if="plateNo" class="plate-badge" @click="handleManageVehicle">
+            <text class="plate-char">{{ plateHead }}</text>
+            <text class="plate-char">{{ plateLetter }}</text>
+            <text class="plate-dot">·</text>
+            <text class="plate-char">{{ plateRest }}</text>
+          </view>
           <view v-else class="plate-bind" @click="handleManageVehicle">
             <text class="plate-bind-plus">＋</text>
             <text>绑定车牌</text>
@@ -90,6 +95,16 @@ export default {
       }
 
       return `${this.gunInfo.gunName}`;
+    },
+    // 车牌拆段：省份简称 / 字母 / 序号，中间显示「·」
+    plateHead() {
+      return (this.plateNo || '').slice(0, 1);
+    },
+    plateLetter() {
+      return (this.plateNo || '').slice(1, 2);
+    },
+    plateRest() {
+      return (this.plateNo || '').slice(2);
     }
   },
   onLoad() {
@@ -284,6 +299,15 @@ export default {
   color: #FFFFFF;
   letter-spacing: 1rpx;
   white-space: nowrap;
+}
+
+/* 车牌中间的圆点：与车牌同字号，保证能看清 */
+.plate-dot {
+  margin: 0 2rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+  line-height: 1;
+  color: #FFFFFF;
 }
 
 /* 未绑定车牌：灰色虚线框，点击进入车辆列表 */

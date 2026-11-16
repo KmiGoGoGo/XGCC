@@ -16,7 +16,7 @@
           <view class="plate">
             <text class="plate-head">{{ vehicle.plateHead }}</text>
             <text class="plate-letter">{{ vehicle.plateLetter }}</text>
-            <view class="plate-dot"></view>
+            <text class="plate-dot">·</text>
             <text class="plate-rest">{{ vehicle.plateRest }}</text>
           </view>
           <view class="radio" :class="{ checked: vehicle.defaultVehicle === 0 }">
@@ -643,11 +643,11 @@ export default {
 }
 
 .plate-dot {
-  width: 8rpx;
-  height: 8rpx;
-  border-radius: 50%;
-  background: #FFFFFF;
-  margin: 0 10rpx;
+  margin: 0 4rpx;
+  font-size: 38rpx;
+  font-weight: bold;
+  line-height: 1;
+  color: #FFFFFF;
 }
 
 .radio {

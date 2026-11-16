@@ -492,23 +492,13 @@ export default {
           // });
         }
 
-        // 根据账户余额设置默认支付方式
+        // 默认支付方式：车队身份走车队账户；个人身份统一默认「充完即退 + 100 元」
         console.log('this.memberInfo', this.memberInfo)
-        if (this.memberInfo && this.memberInfo.accountBalance) {
-          const accountBalance = parseInt(this.memberInfo.accountBalance);
-          if ((this.memberInfo.deductMode === 'LeaguerAccount' || this.memberInfo.deductMode == null) && this.memberInfo.tokenMemberType === 0 && accountBalance > 0) {
-            this.currentPaymentType = 1; // 个人账户
-            this.setPresetAmount('all');
-          } else if (this.memberInfo.deductMode === 'TeamAccount' && this.memberInfo.tokenMemberType === 2) {
-            this.currentPaymentType = 2; // 车队账户
-          } else if (this.memberInfo.deductMode === 'LeaguerAccount' && this.memberInfo.tokenMemberType === 2) {
-            this.currentPaymentType = 2; // 车队账户
-          } else {
-            this.currentPaymentType = -1; // 无支付方式
-            this.setPresetAmount('5000');
-          }
+        if (this.memberInfo && this.memberInfo.tokenMemberType === 2) {
+          this.currentPaymentType = 2; // 车队账户
         } else {
-          this.currentPaymentType = -1; // 没有账户信息时默认为-1
+          this.currentPaymentType = -1; // 充完即退
+          this.setPresetAmount('10000'); // 默认预付 100 元
         }
         if (balanceRes.code === 0) {
           this.minimumStartBalance = balanceRes.data.configurationValue;
@@ -601,7 +591,7 @@ export default {
       this.currentPaymentType = newType;
       console.log('newType', newType)
       if (newType == -1) {
-        this.setPresetAmount('5000');
+        this.setPresetAmount('10000');
       } else if (newType == 1) {
         this.setPresetAmount('all');
       }
