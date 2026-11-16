@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星光超充 · 充电中页面重设计（含广告位与动效）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #EEF0F4; color: #1A1A1A; padding: 26px 24px 60px; -webkit-font-smoothing: antialiased;
+  }
+  .head { max-width: 1180px; margin: 0 auto 22px; }
+  .head h1 { font-size: 21px; font-weight: 700; }
+  .head p { font-size: 13px; color: #6B7280; margin-top: 7px; line-height: 1.7; }
+  .tagline { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #E3F0FF; color: #1B6EF3; font-weight: 600; margin-left: 8px; vertical-align: 2px; }
+
+  .stage { display: flex; gap: 40px; max-width: 1180px; margin: 0 auto; align-items: flex-start; }
+  .col { width: 375px; flex: 0 0 auto; }
+  .col-title { font-size: 14px; font-weight: 700; margin-bottom: 5px; }
+  .col-title span { font-weight: 400; color: #6B7280; font-size: 12px; }
+  .col-tip { font-size: 12px; color: #6B7280; margin-bottom: 11px; line-height: 1.6; min-height: 46px; }
+
+  .phone {
+    width: 375px; border-radius: 34px; overflow: hidden; position: relative;
+    box-shadow: 0 12px 40px rgba(17,24,39,.16), 0 0 0 1px rgba(17,24,39,.06);
+    display: flex; flex-direction: column;
+  }
+  .phone.new { min-height: 812px; background: linear-gradient(180deg, #E9F3FE 0%, #F5FAFF 30%, #FBFDFF 100%); }
+  .phone.old { height: 812px; background: radial-gradient(circle at 50% 32%, #D8E8FB 0%, #E8F2FD 45%, #F2F8FF 100%); }
+
+  .statusbar { height: 38px; flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-size: 12px; font-weight: 600; }
+  .navbar { height: 40px; flex: 0 0 auto; display: flex; align-items: center; padding: 0 14px; position: relative; }
+  .navbar .back { font-size: 20px; }
+  .navbar .title { position: absolute; left: 0; right: 0; text-align: center; font-size: 16px; font-weight: 600; }
+  .navbar .caps { margin-left: auto; display: flex; gap: 6px; align-items: center; z-index: 2; }
+  .caps span { height: 22px; border-radius: 50%; background: #fff; border: 1px solid #E5E7EB; font-size: 11px; display: flex; align-items: center; justify-content: center; width: 22px; }
+  .caps .pill { width: auto; padding: 0 8px; border-radius: 12px; gap: 4px; font-size: 12px; }
+
+  .body { flex: 1 1 auto; padding: 6px 16px 0; overflow: hidden; }
+
+  /* ===== 广告位：与首页一致 300rpx ===== */
+  .ad-banner {
+    margin: 8px 0 0; height: 150px; border-radius: 10px; overflow: hidden; position: relative;
+    background: linear-gradient(120deg, #DFF0FF 0%, #EAF6FF 40%, #F3FAFF 100%);
+    box-shadow: 0 2px 10px rgba(27,95,208,.08);
+    display: flex; align-items: center; justify-content: center;
+    animation: fadeUp .5s ease both;
+  }
+  .ad-banner .ph { text-align: center; color: #7FA6D4; }
+  .ad-banner .ph .t1 { font-size: 14px; font-weight: 700; letter-spacing: .5px; }
+  .ad-banner .ph .t2 { font-size: 11px; margin-top: 6px; color: #9DBCD9; }
+  .ad-dots { position: absolute; bottom: 8px; left: 0; right: 0; display: flex; justify-content: center; gap: 4px; }
+  .ad-dots i { width: 4px; height: 4px; border-radius: 2px; background: rgba(46,107,230,.25); display: block; }
+  .ad-dots i.on { width: 12px; background: #2E6BE6; }
+
+  /* ===== 站点卡 ===== */
+  .station-card {
+    background: #FFFFFF; border-radius: 16px; padding: 12px 14px; margin-top: 10px;
+    box-shadow: 0 2px 12px rgba(27,95,208,.07);
+    animation: fadeUp .5s ease .06s both;
+  }
+  .sc-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sc-name { font-size: 14px; font-weight: 700; flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .sc-sub { font-size: 11px; color: #8B93A1; margin-top: 5px; }
+  .plate {
+    flex: 0 0 auto; height: 26px; padding: 0 8px; border-radius: 5px; display: inline-flex; align-items: center;
+    background: linear-gradient(180deg,#A7DE72 0%,#35A46A 100%);
+    box-shadow: inset 0 0 0 .8px rgba(255,255,255,.65), 0 2px 6px rgba(53,164,106,.28);
+    color: #fff; font-size: 12.5px; font-weight: 700; letter-spacing: .3px;
+  }
+  .price-chip { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 11px; background: #EEF5FF; color: #2E6BE6; font-size: 11px; font-weight: 600; }
+  .price-chip b { font-weight: 700; }
+
+  /* ===== 电量：电池条（填充随 SOC 增长） ===== */
+  .soc-block {
+    margin-top: 12px; background: #fff; border-radius: 18px; padding: 15px 14px 12px;
+    box-shadow: 0 2px 14px rgba(27,95,208,.07);
+    display: flex; flex-direction: column; align-items: center;
+    animation: fadeUp .5s ease .12s both;
+  }
+  .soc-head { width: 100%; display: flex; align-items: center; justify-content: center; }
+  .soc-num { font-size: 46px; font-weight: 800; color: #1B6EF3; line-height: 1.05; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .soc-unit { font-size: 19px; font-weight: 700; color: #1B6EF3; margin-left: 1px; }
+  .soc-divider { width: 1px; height: 23px; background: #DCE7F5; margin: 0 12px; }
+  .soc-tag { display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 999px; background: #E7F8EE; font-size: 12px; font-weight: 600; color: #16A34A; }
+
+  .battery-row { width: 100%; margin-top: 16px; display: flex; align-items: center; }
+  .battery-body {
+    position: relative; flex: 1; height: 62px; padding: 5px; border-radius: 21px;
+    background: #EDF4FC; border: 1px solid #DCE9F8;
+    box-shadow: inset 0 1px 5px rgba(23,78,145,.07); overflow: hidden;
+  }
+  .battery-fill {
+    position: relative; height: 100%; width: 0; border-radius: 16px;
+    background: linear-gradient(90deg,#2E6BE6 0%,#21B6D8 58%,#22C55E 100%);
+    box-shadow: 0 2px 7px rgba(33,140,216,.3);
+    display: flex; align-items: center; padding-left: 10px; overflow: hidden;
+    transition: width .12s linear;
+  }
+  .battery-fill::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,.42) 50%, rgba(255,255,255,0) 70%);
+    background-size: 200% 100%; animation: energyFlow 2.4s linear infinite;
+  }
+  .battery-bolt { width: 13px; height: 23px; background: #fff; clip-path: polygon(58% 0%, 10% 58%, 44% 58%, 34% 100%, 92% 40%, 56% 40%); }
+  .battery-cap { width: 7px; height: 27px; margin-left: 4px; border-radius: 0 5px 5px 0; background: #DCE9F8; }
+
+  .remain { margin-top: 11px; font-size: 12.5px; color: #7B879A; display: flex; align-items: center; gap: 5px; }
+  .remain b { color: #16233A; font-weight: 700; }
+  .dot-live { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; animation: pulse 1.8s ease-in-out infinite; }
+
+  /* ===== 核心四宫格 ===== */
+  .core-card {
+    margin-top: 4px; background: #fff; border-radius: 18px; padding: 4px 0;
+    box-shadow: 0 2px 14px rgba(27,95,208,.07);
+    display: grid; grid-template-columns: 1fr 1fr;
+    animation: fadeUp .5s ease .18s both;
+  }
+  .core-cell { padding: 14px 16px; }
+  .core-cell:nth-child(1), .core-cell:nth-child(2) { border-bottom: 1px solid #F1F4F8; }
+  .core-cell:nth-child(odd) { border-right: 1px solid #F1F4F8; }
+  .core-label { font-size: 11px; color: #9AA1AC; }
+  .core-value { margin-top: 6px; display: flex; align-items: baseline; gap: 3px; }
+  .core-value .n { font-size: 26px; font-weight: 800; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
+  .core-value .u { font-size: 11px; color: #8B93A1; font-weight: 500; }
+  .core-value.accent .n { color: #1B5FD0; }
+
+  .core-tip {
+    grid-column: 1 / -1; padding: 7px 16px 9px; border-top: 1px solid #F1F4F8;
+    text-align: center; font-size: 10.5px; color: #A6ADB8;
+  }
+
+  .minor-row {
+    margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 0 12px;
+    font-size: 11px; color: #8B93A1; line-height: 1.9;
+    animation: fadeUp .5s ease .22s both;
+  }
+  .minor-row span b { color: #6B7280; font-weight: 600; }
+  .minor-row i { color: #D6DCE5; font-style: normal; margin-right: 12px; }
+
+  .footer { flex: 0 0 auto; padding: 10px 16px 26px; }
+  .btn-stop {
+    height: 48px; border-radius: 24px; background: #fff; border: 1.5px solid #F0B4B3; color: #E24B4A;
+    font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(226,75,74,.12);
+  }
+
+  @keyframes energyFlow { 0% { background-position: -120% 0; } 100% { background-position: 220% 0; } }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(52,199,89,.45); } 60% { box-shadow: 0 0 0 6px rgba(52,199,89,0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* ===== 旧版 ===== */
+  .old-logo { display: flex; align-items: center; gap: 6px; padding: 8px 4px 0; }
+  .old-logo .x { color: #8FBBEC; font-size: 22px; font-weight: 800; }
+  .old-logo .t { color: #3E8BE0; font-size: 13px; font-weight: 700; }
+  .old-station { text-align: center; margin-top: 2px; }
+  .old-station .n1 { font-size: 15px; font-weight: 700; }
+  .old-station .n2 { font-size: 12px; color: #6C9BD6; margin-top: 4px; }
+  .old-circle { width: 168px; height: 168px; border-radius: 50%; margin: 18px auto 0; border: 8px solid #DCE9F8; display: flex; align-items: center; justify-content: center; background: #D8E7F9; }
+  .old-circle .in { width: 120px; height: 120px; border-radius: 50%; background: #7FA9E8; display: flex; align-items: baseline; justify-content: center; padding-top: 34px; }
+  .old-circle .in .n { font-size: 44px; font-weight: 800; color: #fff; }
+  .old-circle .in .u { font-size: 16px; font-weight: 700; color: #fff; }
+  .old-car { text-align: center; margin-top: 14px; font-size: 16px; font-weight: 700; }
+  .old-price { display: flex; justify-content: flex-end; margin-top: 8px; }
+  .old-price span { background: #4A90E2; color: #fff; font-size: 11px; padding: 4px 8px; border-radius: 10px; }
+  .old-stats { background: #fff; border-radius: 14px; margin-top: 10px; padding: 10px 8px; }
+  .old-stats .r { display: flex; padding: 8px 0; }
+  .old-stats .c { flex: 1; text-align: center; }
+  .old-stats .c .v { font-size: 17px; font-weight: 700; }
+  .old-stats .c .l { font-size: 10px; color: #9AA1AC; margin-top: 3px; }
+  .old-alert { margin-top: 10px; background: #FFF7E8; border-radius: 8px; padding: 7px 10px; font-size: 11px; color: #C9892B; }
+  .old-btn { margin-top: 12px; height: 46px; border-radius: 12px; background: #5B9BF3; color: #fff; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>充电中页面 · 重设计 <span class="tagline">待确认</span></h1>
+  <p>核心思路：<b>电量进度当主角</b>，9 个数字按重要性分两层，车牌改牌匾；顶部加与首页同规格的广告位（300rpx，随页面滚动）。</p>
+</div>
+
+<div class="stage">
+
+  <!-- ===== 新版 ===== -->
+  <div class="col">
+    <div class="col-title">新版 <span>（刷新页面可看动效）</span></div>
+    <div class="col-tip">电量改为电池条：SOC 21% 时填充到 21%（1.3s 缓动），数字同步滚动，填充内闪电与能量流光持续流动，状态绿点脉冲，卡片依次上浮。</div>
+
+    <div class="phone new">
+      <div class="statusbar"><span>15:42</span><span>●●● ⌁ ▮</span></div>
+      <div class="navbar">
+        <span class="back">‹</span>
+        <span class="title">充电中</span>
+        <span class="caps"><span>🎧</span><span class="pill">··· ⊙</span></span>
+      </div>
+
+      <div class="body">
+        <!-- 广告位：与首页一致 -->
+        <div class="ad-banner">
+          <div class="ph">
+            <div class="t1">广告位 · 300rpx</div>
+            <div class="t2">与首页同一个 AdBanner 组件，随机滚动</div>
+          </div>
+          <div class="ad-dots"><i class="on"></i><i></i><i></i></div>
+        </div>
+
+        <div class="station-card">
+          <div class="sc-row">
+            <div class="sc-name">车间云快充双枪测试A</div>
+            <div class="plate">粤B·BX0677</div>
+          </div>
+          <div class="sc-row" style="margin-top:6px;">
+            <div class="sc-sub">星光超充 · 2号枪</div>
+            <div class="price-chip">峰段 <b>0.20</b> 元/度</div>
+          </div>
+        </div>
+
+        <div class="soc-block">
+          <div class="soc-head">
+            <span class="soc-num" id="pctNum">0</span>
+            <span class="soc-unit">%</span>
+            <span class="soc-divider"></span>
+            <span class="soc-tag"><span class="dot-live"></span>正在充电</span>
+          </div>
+
+          <div class="battery-row">
+            <div class="battery-body">
+              <div class="battery-fill" id="batteryFill"><div class="battery-bolt"></div></div>
+            </div>
+            <div class="battery-cap"></div>
+          </div>
+
+          <div class="remain">预计 <b>43 分钟</b>充满</div>
+        </div>
+
+        <div class="core-card">
+          <div class="core-cell">
+            <div class="core-label">已充电量</div>
+            <div class="core-value accent"><span class="n">0.763</span><span class="u">度</span></div>
+          </div>
+          <div class="core-cell">
+            <div class="core-label">充电时长</div>
+            <div class="core-value"><span class="n">0</span><span class="u">分钟</span></div>
+          </div>
+          <div class="core-cell">
+            <div class="core-label">当前功率</div>
+            <div class="core-value"><span class="n">61.20</span><span class="u">kW</span></div>
+          </div>
+          <div class="core-cell">
+            <div class="core-label">预估费用</div>
+            <div class="core-value"><span class="n">0.15</span><span class="u">元</span></div>
+          </div>
+          <div class="core-tip">预估费用仅供参考，请以实际结算金额为准</div>
+        </div>
+
+        <div class="minor-row">
+          <span>电压 <b>750.00</b> V</span><i>·</i>
+          <span>电流 <b>81.60</b> A</span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="btn-stop">停止充电</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 旧版 ===== -->
+  <div class="col">
+    <div class="col-title">现在这版 <span>（对照）</span></div>
+    <div class="col-tip">背景气泡满屏、logo 孤零零在左上、「TEST」占一行、9 个数字一样大、黄色提示条抢眼、没有广告位也没有任何动效。</div>
+
+    <div class="phone old">
+      <div class="statusbar"><span>15:42</span><span>●●● ⌁ ▮</span></div>
+      <div class="navbar">
+        <span class="back">‹</span>
+        <span class="title">充电中</span>
+        <span class="caps"><span>🎧</span><span class="pill">··· ⊙</span></span>
+      </div>
+
+      <div class="body">
+        <div class="old-logo"><span class="x">✕</span><span class="t">星光超充</span></div>
+        <div class="old-station">
+          <div class="n1">TEST</div>
+          <div class="n2">车间云快充双枪测试A</div>
+        </div>
+
+        <div class="old-circle">
+          <div class="in"><span class="n">21</span><span class="u">%</span></div>
+        </div>
+
+        <div class="old-car">粤BBX0677</div>
+        <div class="old-price"><span>当前电价(峰): 0.20元/度</span></div>
+
+        <div class="old-stats">
+          <div class="r">
+            <div class="c"><div class="v">0</div><div class="l">充电时长(min)</div></div>
+            <div class="c"><div class="v">0.763</div><div class="l">已充电量(度)</div></div>
+            <div class="c"><div class="v">43</div><div class="l">预估充满剩余时间</div></div>
+          </div>
+          <div class="r">
+            <div class="c"><div class="v">81.60</div><div class="l">电流(A)</div></div>
+            <div class="c"><div class="v">750.00</div><div class="l">电压(V)</div></div>
+            <div class="c"><div class="v">61.20</div><div class="l">功率(kW)</div></div>
+          </div>
+          <div class="r">
+            <div class="c"><div class="v">1000.00</div><div class="l">预充金额</div></div>
+            <div class="c"><div class="v">0.15</div><div class="l">预估费用(元)</div></div>
+            <div class="c"><div class="v">999.85</div><div class="l">剩余费用(元)</div></div>
+          </div>
+        </div>
+
+        <div class="old-alert">⚠ 预估费用仅供参考，请以实际结算金额为准</div>
+        <div class="old-btn">停止充电</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // 百分比数字滚动：0 -> 21
+  (function () {
+    var el = document.getElementById('pctNum');
+    var fill = document.getElementById('batteryFill');
+    var target = 21, start = null, dur = 1300;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      var v = Math.round(target * eased);
+      el.textContent = v;
+      fill.style.width = v + '%';
+      if (p < 1) requestAnimationFrame(step);
+    }
+    setTimeout(function () { requestAnimationFrame(step); }, 200);
+  })();
+</script>
+
+</body>
+</html>
