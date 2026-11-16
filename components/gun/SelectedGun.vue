@@ -4,6 +4,9 @@
     <SubSelectedGun 
       :gun-info="selectedMainGun"
       :station-name="pileInfo.stationName"
+      :plate-no="memberInfo && memberInfo.plateNo ? memberInfo.plateNo : ''"
+      :parking-text="parkingText"
+      @manage-vehicle="handleManageVehicle"
     />
     
     
@@ -35,6 +38,11 @@ export default {
     pileNo: {
       type: String,
       default: ''
+    },
+    // 会员信息（取当前绑定车牌）
+    memberInfo: {
+      type: Object,
+      default: () => ({})
     }
   },
   data() {
@@ -68,9 +76,57 @@ export default {
       }
       // 默认选择第一个可用的枪
       return this.pileInfo?.gunDTOList?.[0] || null;
+    },
+    // 站点停车优惠：从「站点免停两小时」中提取「免停2小时」，无匹配则不展示标签
+    parkingText() {
+      const stationData = (this.pileInfo && this.pileInfo.stationData) || {};
+      const raw = String(stationData.parkingSubsidy || (this.pileInfo && this.pileInfo.parking) || '');
+      if (!raw) {
+        return '';
+      }
+      // 命中「免停X小时/分钟/天」则只保留核心短语（中文数字转阿拉伯数字）
+      const matched = raw.match(/免停\s*([0-9０-９.]+|[一二两三四五六七八九十]+)\s*(?:个)?\s*(小时|钟头|分钟|天)/);
+      if (matched) {
+        return '免停' + this.parseChineseNumber(matched[1]) + matched[2];
+      }
+      // 未命中固定格式时，文本足够短就直接展示原文
+      return raw.length <= 10 ? raw : '';
     }
   },
   methods: {
+    // 点击车牌 -> 进入车辆管理（冒泡给页面）
+    handleManageVehicle() {
+      this.$emit('manage-vehicle');
+    },
+    // 数字归一化：中文数字（一/两/十…）与全角数字转阿拉伯数字
+    parseChineseNumber(val) {
+      const text = String(val || '').trim();
+      if (!text) {
+        return '';
+      }
+      // 全角数字转半角
+      if (/^[0-9０-９.]+$/.test(text)) {
+        return text.replace(/[０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+      }
+      const map = { 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+      if (text === '十') {
+        return '10';
+      }
+      if (text.length === 1) {
+        return map[text] ? String(map[text]) : text;
+      }
+      // 十X / X十 / X十Y
+      if (text.startsWith('十')) {
+        const unit = map[text[1]] || 0;
+        return String(10 + unit);
+      }
+      if (text[1] === '十') {
+        const tens = map[text[0]] || 0;
+        const unit = text[2] ? (map[text[2]] || 0) : 0;
+        return String(tens * 10 + unit);
+      }
+      return text;
+    },
     // 获取枪类型文本
     getGunTypeText(gunType) {
       switch (parseInt(gunType)) {

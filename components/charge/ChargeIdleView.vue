@@ -16,8 +16,10 @@
         :pile-info="pileInfo"
         :main-gun-params="mainGunParams"
         :pile-no="pileInfo?.pileNo"
+        :member-info="memberInfo"
         @dual-gun-change="handleDualGunChange"
         @gun-status-updated="handleGunStatusUpdated"
+        @manage-vehicle="goToVehicleList"
     />
 
     <!-- 价格信息 -->
@@ -129,20 +131,6 @@
           </view>
         </view>
       </template>
-    </view>
-
-    <!-- 充电车辆 -->
-    <view class="vehicle-section-card">
-      <view class="vehicle-header">
-        <view class="vehicle-info">
-          <text class="plate-no">{{ memberInfo.plateNo || '未绑定车辆' }}</text>
-        </view>
-        <text class="switch-vehicle-btn" @click="goToVehicleList">管理车辆</text>
-      </view>
-      <text class="vehicle-warning" v-if="memberInfo.plateNo">{{
-          pileInfo.parking || '临牌不享受停车减免政策,启动充电后无法修改车牌'
-        }}
-      </text>
     </view>
 
     <!-- 支付方式 -->
@@ -1028,54 +1016,6 @@ export default {
 
 .trend-up .trend-icon {
   color: #ff4d4f;
-}
-
-.vehicle-section-card {
-  background-color: #ffffff;
-  border-radius: 20rpx;
-  padding: 30rpx;
-  margin-bottom: 24rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
-}
-
-.vehicle-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
-.vehicle-info {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.plate-no {
-  font-size: 36rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.common-tag {
-  background-color: #ffffff;
-  border: 1rpx solid #e0e0e0;
-  border-radius: 6rpx;
-  padding: 4rpx 12rpx;
-  font-size: 24rpx;
-  color: #333;
-}
-
-.switch-vehicle-btn {
-  font-size: 28rpx;
-  color: #007AFF;
-  font-weight: 500;
-}
-
-.vehicle-warning {
-  font-size: 24rpx;
-  color: #999;
-  line-height: 1.4;
 }
 
 .identity-section {

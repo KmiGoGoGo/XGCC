@@ -4,26 +4,34 @@
     <view class="gun-header">
       <view class="gun-title-section">
         <text class="gun-title">{{ stationName + '-' + gunTitle }}</text>
-        <view class="tags-container">
-          <Tag :backgroundColor="getPowerTagClass(gunInfo.powerMode)" borderRadius="20rpx">
-            <text class="tag-text" :class="getTagTextClass(gunInfo.powerMode)">{{
-                getGunTypeText(gunInfo.powerMode)
-              }}
-            </text>
-          </Tag>
-          <!-- <Tag backgroundColor="#FFB366" borderRadius="20rpx">
-            <text class="tag-text">直流</text>
-          </Tag> -->
-          <Tag backgroundColor="#F3F4F6" borderRadius="20rpx">
-            <text class="tag-text" style="color: #000;">{{ gunInfo.maxPower }}kW</text>
-          </Tag>
-          <!-- 插枪状态：与功率标签同款外观，用颜色区分 -->
-          <Tag :backgroundColor="plugStatusBackground(gunInfo.gunState)" borderRadius="20rpx">
-            <text class="tag-text" :class="plugStatusTextClass(gunInfo.gunState)">{{
-                plugStatusText(gunInfo.gunState)
-              }}
-            </text>
-          </Tag>
+        <view class="tags-row">
+          <view class="tags-container">
+            <Tag :backgroundColor="getPowerTagClass(gunInfo.powerMode)" borderRadius="20rpx">
+              <text class="tag-text" :class="getTagTextClass(gunInfo.powerMode)">{{
+                  getGunTypeText(gunInfo.powerMode)
+                }}
+              </text>
+            </Tag>
+            <!-- <Tag backgroundColor="#FFB366" borderRadius="20rpx">
+              <text class="tag-text">直流</text>
+            </Tag> -->
+            <Tag backgroundColor="#F3F4F6" borderRadius="20rpx">
+              <text class="tag-text" style="color: #000;">{{ gunInfo.maxPower }}kW</text>
+            </Tag>
+            <!-- 插枪状态：与功率标签同款外观，用颜色区分 -->
+            <Tag :backgroundColor="plugStatusBackground(gunInfo.gunState)" borderRadius="20rpx">
+              <text class="tag-text" :class="plugStatusTextClass(gunInfo.gunState)">{{
+                  plugStatusText(gunInfo.gunState)
+                }}
+              </text>
+            </Tag>
+            <!-- 站点停车优惠 -->
+            <Tag v-if="parkingText" backgroundColor="#EBF2FF" borderRadius="20rpx">
+              <text class="tag-text tag-text-parking">{{ parkingText }}</text>
+            </Tag>
+          </view>
+          <!-- 模拟车牌：点击进入车辆管理 -->
+          <view v-if="plateNo" class="plate-badge" @click="handleManageVehicle">{{ plateNo }}</view>
         </view>
       </view>
     </view>
@@ -58,6 +66,16 @@ export default {
     showDeleteBtn: {
       type: Boolean,
       default: false
+    },
+    // 当前绑定车牌
+    plateNo: {
+      type: String,
+      default: ''
+    },
+    // 站点停车优惠文案，如「免停2小时」
+    parkingText: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -75,6 +93,10 @@ export default {
     console.log(this.gunInfo);
   },
   methods: {
+    // 点击车牌进入车辆管理
+    handleManageVehicle() {
+      this.$emit('manage-vehicle');
+    },
     // 插枪状态标签文案
     plugStatusText(gunState) {
       switch (parseInt(gunState)) {
@@ -221,12 +243,47 @@ export default {
   line-height: 1.2;
 }
 
+.tags-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
 .tags-container {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 12rpx;
   align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 模拟车牌：新能源绿牌样式，点击进入车辆管理 */
+.plate-badge {
+  flex-shrink: 0;
+  margin-left: 12rpx;
+  height: 44rpx;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #A5DE73 0%, #35A46A 100%);
+  border: 1rpx solid #FFFFFF;
+  border-radius: 6rpx;
+  box-shadow: 0 2rpx 6rpx rgba(53, 164, 106, 0.25);
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #FFFFFF;
+  letter-spacing: 1rpx;
+  white-space: nowrap;
+}
+
+/* 免停标签文字色：提高优先级，避免被后面的 .tag-text 白色覆盖 */
+.tag-text.tag-text-parking {
+  color: #2E6BE6;
 }
 
 .power-tag {
