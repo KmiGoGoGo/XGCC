@@ -386,7 +386,7 @@ export default {
     // 金额区左侧提示：充完即退突出「多退」
     amountHint() {
       if (this.paymentType == -1) {
-        return '充电结束后，多扣金额自动退回原支付账户';
+        return '充电结束后72小时内自动退还余额到支付账户。';
       }
       return '充电费用达到上限或充满电量则自动停止充电';
     }
@@ -688,7 +688,7 @@ export default {
     // 支付卡片第二行副标题
     getPayCardSubText(payType) {
       if (payType == -1) {
-        return '多充自动退回';
+        return '充电结束退还余额';
       }
       return '';
     }
