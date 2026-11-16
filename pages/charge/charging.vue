@@ -31,7 +31,7 @@
 
     <!-- 广告位：与首页同规格（300rpx 高），随页面滚动 -->
     <ad-banner
-        margin-top="20rpx"
+        margin-top="12rpx"
         margin-bottom="4rpx"
         session-from="charging_page"
     />
@@ -854,8 +854,8 @@ export default {
 
 /* ===== 站点信息卡 ===== */
 .station-card {
-  margin-top: 8rpx;
-  padding: 26rpx 28rpx;
+  margin-top: 0;
+  padding: 22rpx 26rpx;
   border-radius: 32rpx;
   background-color: #FFFFFF;
   box-shadow: 0 8rpx 28rpx rgba(23, 78, 145, 0.07);
@@ -951,8 +951,8 @@ export default {
 
 /* ===== 电量：电池条 ===== */
 .soc-block {
-  margin-top: 30rpx;
-  padding: 30rpx 28rpx 24rpx;
+  margin-top: 22rpx;
+  padding: 24rpx 26rpx 18rpx;
   border-radius: 32rpx;
   background-color: #FFFFFF;
   box-shadow: 0 8rpx 28rpx rgba(23, 78, 145, 0.07);
@@ -971,7 +971,7 @@ export default {
 }
 
 .soc-num {
-  font-size: 92rpx;
+  font-size: 80rpx;
   font-weight: bold;
   color: #1B6EF3;
   line-height: 1.05;
@@ -1020,8 +1020,8 @@ export default {
 .battery-body {
   position: relative;
   flex: 1;
-  height: 124rpx;
-  padding: 10rpx;
+  height: 108rpx;
+  padding: 9rpx;
   box-sizing: border-box;
   border-radius: 42rpx;
   background-color: #EDF4FC;
@@ -1081,7 +1081,7 @@ export default {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 22rpx;
+  margin-top: 16rpx;
 }
 
 .remain-text {
@@ -1117,7 +1117,7 @@ export default {
 
 /* ===== 核心数据四宫格 ===== */
 .core-card {
-  margin-top: 30rpx;
+  margin-top: 22rpx;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -1131,7 +1131,7 @@ export default {
 .core-cell {
   width: 50%;
   box-sizing: border-box;
-  padding: 24rpx 26rpx;
+  padding: 20rpx 26rpx;
   display: flex;
   flex-direction: column;
 }
@@ -1181,12 +1181,12 @@ export default {
 
 /* ===== 次要参数：电压 / 电流 ===== */
 .minor-row {
-  margin-top: 22rpx;
+  margin-top: 16rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 16rpx 0;
+  padding: 12rpx 0;
   border-radius: 24rpx;
   background-color: rgba(255, 255, 255, 0.72);
   animation: cardUp 620ms cubic-bezier(0.22, 0.61, 0.36, 1) 180ms both;
