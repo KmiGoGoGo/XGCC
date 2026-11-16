@@ -1106,11 +1106,12 @@ export default {
 
 /* 能量流动动画 */
 @keyframes energyFlow {
+  /* 高光由左向右流动（background-position 由大到小 = 背景图右移） */
   0% {
-    background-position: -120% 0;
+    background-position: 220% 0;
   }
   100% {
-    background-position: 220% 0;
+    background-position: -120% 0;
   }
 }
 
