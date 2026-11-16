@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>星光超充 · 车辆选择页 改版效果图</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #EEF0F4;
+    color: #1A1A1A;
+    padding: 28px 24px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .head { max-width: 1680px; margin: 0 auto 26px; }
+  .head h1 { font-size: 22px; font-weight: 700; letter-spacing: .5px; }
+  .head p { font-size: 13px; color: #6B7280; margin-top: 8px; line-height: 1.7; }
+  .tagline { display: inline-block; font-size: 12px; padding: 3px 10px; border-radius: 999px; background: #E3F0FF; color: #1B6EF3; font-weight: 600; margin-left: 8px; vertical-align: 2px; }
+
+  .stage { display: flex; gap: 30px; max-width: 1680px; margin: 0 auto; flex-wrap: wrap; }
+  .col { width: 375px; flex: 0 0 auto; }
+  .col-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .col-title span { font-weight: 400; color: #6B7280; font-size: 12px; }
+  .col-tip { font-size: 12px; color: #6B7280; margin-bottom: 12px; line-height: 1.6; min-height: 34px; }
+
+  /* ===== 手机壳 ===== */
+  .phone {
+    width: 375px; height: 720px; background: #F5F6F8;
+    border-radius: 34px; overflow: hidden; position: relative;
+    box-shadow: 0 12px 40px rgba(17, 24, 39, .16), 0 0 0 1px rgba(17,24,39,.06);
+    display: flex; flex-direction: column;
+  }
+  .statusbar {
+    height: 40px; flex: 0 0 auto; display: flex; align-items: center;
+    justify-content: space-between; padding: 0 22px; font-size: 12px; font-weight: 600;
+  }
+  .navbar {
+    height: 44px; flex: 0 0 auto; display: flex; align-items: center;
+    padding: 0 14px; position: relative;
+  }
+  .navbar .back { font-size: 22px; color: #111; line-height: 1; }
+  .navbar .title { position: absolute; left: 0; right: 0; text-align: center; font-size: 16px; font-weight: 600; }
+  .navbar .caps { margin-left: auto; display: flex; gap: 6px; align-items: center; z-index: 2; }
+  .caps span { width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 1px solid #E5E7EB; font-size: 11px; display: flex; align-items: center; justify-content: center; color: #111; }
+
+  .body { flex: 1 1 auto; overflow: hidden; padding: 8px 14px 0; }
+
+  /* ===== 车牌牌匾 ===== */
+  .plate {
+    height: 42px; padding: 0 14px; border-radius: 7px;
+    display: inline-flex; align-items: center; gap: 3px;
+    background: linear-gradient(180deg, #5A9BF7 0%, #1B5FD0 100%);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.55), inset 0 -2px 6px rgba(0,0,0,.14), 0 3px 8px rgba(27,95,208,.28);
+    color: #fff; font-weight: 700; letter-spacing: .6px;
+    font-size: 19px; line-height: 1; white-space: nowrap;
+    font-family: "DIN Alternate", "PingFang SC", -apple-system, sans-serif;
+  }
+  .plate .dot { width: 4px; height: 4px; border-radius: 50%; background: #fff; opacity: .95; margin: 0 2px; transform: translateY(-1px); }
+  .plate.green { background: linear-gradient(180deg, #A7DE72 0%, #35A46A 100%); box-shadow: inset 0 0 0 1px rgba(255,255,255,.6), inset 0 -2px 6px rgba(0,0,0,.12), 0 3px 8px rgba(53,164,106,.28); }
+
+  /* ===== 方案 A：牌匾卡片 ===== */
+  .vcard {
+    background: #fff; border-radius: 16px; padding: 14px 14px 10px;
+    margin-bottom: 12px; border: 1.5px solid transparent;
+    box-shadow: 0 1px 3px rgba(17,24,39,.05);
+    transition: all .2s;
+  }
+  .vcard.on { border-color: #24A4EF; background: linear-gradient(180deg, #F7FBFF 0%, #FFFFFF 60%); box-shadow: 0 4px 14px rgba(36,164,239,.16); }
+  .vcard .line1 { display: flex; align-items: center; justify-content: space-between; }
+  .vcard .line2 { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #EDEFF3; }
+  .default-flag { font-size: 12px; color: #6B7280; display: flex; align-items: center; gap: 6px; }
+  .default-flag.on { color: #1B6EF3; font-weight: 600; }
+  .flag-dot { width: 5px; height: 5px; border-radius: 50%; background: #D1D5DB; }
+  .default-flag.on .flag-dot { background: #24A4EF; box-shadow: 0 0 0 3px rgba(36,164,239,.14); }
+  .radio {
+    width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid #D8DCE3;
+    display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+    background: #fff; transition: all .2s;
+  }
+  .radio.on { border-color: #24A4EF; background: #24A4EF; }
+  .radio.on::after { content: ""; width: 9px; height: 5px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+  .acts { display: flex; align-items: center; gap: 16px; }
+  .act { font-size: 12px; color: #6B7280; display: flex; align-items: center; gap: 4px; }
+  .act svg { width: 15px; height: 15px; }
+  .act.del { color: #E24B4A; }
+  .act.edit { color: #24A4EF; }
+
+  /* 空态虚线卡 */
+  .add-plate {
+    height: 66px; border-radius: 16px; border: 1.5px dashed #C9D2DE; background: rgba(255,255,255,.6);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    color: #8B93A1; font-size: 14px; font-weight: 500; margin-bottom: 12px;
+  }
+  .add-plate .plus { font-size: 18px; color: #24A4EF; }
+
+  /* ===== 方案 B：紧凑行 ===== */
+  .rowcard {
+    background: #fff; border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+    border: 1.5px solid transparent; box-shadow: 0 1px 3px rgba(17,24,39,.05);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rowcard.on { border-color: #24A4EF; background: linear-gradient(90deg, #F5FAFF 0%, #FFFFFF 70%); }
+  .rowcard .plate { height: 32px; font-size: 15px; padding: 0 10px; border-radius: 6px; }
+  .rowcard .tail { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .mini-check { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #D8DCE3; flex: 0 0 auto; }
+  .mini-check.on { border-color: #24A4EF; background: #24A4EF; position: relative; }
+  .mini-check.on::after { content: ""; position: absolute; left: 6px; top: 4px; width: 5px; height: 9px; border-right: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(40deg); }
+
+  /* ===== 底部按钮 ===== */
+  .footer { flex: 0 0 auto; padding: 10px 16px 22px; background: linear-gradient(180deg, rgba(245,246,248,0) 0%, #F5F6F8 30%); }
+  .btn-primary {
+    height: 46px; border-radius: 999px; background: linear-gradient(180deg, #3BB0F7 0%, #1D8FE8 100%);
+    color: #fff; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(29,143,232,.34);
+  }
+  .btn-primary.ghost { background: #fff; color: #24A4EF; border: 1.5px solid #BFDFF8; box-shadow: none; }
+
+  /* ===== 屏 C：枪卡三态 ===== */
+  .guncard { background: #fff; border-radius: 16px; padding: 14px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(17,24,39,.05); }
+  .gun-title { font-size: 14px; font-weight: 700; line-height: 1.4; }
+  .tags { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+  .pill { height: 22px; padding: 0 8px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; }
+  .p-slow { background: #EAF8EC; color: #1BA035; }
+  .p-power { background: #F3F4F6; color: #000; }
+  .p-wait { background: #FCEBEB; color: #E24B4A; }
+  .p-park { background: #EBF2FF; color: #2E6BE6; }
+  .plate-mini {
+    height: 22px; padding: 0 7px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #fff;
+    display: inline-flex; align-items: center; letter-spacing: .5px;
+    background: linear-gradient(180deg, #A5DE73 0%, #35A46A 100%);
+    box-shadow: inset 0 0 0 .5px rgba(255,255,255,.7), 0 1px 3px rgba(53,164,106,.3);
+  }
+  .plate-bind {
+    height: 22px; padding: 0 7px; border-radius: 4px; font-size: 11px; font-weight: 600;
+    color: #6B7280; background: #fff; border: 1px dashed #C0C7D2; display: inline-flex; align-items: center;
+  }
+  .state-note { font-size: 11px; color: #8B93A1; margin: 2px 0 12px; line-height: 1.5; }
+  .state-note b { color: #1B6EF3; font-weight: 600; }
+  .divider { height: 1px; background: #E9ECF1; margin: 18px 0 14px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>车辆选择页改版 · 效果图 <span class="tagline">待确认</span></h1>
+  <p>左侧为主推方案，右侧两屏为备选与边界状态。确认后按选定方案改 <code>pages/vehicle/list.vue</code> 与枪卡。</p>
+</div>
+
+<div class="stage">
+
+  <!-- ============ 方案 A ============ -->
+  <div class="col">
+    <div class="col-title">方案 A · 车牌牌匾卡片 <span>（主推）</span></div>
+    <div class="col-tip">真实车牌视觉，牌匾即选中的点：默认车描边高亮 + 实心勾；编辑/删除收在第二行右侧。</div>
+
+    <div class="phone">
+      <div class="statusbar"><span>14:35</span><span>●●● ⌁ ▮</span></div>
+      <div class="navbar">
+        <span class="back">‹</span>
+        <span class="title">我的车辆</span>
+        <span class="caps"><span>···</span><span>◎</span></span>
+      </div>
+
+      <div class="body">
+        <div class="vcard on">
+          <div class="line1">
+            <div class="plate"><span>粤</span><span>B</span><span class="dot"></span><span>BX0677</span></div>
+            <div class="radio on"></div>
+          </div>
+          <div class="line2">
+            <div class="default-flag on"><span class="flag-dot"></span>默认车辆</div>
+            <div class="acts">
+              <span class="act edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>编辑
+              </span>
+              <span class="act del">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>删除
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vcard">
+          <div class="line1">
+            <div class="plate"><span>粤</span><span>S</span><span class="dot"></span><span>AB7660</span></div>
+            <div class="radio"></div>
+          </div>
+          <div class="line2">
+            <div class="default-flag"><span class="flag-dot"></span>设为默认</div>
+            <div class="acts">
+              <span class="act edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>编辑
+              </span>
+              <span class="act del">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>删除
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vcard">
+          <div class="line1">
+            <div class="plate"><span>粤</span><span>B</span><span class="dot"></span><span>88888</span></div>
+            <div class="radio"></div>
+          </div>
+          <div class="line2">
+            <div class="default-flag"><span class="flag-dot"></span>设为默认</div>
+            <div class="acts">
+              <span class="act edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>编辑
+              </span>
+              <span class="act del">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg>删除
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="add-plate"><span class="plus">＋</span>添加车牌</div>
+      </div>
+
+      <div class="footer">
+        <div class="btn-primary">添加爱车，享专属服务</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 方案 B ============ -->
+  <div class="col">
+    <div class="col-title">方案 B · 紧凑行式 <span>（备选）</span></div>
+    <div class="col-tip">一屏能放更多车，牌匾缩小、右侧只留勾与图标，适合车辆多的用户。</div>
+
+    <div class="phone">
+      <div class="statusbar"><span>14:35</span><span>●●● ⌁ ▮</span></div>
+      <div class="navbar">
+        <span class="back">‹</span>
+        <span class="title">我的车辆</span>
+        <span class="caps"><span>···</span><span>◎</span></span>
+      </div>
+
+      <div class="body">
+        <div class="rowcard on">
+          <div class="plate"><span>粤</span><span>B</span><span class="dot"></span><span>BX0677</span></div>
+          <div class="default-flag on"><span class="flag-dot"></span>默认</div>
+          <div class="tail">
+            <span class="act edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <span class="act del"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></span>
+            <span class="mini-check on"></span>
+          </div>
+        </div>
+
+        <div class="rowcard">
+          <div class="plate green"><span>粤</span><span>S</span><span class="dot"></span><span>AB7660</span></div>
+          <div class="default-flag"><span class="flag-dot"></span>设为默认</div>
+          <div class="tail">
+            <span class="act edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <span class="act del"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></span>
+            <span class="mini-check"></span>
+          </div>
+        </div>
+
+        <div class="rowcard">
+          <div class="plate green"><span>粤</span><span>B</span><span class="dot"></span><span>88888</span></div>
+          <div class="default-flag"><span class="flag-dot"></span>设为默认</div>
+          <div class="tail">
+            <span class="act edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <span class="act del"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></span>
+            <span class="mini-check"></span>
+          </div>
+        </div>
+
+        <div class="rowcard">
+          <div class="plate green"><span>粤</span><span>B</span><span class="dot"></span><span>88880</span></div>
+          <div class="default-flag"><span class="flag-dot"></span>设为默认</div>
+          <div class="tail">
+            <span class="act edit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span>
+            <span class="act del"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/></svg></span>
+            <span class="mini-check"></span>
+          </div>
+        </div>
+
+        <div class="add-plate"><span class="plus">＋</span>添加车牌</div>
+      </div>
+
+      <div class="footer">
+        <div class="btn-primary">添加爱车，享专属服务</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 屏 C：枪卡三态 ============ -->
+  <div class="col">
+    <div class="col-title">枪卡 · 三种边界状态</div>
+    <div class="col-tip">无免停 → 车牌左移紧贴标签；无车牌 → 显示「绑定车牌」虚线框，点击进车辆页。</div>
+
+    <div class="phone">
+      <div class="statusbar"><span>14:35</span><span>●●● ⌁ ▮</span></div>
+      <div class="navbar">
+        <span class="back">‹</span>
+        <span class="title">充电枪详情</span>
+        <span class="caps"><span>···</span><span>◎</span></span>
+      </div>
+
+      <div class="body" style="padding-top:14px;">
+
+        <div class="guncard">
+          <div class="gun-title">星光超充（横河客运站充电站）-横河1A</div>
+          <div class="tags">
+            <span class="pill p-slow">快充</span>
+            <span class="pill p-power">120.0kW</span>
+            <span class="pill p-wait">请插枪</span>
+            <span class="pill p-park">免停2小时</span>
+            <span class="plate-mini">粤BBX0677</span>
+          </div>
+        </div>
+        <div class="state-note">① 有免停 + 有车牌：<b>当前线上形态</b></div>
+
+        <div class="guncard">
+          <div class="gun-title">星光超充（横河客运站充电站）-横河1A</div>
+          <div class="tags">
+            <span class="pill p-slow">快充</span>
+            <span class="pill p-power">120.0kW</span>
+            <span class="pill p-wait">请插枪</span>
+            <span class="plate-mini">粤BBX0677</span>
+          </div>
+        </div>
+        <div class="state-note">② 无免停：车牌<b>紧跟标签左移</b>，不留空档</div>
+
+        <div class="guncard">
+          <div class="gun-title">星光超充（横河客运站充电站）-横河1A</div>
+          <div class="tags">
+            <span class="pill p-slow">快充</span>
+            <span class="pill p-power">120.0kW</span>
+            <span class="pill p-wait">请插枪</span>
+            <span class="pill p-park">免停2小时</span>
+            <span class="plate-bind">＋ 绑定车牌</span>
+          </div>
+        </div>
+        <div class="state-note">③ 无车牌：显示<b>「绑定车牌」</b>虚线框，点击进车辆列表</div>
+
+        <div class="divider"></div>
+
+        <div class="guncard">
+          <div class="gun-title">星光超充（俊伟超级充电站）-蒲溪村01</div>
+          <div class="tags">
+            <span class="pill p-slow">慢充</span>
+            <span class="pill p-power">7.0kW</span>
+            <span class="pill p-wait">请插枪</span>
+            <span class="plate-bind">＋ 绑定车牌</span>
+          </div>
+        </div>
+        <div class="state-note">④ 无免停 + 无车牌：两个边界同时命中</div>
+      </div>
+
+      <div class="footer">
+        <div class="btn-primary ghost">请插枪后点击启动</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

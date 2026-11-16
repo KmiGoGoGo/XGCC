@@ -1,35 +1,71 @@
 <template>
   <view class="vehicle-list-container">
-    <uv-navbar :border="false" :autoBack="false" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
-    <!-- 车辆列表 -->
-    <view class="card-list">
-      <view class="vehicle-card" v-for="(vehicle, index) in vehicleList" :key="vehicle.id">
-        <view class="card-main">
-          <view class="plate-number">{{ vehicle.plateNo }}</view>
-          <view class="separator"></view>
-          <view class="card-footer">
-            <view class="default-option" @click="setDefault(vehicle)">
-              <view class="radio-btn" :class="{ checked: vehicle.defaultVehicle === 0 }">
-                <text v-if="vehicle.defaultVehicle === 0">✓</text>
-              </view>
-              <text :class="{ 'default-text-active': vehicle.defaultVehicle === 0 }">设为默认</text>
+    <uv-navbar :border="false" :autoBack="false" title="我的车辆" placeholder safeAreaInsetTop @leftClick="handleNavBack"></uv-navbar>
+
+    <!-- 有车辆 -->
+    <view class="card-list" v-if="vehicleList.length">
+      <view
+          class="vehicle-card"
+          :class="{ 'is-active': vehicle.defaultVehicle === 0 }"
+          v-for="vehicle in vehicleList"
+          :key="vehicle.id"
+          @click="handleSelect(vehicle)"
+      >
+        <!-- 车牌牌匾 -->
+        <view class="plate-wrap">
+          <view class="plate">
+            <text class="plate-head">{{ vehicle.plateHead }}</text>
+            <text class="plate-letter">{{ vehicle.plateLetter }}</text>
+            <view class="plate-dot"></view>
+            <text class="plate-rest">{{ vehicle.plateRest }}</text>
+          </view>
+          <view class="radio" :class="{ checked: vehicle.defaultVehicle === 0 }">
+            <text v-if="vehicle.defaultVehicle === 0" class="radio-tick">✓</text>
+          </view>
+        </view>
+
+        <!-- 操作行 -->
+        <view class="card-footer">
+          <view class="default-flag" :class="{ 'is-on': vehicle.defaultVehicle === 0 }">
+            <view class="flag-dot"></view>
+            <text>{{ vehicle.defaultVehicle === 0 ? '默认车辆' : '设为默认' }}</text>
+          </view>
+          <view class="more-actions">
+            <view class="act act-edit" @click.stop="editVehicle(vehicle)">
+              <uv-icon color="#24A4EF" name="edit-pen" size="15"></uv-icon>
+              <text class="act-label">编辑</text>
             </view>
-            <view class="more-actions">
-              <uv-icon color="#F01F1F" name="trash" size="20" @click="deleteVehicle(vehicle)"></uv-icon>
-              <uv-icon color="#2582DB" name="edit-pen" size="20" @click="editVehicle(vehicle)"></uv-icon>
+            <view class="act act-del" @click.stop="deleteVehicle(vehicle)">
+              <uv-icon color="#E24B4A" name="trash" size="15"></uv-icon>
+              <text class="act-label">删除</text>
             </view>
           </view>
         </view>
-        <!-- 更多操作面板 -->
-        <!-- <view class="actions-panel" v-if="vehicle.showActions">
-          <view class="action-btn delete-btn" @click="deleteVehicle(vehicle)">删除</view>
-          <view class="action-btn edit-btn" @click="editVehicle(vehicle)">编辑</view>
-        </view> -->
+      </view>
+
+      <!-- 新增车牌（虚线位） -->
+      <view class="add-plate" @click="showAddVehiclePopup">
+        <text class="add-plate-plus">＋</text>
+        <text>添加车牌</text>
       </view>
     </view>
 
-    <!-- 添加车辆按钮 -->
-    <view class="add-vehicle-button" @click="showAddVehiclePopup">
+    <!-- 空态 -->
+    <view class="empty-state" v-else>
+      <view class="empty-plate">
+        <view class="empty-dot"></view>
+        <view class="empty-dot"></view>
+        <view class="empty-dot"></view>
+        <view class="empty-dot"></view>
+        <view class="empty-dot"></view>
+      </view>
+      <text class="empty-title">还没有添加爱车</text>
+      <text class="empty-desc">绑定车牌后，充电时可直接享受站点停车减免</text>
+      <view class="empty-btn" @click="showAddVehiclePopup">添加车牌</view>
+    </view>
+
+    <!-- 添加车辆按钮（空态时由页面中央按钮承担，避免重复） -->
+    <view class="add-vehicle-button" v-if="vehicleList.length" @click="showAddVehiclePopup">
       <text>添加爱车，享专属服务</text>
     </view>
 
@@ -134,11 +170,17 @@ export default {
       try {
         const res = await getVehicleList();
         if (res.code === 0) {
-          // 为每项添加一个用于控制操作面板显示的属性
-          this.vehicleList = res.data.map(vehicle => ({
-            ...vehicle,
-            showActions: false
-          }));
+          // 拆解车牌（省份简称 / 字母 / 序号），用于牌匾式展示
+          this.vehicleList = (res.data || []).map(vehicle => {
+            const plate = vehicle.plateNo || '';
+            return {
+              ...vehicle,
+              showActions: false,
+              plateHead: plate.slice(0, 1),
+              plateLetter: plate.slice(1, 2),
+              plateRest: plate.slice(2)
+            };
+          });
         } else {
           uni.showToast({title: '加载失败', icon: 'none'});
         }
@@ -156,8 +198,38 @@ export default {
       }
     },
     /**
+     * @description 点击车牌卡片：设为默认车辆，成功后返回上一页
+     * @param {object} vehicle - 被点击的车辆对象
+     */
+    async handleSelect(vehicle) {
+      const isDefault = vehicle.defaultVehicle === 0;
+      if (isDefault) {
+        // 已经是默认车辆，直接返回
+        this.goBackAfterSelect();
+        return;
+      }
+      const success = await this.setDefault(vehicle);
+      if (success) {
+        this.goBackAfterSelect();
+      }
+    },
+
+    /**
+     * @description 选好车辆后返回上一页（无上一页则留在本页）
+     */
+    goBackAfterSelect() {
+      const pages = getCurrentPages();
+      if (pages && pages.length > 1) {
+        setTimeout(() => {
+          uni.navigateBack();
+        }, 600);
+      }
+    },
+
+    /**
      * @description 设为默认车辆
      * @param {object} vehicle - 被点击的车辆对象
+     * @returns {Promise<boolean>} 是否设置成功
      */
     async setDefault(vehicle) {
       if (!vehicle.id) {
@@ -165,16 +237,12 @@ export default {
           title: '设置失败：车辆ID无效',
           icon: 'none'
         });
-        return;
+        return false;
       }
 
       // 如果已经是默认车辆，则不需要操作
       if (vehicle.defaultVehicle === 0) {
-        uni.showToast({
-          title: '该车辆已是默认车辆',
-          icon: 'none'
-        });
-        return;
+        return true;
       }
 
       try {
@@ -190,11 +258,13 @@ export default {
             title: '设置默认车辆成功',
             icon: 'success'
           });
+          return true;
         } else {
           uni.showToast({
             title: response.msg || '设置失败',
             icon: 'none'
           });
+          return false;
         }
       } catch (error) {
         console.error('设置默认车辆失败:', error);
@@ -202,6 +272,7 @@ export default {
           title: '网络错误，请稍后重试',
           icon: 'none'
         });
+        return false;
       } finally {
         uni.hideLoading();
       }
@@ -512,147 +583,237 @@ export default {
 
 <style scoped>
 .vehicle-list-container {
-  background-color: #f5f5f5;
+  background-color: #F5F6F8;
   min-height: 100vh;
   padding: 24rpx;
   box-sizing: border-box;
 }
 
 .card-list {
-  padding-bottom: 150rpx; /* 为底部按钮留出空间 */
+  padding-bottom: 180rpx; /* 为底部按钮留出空间 */
 }
 
+/* ===== 车辆卡片：车牌牌匾 ===== */
 .vehicle-card {
-  background-color: white;
-  border-radius: 16rpx;
+  background-color: #FFFFFF;
+  border-radius: 32rpx;
+  border: 3rpx solid transparent;
+  padding: 28rpx 28rpx 6rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
-  overflow: hidden;
+  box-shadow: 0 2rpx 8rpx rgba(17, 24, 39, 0.05);
 }
 
-.card-main {
-  position: relative;
-  padding: 24rpx;
+.vehicle-card.is-active {
+  border-color: #24A4EF;
+  background: linear-gradient(180deg, #F7FBFF 0%, #FFFFFF 60%);
+  box-shadow: 0 8rpx 28rpx rgba(36, 164, 239, 0.16);
 }
 
-.type-tag {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: #e6f7f2;
-  color: #00c777;
-  padding: 4rpx 12rpx;
-  font-size: 22rpx;
-  border-radius: 0 16rpx 0 16rpx;
+.plate-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.plate-number {
-  text-align: center;
-  font-size: 36rpx;
+/* 新能源绿牌 */
+.plate {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: 300rpx;
+  height: 84rpx;
+  padding: 0 26rpx;
+  box-sizing: border-box;
+  border-radius: 14rpx;
+  background: linear-gradient(180deg, #A7DE72 0%, #35A46A 100%);
+  border: 1rpx solid #FFFFFF;
+  box-shadow: 0 4rpx 14rpx rgba(53, 164, 106, 0.28);
+}
+
+.plate-head,
+.plate-letter,
+.plate-rest {
+  font-size: 38rpx;
   font-weight: bold;
-  padding: 32rpx 0;
+  color: #FFFFFF;
+  letter-spacing: 2rpx;
+  line-height: 1;
 }
 
-.separator {
-  height: 1rpx;
-  background-color: #f0f0f0;
+.plate-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  margin: 0 10rpx;
 }
 
+.radio {
+  flex-shrink: 0;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid #D8DCE3;
+  background-color: #FFFFFF;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radio.checked {
+  border-color: #24A4EF;
+  background-color: #24A4EF;
+}
+
+.radio-tick {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  line-height: 1;
+}
+
+/* 操作行 */
 .card-footer {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding-top: 24rpx;
+  margin-top: 24rpx;
+  padding: 20rpx 0 22rpx;
+  border-top: 1rpx dashed #EDEFF3;
 }
 
-.default-option {
+.default-flag {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  font-size: 28rpx;
-  color: #666;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  padding: 8rpx 12rpx;
-  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #6B7280;
 }
 
-.default-option:hover {
-  background-color: #f5f5f5;
+.default-flag.is-on {
+  color: #1B6EF3;
+  font-weight: bold;
 }
 
-.default-text-active {
-  color: #24A4EF;
-  font-weight: 500;
-}
-
-.radio-btn {
-  width: 40rpx;
-  height: 40rpx;
+.flag-dot {
+  width: 10rpx;
+  height: 10rpx;
   border-radius: 50%;
-  border: 3rpx solid #d1d5db;
-  margin-right: 16rpx;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  background-color: #ffffff;
-  transition: all 0.3s ease;
-  position: relative;
+  background-color: #D1D5DB;
+  margin-right: 10rpx;
 }
 
-.radio-btn::after {
-  content: '';
-  width: 16rpx;
-  height: 16rpx;
-  border-radius: 50%;
+.default-flag.is-on .flag-dot {
   background-color: #24A4EF;
-  opacity: 0;
-  transform: scale(0);
-  transition: all 0.3s ease;
-}
-
-.radio-btn.checked {
-  border-color: #24A4EF;
-  background-color: #ffffff;
-}
-
-.radio-btn.checked::after {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.radio-btn.checked text {
-  display: none;
 }
 
 .more-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.act {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 24rpx;
+  margin-left: 32rpx;
+}
+
+.act-label {
+  margin-left: 6rpx;
+  color: inherit;
+}
+
+.act-edit {
+  color: #24A4EF;
+}
+
+.act-del {
+  color: #E24B4A;
+}
+
+/* 新增车牌虚线位 */
+.add-plate {
+  height: 132rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx dashed #C9D2DE;
+  border-radius: 32rpx;
+  background-color: rgba(255, 255, 255, 0.6);
   font-size: 28rpx;
-  color: #666;
+  color: #8B93A1;
+  margin-bottom: 24rpx;
+}
+
+.add-plate-plus {
+  font-size: 32rpx;
+  color: #24A4EF;
+  margin-right: 8rpx;
+}
+
+/* 空态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 48rpx 0;
+}
+
+.empty-plate {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 340rpx;
+  height: 108rpx;
+  border: 2rpx dashed #C9D2DE;
+  border-radius: 16rpx;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.empty-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: #D8DCE3;
+  margin: 0 10rpx;
+}
+
+.empty-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-top: 40rpx;
+}
+
+.empty-desc {
+  font-size: 24rpx;
+  color: #8B93A1;
+  margin-top: 16rpx;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.empty-btn {
+  margin-top: 48rpx;
+  height: 80rpx;
+  padding: 0 64rpx;
+  border-radius: 40rpx;
+  background-color: #24A4EF;
+  color: #FFFFFF;
+  font-size: 28rpx;
   display: flex;
   align-items: center;
-  gap: 10rpx;
-}
-
-/* 操作面板 */
-.actions-panel {
-  display: flex;
-  background-color: #f7f7f7;
-}
-
-.action-btn {
-  flex: 1;
-  text-align: center;
-  padding: 20rpx;
-  color: white;
-  font-size: 28rpx;
-}
-
-.delete-btn {
-  background-color: #f01f1f;
-}
-
-.edit-btn {
-  background-color: #007aff;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(36, 164, 239, 0.3);
 }
 
 /* 添加按钮 */
@@ -675,10 +836,6 @@ export default {
   z-index: 100;
 }
 
-.plus-icon {
-  font-size: 40rpx;
-  margin-right: 16rpx;
-}
 
 /* 弹窗样式 */
 .popup-container {

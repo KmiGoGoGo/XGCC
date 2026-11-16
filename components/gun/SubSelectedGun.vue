@@ -30,8 +30,12 @@
               <text class="tag-text tag-text-parking">{{ parkingText }}</text>
             </Tag>
           </view>
-          <!-- 模拟车牌：点击进入车辆管理 -->
+          <!-- 已绑定车牌：新能源绿牌样式；未绑定：虚线「绑定车牌」 -->
           <view v-if="plateNo" class="plate-badge" @click="handleManageVehicle">{{ plateNo }}</view>
+          <view v-else class="plate-bind" @click="handleManageVehicle">
+            <text class="plate-bind-plus">＋</text>
+            <text>绑定车牌</text>
+          </view>
         </view>
       </view>
     </view>
@@ -256,7 +260,8 @@ export default {
   flex-wrap: wrap;
   gap: 12rpx;
   align-items: center;
-  flex: 1;
+  /* 不撑满：标签宽度自适应，车牌才能紧贴标签（无免停标签时左移） */
+  flex: 0 1 auto;
   min-width: 0;
 }
 
@@ -279,6 +284,32 @@ export default {
   color: #FFFFFF;
   letter-spacing: 1rpx;
   white-space: nowrap;
+}
+
+/* 未绑定车牌：灰色虚线框，点击进入车辆列表 */
+.plate-bind {
+  flex-shrink: 0;
+  margin-left: 12rpx;
+  height: 44rpx;
+  padding: 0 12rpx;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  border: 1rpx dashed #C0C7D2;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  color: #6B7280;
+  white-space: nowrap;
+}
+
+.plate-bind-plus {
+  margin-right: 4rpx;
+  font-size: 22rpx;
+  color: #8B93A1;
 }
 
 /* 免停标签文字色：提高优先级，避免被后面的 .tag-text 白色覆盖 */
