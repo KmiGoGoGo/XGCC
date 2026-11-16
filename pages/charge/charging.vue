@@ -31,7 +31,7 @@
 
     <!-- 广告位：与首页同规格（300rpx 高），随页面滚动 -->
     <ad-banner
-        margin-top="12rpx"
+        margin-top="20rpx"
         margin-bottom="4rpx"
         session-from="charging_page"
     />
@@ -73,8 +73,10 @@
     <!-- 电量：电池条随 SOC 增长 -->
     <view class="soc-block">
       <view class="soc-head">
-        <text class="soc-num">{{ displayPercent }}</text>
-        <text class="soc-unit">%</text>
+        <view class="soc-pct">
+          <text class="soc-num">{{ displayPercent }}</text>
+          <text class="soc-unit">%</text>
+        </view>
         <view class="soc-divider"></view>
         <view class="soc-tag">
           <view class="dot-live"></view>
@@ -86,7 +88,9 @@
       <view class="battery-row">
         <view class="battery-body">
           <view class="battery-fill" :style="{ width: batteryFillWidth }">
-            <view class="battery-bolt"></view>
+            <view class="battery-bolt-wrap">
+              <view class="battery-bolt"></view>
+            </view>
           </view>
         </view>
         <view class="battery-cap"></view>
@@ -854,8 +858,8 @@ export default {
 
 /* ===== 站点信息卡 ===== */
 .station-card {
-  margin-top: 0;
-  padding: 22rpx 26rpx;
+  margin-top: 8rpx;
+  padding: 26rpx 28rpx;
   border-radius: 32rpx;
   background-color: #FFFFFF;
   box-shadow: 0 8rpx 28rpx rgba(23, 78, 145, 0.07);
@@ -951,10 +955,10 @@ export default {
 
 /* ===== 电量：电池条 ===== */
 .soc-block {
-  margin-top: 22rpx;
-  padding: 24rpx 26rpx 18rpx;
+  margin-top: 30rpx;
+  padding: 30rpx 28rpx 24rpx;
   border-radius: 32rpx;
-  background-color: #FFFFFF;
+  background: linear-gradient(160deg, #FFFFFF 0%, #E3EFFF 100%);
   box-shadow: 0 8rpx 28rpx rgba(23, 78, 145, 0.07);
   display: flex;
   flex-direction: column;
@@ -970,8 +974,15 @@ export default {
   justify-content: center;
 }
 
+.soc-pct {
+  display: flex;
+  flex-direction: row;
+  /* 百分号与数字底部对齐 */
+  align-items: flex-end;
+}
+
 .soc-num {
-  font-size: 80rpx;
+  font-size: 92rpx;
   font-weight: bold;
   color: #1B6EF3;
   line-height: 1.05;
@@ -979,10 +990,13 @@ export default {
 }
 
 .soc-unit {
-  margin-left: 2rpx;
+  margin-left: 4rpx;
+  /* 数字 line-height 留白补偿，让 % 视觉上贴住数字底部 */
+  margin-bottom: 10rpx;
   font-size: 38rpx;
   font-weight: 600;
   color: #1B6EF3;
+  line-height: 1;
 }
 
 .soc-divider {
@@ -1011,6 +1025,9 @@ export default {
 /* 电池：壳 + 能量填充 + 正极 */
 .battery-row {
   width: 100%;
+  /* 左右各收 10%，电池整体宽度约为卡片的 80% */
+  padding: 0 10%;
+  box-sizing: border-box;
   margin-top: 32rpx;
   display: flex;
   flex-direction: row;
@@ -1020,22 +1037,29 @@ export default {
 .battery-body {
   position: relative;
   flex: 1;
-  height: 108rpx;
-  padding: 9rpx;
+  height: 124rpx;
+  padding: 10rpx;
   box-sizing: border-box;
   border-radius: 42rpx;
-  background-color: #EDF4FC;
-  border: 2rpx solid #DCE9F8;
-  box-shadow: inset 0 2rpx 10rpx rgba(23, 78, 145, 0.07);
+  /* 毛玻璃：半透明白 + 背景模糊 + 高光内阴影 */
+  background-color: rgba(240, 246, 255, 0.46);
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0.28) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 2rpx solid rgba(255, 255, 255, 0.96);
+  box-shadow: inset 0 3rpx 16rpx rgba(255, 255, 255, 0.95),
+              inset 0 -3rpx 14rpx rgba(23, 78, 145, 0.10),
+              0 14rpx 32rpx rgba(23, 78, 145, 0.22),
+              0 4rpx 10rpx rgba(23, 78, 145, 0.10);
   overflow: hidden;
 }
 
 .battery-fill {
   position: relative;
   height: 100%;
-  border-radius: 32rpx;
+  border-radius: 999rpx;
   background: linear-gradient(90deg, #2E6BE6 0%, #21B6D8 58%, #22C55E 100%);
-  box-shadow: 0 4rpx 14rpx rgba(33, 140, 216, 0.3);
+  box-shadow: 0 2rpx 10rpx rgba(33, 140, 216, 0.22);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -1044,6 +1068,18 @@ export default {
   overflow: hidden;
   /* 电量增长：宽度平滑过渡 */
   transition: width 140ms linear;
+}
+
+/* 磨砂高光：上半段乳白渐隐，做出玻璃质感 */
+.battery-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 54%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.04) 100%);
+  border-radius: 999rpx 999rpx 0 0;
 }
 
 /* 能量流动光泽 */
@@ -1063,12 +1099,29 @@ export default {
 .battery-cap {
   width: 14rpx;
   height: 54rpx;
-  margin-left: 8rpx;
+  margin-left: 6rpx;
+  box-sizing: border-box;
   border-radius: 0 10rpx 10rpx 0;
-  background-color: #DCE9F8;
+  background-color: rgba(226, 237, 252, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 2rpx solid rgba(255, 255, 255, 0.92);
+  border-left: none;
+  box-shadow: 8rpx 12rpx 22rpx rgba(23, 78, 145, 0.18);
 }
 
 /* 闪电图标（CSS 绘制，避免小程序不支持内联 SVG） */
+/* 闪电外层：负责呼吸与发光 */
+.battery-bolt-wrap {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8rpx rgba(255, 255, 255, 0.95));
+  animation: boltBreathe 1.9s ease-in-out infinite;
+}
+
+/* 闪电本体：只负责形状（clip-path 与 transform 分开，避免部分内核下动画失效） */
 .battery-bolt {
   width: 26rpx;
   height: 46rpx;
@@ -1076,12 +1129,24 @@ export default {
   clip-path: polygon(58% 0%, 10% 58%, 44% 58%, 34% 100%, 92% 40%, 56% 40%);
 }
 
+/* 闪电呼吸 */
+@keyframes boltBreathe {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.9);
+  }
+}
+
 /* 剩余时间提示 */
 .gauge-remain {
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin-top: 16rpx;
+  margin-top: 22rpx;
 }
 
 .remain-text {
@@ -1117,7 +1182,7 @@ export default {
 
 /* ===== 核心数据四宫格 ===== */
 .core-card {
-  margin-top: 22rpx;
+  margin-top: 30rpx;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -1131,7 +1196,7 @@ export default {
 .core-cell {
   width: 50%;
   box-sizing: border-box;
-  padding: 20rpx 26rpx;
+  padding: 24rpx 26rpx;
   display: flex;
   flex-direction: column;
 }
@@ -1181,12 +1246,12 @@ export default {
 
 /* ===== 次要参数：电压 / 电流 ===== */
 .minor-row {
-  margin-top: 16rpx;
+  margin-top: 22rpx;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  padding: 12rpx 0;
+  padding: 16rpx 0;
   border-radius: 24rpx;
   background-color: rgba(255, 255, 255, 0.72);
   animation: cardUp 620ms cubic-bezier(0.22, 0.61, 0.36, 1) 180ms both;
