@@ -24,7 +24,7 @@
     <!-- 主内容区域 -->
     <view class="main-content">
       <!-- 顶部站点信息卡片 -->
-      <view class="station-card" @click="goToStationGunList" hover-class="card-hover" :hover-stay-time="80">
+      <view class="station-card" @click="scrollToGunSection" hover-class="card-hover" :hover-stay-time="80">
         <view class="station-info">
           <!-- 站点名称和导航按钮 -->
           <view class="station-header">
@@ -112,7 +112,7 @@
       </view>
 
       <!-- 充电价格 -->
-      <view class="price-section" @click="goToStationGunList" hover-class="section-hover" :hover-stay-time="80">
+      <view class="price-section" @click="scrollToGunSection" hover-class="section-hover" :hover-stay-time="80">
         <view class="price-title">充电价格</view>
         <view class="price-cards">
           <!-- 慢充价格信息（如果有） -->
@@ -186,6 +186,56 @@
           </view>
         </view>
       </view>
+      <!-- 充电枪列表 -->
+      <view class="gun-section" id="gun-section">
+        <view class="gun-section-title">充电枪</view>
+        <view class="subsection-container">
+          <uv-subsection
+              :list="updatedSubsectionList"
+              :current="activeTab"
+              mode="button"
+              activeColor="#007aff"
+              inactiveColor="#999999"
+              bgColor="#FFFFFF"
+              :bold="true"
+              custom-style="height: 80rpx;border-radius: 10rpx;margin-bottom: 20rpx;"
+              custom-item-style="border-radius: 10rpx; box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);"
+              @change="changeTab">
+          </uv-subsection>
+        </view>
+
+        <!-- 枪数量信息卡片 -->
+        <view class="gun-state-cards">
+          <view class="card-item">
+            <text class="card-label">总枪数</text>
+            <text class="card-value">{{ gunState.sum || 0 }}</text>
+          </view>
+          <view class="card-item">
+            <text class="card-label">空闲枪</text>
+            <text class="card-value free">{{ gunState.free || 0 }}</text>
+          </view>
+          <view class="card-item">
+            <text class="card-label">充电中</text>
+            <text class="card-value charging">{{ gunState.charging || 0 }}</text>
+          </view>
+          <view class="card-item">
+            <text class="card-label">将充满</text>
+            <text class="card-value about-finish">{{ gunState.aboutFinish || 0 }}</text>
+          </view>
+        </view>
+
+        <!-- 枪列表 -->
+        <view class="gun-list">
+          <station-gun-list-item
+              v-for="gun in filteredGunList"
+              :key="gun.gunId"
+              :gun-info="gun"
+              @click="goToGunDetails(gun)"
+          />
+          <view class="gun-empty" v-if="filteredGunList.length === 0">暂无充电枪</view>
+        </view>
+      </view>
+
       <!-- 底部安全区域 -->
       <view class="bottom-safe-area"></view>
     </view>
@@ -202,7 +252,9 @@
 
 <script>
 import {getStationDetailByIdNotAuth, getStationDetailByIdNew} from '@/api/station.js';
+import {getStationGunState, getStationGunList, getStationGunDetails} from '@/api/stationGun.js';
 import PriceInfo from '@/components/station/PriceInfo.vue';
+import stationGunListItem from '@/components/station/stationGunListItem.vue';
 import globalData from '@/globalData';
 import StatusTag from '@/components/common/StatusTag.vue';
 import CustomerServiceButton from '@/components/common/CustomerServiceButton.vue';
@@ -211,6 +263,7 @@ import {contactCustomerService as contactCustomerServiceFn, handleNavBack} from 
 export default {
   components: {
     PriceInfo,
+    stationGunListItem,
     StatusTag,
     CustomerServiceButton
   },
@@ -220,6 +273,23 @@ export default {
       sellerBasicsConfig: {},
       icons: [],
       currentStationId: '', // 保存当前站点ID
+      // 充电枪相关
+      gunState: {},
+      gunList: [],
+      activeTab: 0,
+      tabs: [{
+        name: '全部',
+        type: 0
+      }, {
+        name: '超充',
+        type: 3
+      }, {
+        name: '快充',
+        type: 1
+      }, {
+        name: '慢充',
+        type: 2
+      }],
       isHasCouponsExpanded: false,
       isSubsidyExpanded: false,
       lastCollapsedText: '',
@@ -377,6 +447,46 @@ export default {
       }
 
       return [];
+    },
+    // 按当前 Tab 过滤枪列表
+    filteredGunList() {
+      const currentType = this.tabs[this.activeTab].type
+      if (currentType === 0) {
+        return this.gunList
+      }
+      return this.gunList.filter(gun => gun.gunType === currentType)
+    },
+    // 计算不同充电类型枪的数量
+    gunTypeCounts() {
+      const counts = {
+        all: this.gunList.length,
+        fast: 0,
+        slow: 0,
+        super: 0
+      }
+      this.gunList.forEach(gun => {
+        switch (gun.gunType) {
+          case 1:
+            counts.fast++
+            break
+          case 2:
+            counts.slow++
+            break
+          case 3:
+            counts.super++
+            break
+        }
+      })
+      return counts
+    },
+    // 更新 subsectionList 中的数量显示
+    updatedSubsectionList() {
+      return [
+        {name: `全部(${this.gunTypeCounts.all})`, count: this.gunTypeCounts.all},
+        {name: `超充(${this.gunTypeCounts.super})`, count: this.gunTypeCounts.super},
+        {name: `快充(${this.gunTypeCounts.fast})`, count: this.gunTypeCounts.fast},
+        {name: `慢充(${this.gunTypeCounts.slow})`, count: this.gunTypeCounts.slow}
+      ]
     }
   },
   onLoad(options) {
@@ -421,6 +531,21 @@ export default {
     },
     async fetchAllData(stationId) {
       uni.showLoading({title: '加载中...'});
+      try {
+        // 站点详情与充电枪数据并行加载
+        await Promise.all([
+          this.fetchStationDetail(stationId),
+          this.fetchStationGunData(stationId)
+        ]);
+      } catch (error) {
+        console.error('页面数据加载异常:', error);
+      } finally {
+        uni.hideLoading();
+      }
+    },
+
+    // 拉取站点详情
+    async fetchStationDetail(stationId) {
       try {
         // 构建充电站详情请求参数
         // 从本地存储中获取latitude和longitude
@@ -484,20 +609,119 @@ export default {
         // const iconResults = await Promise.all(iconPromises);
         // this.icons = iconResults.filter(res => res.success).map(res => res.data);
       } catch (error) {
-        console.error('获取数据时发生错误:', error);
+        console.error('获取充电站详情时发生错误:', error);
         uni.showToast({
           title: '数据加载失败，请稍后重试',
           icon: 'none'
         });
-      } finally {
-        uni.hideLoading();
       }
     },
-    // 跳转到终端列表页面
-    goToStationGunList() {
-      uni.navigateTo({
-        url: `/pages/station/stationGunList?stationId=${this.currentStationId}&dataType=0&hulianinterfaceId=${this.stationInfo.hulianinterfaceId}`
-      });
+
+    // 拉取充电枪状态与列表
+    async fetchStationGunData(stationId) {
+      const params = {
+        stationId: stationId,
+        dataType: 0
+      }
+      try {
+        const [stateRes, listRes] = await Promise.all([
+          getStationGunState(params),
+          getStationGunList(params)
+        ])
+        if (stateRes.code === 0) {
+          this.gunState = stateRes.data
+        }
+        if (listRes.code === 0) {
+          // 接口返回顺序不固定，统一按枪名称从小到大排序后再渲染
+          this.gunList = this.sortGunList(listRes.data)
+        }
+      } catch (error) {
+        console.error('获取充电枪数据失败', error)
+      }
+    },
+
+    // 枪列表按 gunName 末尾数字升序排序，无数字的排最后
+    sortGunList(list) {
+      if (!Array.isArray(list)) return []
+      const weightOf = (name) => {
+        const matched = String(name === null || name === undefined ? '' : name).match(/\d+/g)
+        if (!matched || !matched.length) return Number.MAX_SAFE_INTEGER
+        return parseInt(matched[matched.length - 1], 10)
+      }
+      return list
+          .map((gun, index) => ({gun, index, weight: weightOf(gun && gun.gunName)}))
+          .sort((a, b) => {
+            if (a.weight !== b.weight) return a.weight - b.weight
+            const nameA = String((a.gun && a.gun.gunName) || '')
+            const nameB = String((b.gun && b.gun.gunName) || '')
+            if (nameA !== nameB) return nameA < nameB ? -1 : 1
+            return a.index - b.index
+          })
+          .map(item => item.gun)
+    },
+
+    // 切换充电枪类型 Tab
+    changeTab(index) {
+      this.activeTab = index
+    },
+
+    // 平滑滚动到充电枪区块
+    scrollToGunSection() {
+      const query = uni.createSelectorQuery().in(this)
+      query.select('#gun-section').boundingClientRect()
+      query.selectViewport().scrollOffset()
+      query.exec((res) => {
+        if (!res || !res[0] || !res[1]) return
+        uni.pageScrollTo({
+          scrollTop: res[0].top + res[1].scrollTop - 20,
+          duration: 300
+        })
+      })
+    },
+
+    // 点击充电枪，校验登录后进入启动充电页
+    async goToGunDetails(gun) {
+      // 判断是否有token，没有则跳转到登录页面
+      const token = uni.getStorageSync('token')
+      if (!token) {
+        uni.navigateTo({
+          url: '/pages/login/login'
+        });
+        return
+      }
+      uni.showLoading({
+        title: "加载中"
+      })
+      try {
+        const res = await getStationGunDetails({
+          gunId: gun.gunId
+        });
+        uni.hideLoading()
+        if (res.code === 0) {
+          const gunParams = {
+            gunNo: res.data.gunNo,
+            pileNum: res.data.pileNum,
+          };
+          const queryString = Object.keys(gunParams)
+              .map(key => `${key}=${encodeURIComponent(gunParams[key] || '')}`)
+              .join('&');
+
+          uni.navigateTo({
+            url: `/pages/charge/gunStartingCharge?${queryString}`
+          });
+        } else {
+          uni.showToast({
+            title: res.msg || '加载失败',
+            icon: 'none'
+          });
+        }
+      } catch (error) {
+        uni.hideLoading()
+        uni.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+      }
     },
     // 解析二维码链接，提取桩号和枪号
     parseQRCode(url) {
@@ -996,6 +1220,81 @@ export default {
   color: #8A8A8E;
   line-height: 1.6;
   margin-top: 8rpx;
+}
+
+/* ============ 充电枪区块（由原 stationGunList 页面合并而来） ============ */
+.gun-section {
+  margin: 48rpx 32rpx 0 32rpx;
+  background: #F5F7FA;
+  border-radius: 24rpx;
+  padding: 24rpx 16rpx 16rpx 16rpx;
+}
+
+.gun-section-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #1A1A1A;
+  margin-bottom: 24rpx;
+  padding-left: 8rpx;
+}
+
+.subsection-container {
+  padding: 0 8rpx;
+}
+
+.gun-state-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-bottom: 24rpx;
+  padding: 0 8rpx;
+}
+
+.card-item {
+  background-color: #fff;
+  border-radius: 25rpx;
+  padding: 30rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.04);
+}
+
+.card-label {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 16rpx;
+  font-weight: 500;
+}
+
+.card-value {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  line-height: 1;
+}
+
+.card-value.free {
+  color: #14B8A6;
+}
+
+.card-value.charging {
+  color: #3B82F6;
+}
+
+.card-value.about-finish {
+  color: #22C55E;
+}
+
+.gun-list {
+  padding: 0 8rpx;
+}
+
+.gun-empty {
+  text-align: center;
+  font-size: 26rpx;
+  color: #999;
+  padding: 40rpx 0;
 }
 
 .station-name-distance {

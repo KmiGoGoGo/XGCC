@@ -28,25 +28,28 @@
       <view class="current-price-section">
         <view class="price-main-row">
           <view class="price-left">
-            <view class="main-price">
-              <view class="price-row">
-                <text class="price-value">{{ currentPriceInfo.currentPriceStr }}</text>
-                <text class="price-unit">元/度</text>
-                <view v-if="currentPriceInfo.discount && currentPriceInfo.sweepPriceStr" class="discount-price-row">
-                  <text class="discount-price">{{ currentPriceInfo.sweepPriceStr }}</text>
-                  <text class="discount-unit">元/度</text>
+            <!-- 当前价格 + 时段同一行，时段紧跟价格右侧 -->
+            <view class="price-head-row">
+              <view class="main-price">
+                <view class="price-row">
+                  <text class="price-value">{{ currentPriceInfo.currentPriceStr }}</text>
+                  <text class="price-unit">元/度</text>
+                  <view v-if="currentPriceInfo.discount && currentPriceInfo.sweepPriceStr" class="discount-price-row">
+                    <text class="discount-price">{{ currentPriceInfo.sweepPriceStr }}</text>
+                    <text class="discount-unit">元/度</text>
+                  </view>
                 </view>
+              </view>
+              <view class="current-time-slot">
+                <text class="time-slot-text">时段 {{ currentPriceInfo.currentStartTime }} -
+                  {{ currentPriceInfo.currentEndTime }}
+                </text>
               </view>
             </view>
             <view class="price-breakdown">
               <text class="breakdown-text">电费{{ currentPriceInfo.currentPowerPriceStr }}元/度</text>
               <text class="breakdown-separator">|</text>
               <text class="breakdown-text">服务费{{ currentPriceInfo.currentServicePriceStr }}元/度</text>
-            </view>
-            <view class="current-time-slot">
-              <text class="time-slot-text">时段 {{ currentPriceInfo.currentStartTime }} -
-                {{ currentPriceInfo.currentEndTime }}
-              </text>
             </view>
           </view>
           <view class="price-right">
@@ -766,6 +769,15 @@ export default {
   gap: 12rpx;
 }
 
+/* 价格与时段同一行 */
+.price-head-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 16rpx;
+}
+
 .price-right {
   display: flex;
   align-items: center;
@@ -839,7 +851,7 @@ export default {
 
 /* 当前时段信息 */
 .current-time-slot {
-  margin-top: 4rpx;
+  margin-bottom: 6rpx;
 }
 
 .time-slot-text {
